@@ -1,0 +1,181 @@
+#include "lib/immolate.h"
+
+int main(int argc, char **argv) {
+    
+    // Print version
+    printf_s("Immolate v0.0.1\n");
+
+    // Handle CLI arguments
+    int platformID = 0;
+    int deviceID = 0;
+    for (int i = 0; i < argc; i++) {
+        if (strcmp(argv[i], "-h")==0) {
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
+        }
+        if (strcmp(argv[i],  "-p")==0) {
+            platformID = atoi(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-d")==0) {
+            deviceID = atoi(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "--list_devices")==0) {
+            cl_int err;
+            char buf[1024];
+            cl_uint temp_int;
+            
+            // Get # of OpenCL Platforms
+            cl_uint numPlatforms;
+            err = clGetPlatformIDs(0, NULL, &numPlatforms);
+            clErrCheck(err, "clGetPlatformIDs - Getting number of available OpenCL platforms");
+
+            // Nothing available? Then leave!
+            if (numPlatforms == 0) {
+                printf_s("No OpenCL devices found.\n");
+                return 0;
+            }
+
+            // Now get OpenCL Platforms
+            cl_platform_id* platforms = malloc(sizeof(cl_platform_id) * numPlatforms);
+
+            err = clGetPlatformIDs(numPlatforms, platforms, NULL);
+            clErrCheck(err, "clGetPlatformIDs - Getting list of availble OpenCL platforms");
+
+            int foundDevice = 0;
+            for (int p = 0; p < numPlatforms; p++) {
+                //Now we do the same thing for devices...
+                cl_uint numDevices;
+                err = clGetDeviceIDs(platforms[p], CL_DEVICE_TYPE_ALL, 0, NULL, &numDevices);
+                clErrCheck(err, "clGetDeviceIDs - Getting number of available OpenCL devices");
+
+                if (numDevices > 0) foundDevice = 1;
+
+                cl_device_id* devices = malloc(sizeof(cl_device_id) * numDevices);
+                err = clGetDeviceIDs(platforms[p], CL_DEVICE_TYPE_ALL, numDevices, devices, NULL);
+                clErrCheck(err, "clGetDeviceIDs - Getting list of available OpenCL devices");
+
+                for (int d = 0; d < numDevices; d++) {
+                    printf_s("Platform ID %i, Device ID %i\n", p, d);
+
+                    // Get Device Info
+                    err = clGetDeviceInfo(devices[d], CL_DEVICE_NAME, sizeof(buf), &buf, NULL);
+                    clErrCheck(err, "clGetDeviceInfo - Getting device name");
+                    printf_s("Name: %s\n", buf);
+                    
+                    err = clGetDeviceInfo(devices[d], CL_DEVICE_VENDOR, sizeof(buf), &buf, NULL);
+                    clErrCheck(err, "clGetDeviceInfo - Getting device vendor");
+                    printf_s("Vendor: %s\n", buf);
+                    
+                    err = clGetDeviceInfo(devices[d], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(temp_int), &temp_int, NULL);
+                    clErrCheck(err, "clGetDeviceInfo - Getting device compute units");
+                    printf_s("Compute Units: %i\n", temp_int);
+                    
+                    err = clGetDeviceInfo(devices[d], CL_DEVICE_MAX_CLOCK_FREQUENCY, sizeof(temp_int), &temp_int, NULL);
+                    clErrCheck(err, "clGetDeviceInfo - Getting device clock frequency");
+                    printf_s("Clock Frequency: %iMHz\n", temp_int);
+                }
+            }
+            if (foundDevice == 0) {
+                printf_s("No OpenCL devices found.\n");
+            }
+            return 0;
+        }
+    }
+
+    cl_int err;
+
+    // Load the kernel source code into the array ssKernel
+    FILE *fp;
+    char *ssKernelCode;
+    size_t ssKernelSize;
+ 
+    fp = fopen("seed_search.cl", "r");
+    if (!fp) {
+        fprintf(stderr, "Failed to load kernel.\n");
+        exit(1);
+    }
+    ssKernelCode = (char*)malloc(1000000);
+    ssKernelSize = fread( ssKernelCode, 1, 1000000, fp);
+    fclose( fp );
+
+    // Set up platform and device based on CLI args
+
+    
+    // Get # of OpenCL Platforms
+    cl_uint numPlatforms;
+    err = clGetPlatformIDs(0, NULL, &numPlatforms);
+    clErrCheck(err, "clGetPlatformIDs - Getting number of available OpenCL platforms");
+
+    // Nothing available? Then leave!
+    if (numPlatforms == 0) {
+        printf_s("No OpenCL platforms found.\n");
+        return 0;
+    }
+    if (platformID > numPlatforms-1) {
+        printf_s("Platform ID %i not found.\n", platformID);
+        return 0;
+    }
+
+    // Now get OpenCL Platforms
+    cl_platform_id* platforms = malloc(sizeof(cl_platform_id) * numPlatforms);
+
+    err = clGetPlatformIDs(numPlatforms, platforms, NULL);
+    clErrCheck(err, "clGetPlatformIDs - Getting list of availble OpenCL platforms");
+    cl_platform_id platform = platforms[platformID];
+    
+    //Now we do the same thing for devices...
+    cl_uint numDevices;
+    err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 0, NULL, &numDevices);
+    clErrCheck(err, "clGetDeviceIDs - Getting number of available OpenCL devices");
+
+    if (numDevices == 0) {
+        printf_s("No OpenCL devices found for platform %i.\n", platformID);
+        return 0;
+    }
+    if (deviceID > numDevices-1) {
+        printf_s("Device ID %i not found.\n", deviceID);
+        return 0;
+    }
+
+    cl_device_id* devices = malloc(sizeof(cl_device_id) * numDevices);
+    err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, numDevices, devices, NULL);
+    clErrCheck(err, "clGetDeviceIDs - Getting list of available OpenCL devices");
+    cl_device_id device = devices[deviceID];
+
+    // Create an OpenCL context
+    cl_context ctx = clCreateContext(NULL, 1, &device, NULL, NULL, &err);
+    clErrCheck(err, "clCreateContext - Creating OpenCL context");
+ 
+    // Create a command queue
+    cl_command_queue queue = clCreateCommandQueue(ctx, device, 0, &err);
+    clErrCheck(err, "clCreateCommandQueue - Creating OpenCL command queue");
+
+    // Create a program from kernel source
+    cl_program ssKernelProgram = clCreateProgramWithSource(ctx, 1, (const char**)&ssKernelCode, (const size_t*)&ssKernelSize, &err);
+    clErrCheck(err, "clCreateProgramWithSource - Creating OpenCL program");
+
+    // Build the program
+    err = clBuildProgram(ssKernelProgram, 1, &device, NULL, NULL, NULL);
+    clErrCheck(err, "clBuildProgram - Building OpenCL program");
+
+    // Create OpenCL kernel
+    cl_kernel ssKernel = clCreateKernel(ssKernelProgram, "search", &err);
+    clErrCheck(err, "clCreateKernel - Creating OpenCL kernel");
+
+    // Execute OpenCL kernel
+    // For now, just one thread - this is more for testing consistency of code compared to C code
+    size_t globalSize = 1;
+    size_t localSize = 1;
+    err = clEnqueueNDRangeKernel(queue, ssKernel, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);
+    clErrCheck(err, "clEnqueueNDRangeKernel - Executing OpenCL kernel");
+
+    // Clean up
+    err = clFlush(queue);
+    err = clFinish(queue);
+    err = clReleaseKernel(ssKernel);
+    err = clReleaseProgram(ssKernelProgram);
+    err = clReleaseCommandQueue(queue);
+    err = clReleaseContext(ctx);
+    return 0;
+}
