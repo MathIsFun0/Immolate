@@ -1,3 +1,5 @@
+#include "lib/immolate.cl"
+
 __kernel void search() {
-    printf("%i",1+1);
+    printf("GPU Output: <%i>\n",add(1, 22));
 }

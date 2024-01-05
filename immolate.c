@@ -3,11 +3,11 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.0.1\n");
+    printf_s("Immolate v0.0.2\n");
 
     // Handle CLI arguments
-    int platformID = 0;
-    int deviceID = 0;
+    unsigned int platformID = 0;
+    unsigned int deviceID = 0;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
             printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
             clErrCheck(err, "clGetPlatformIDs - Getting list of availble OpenCL platforms");
 
             int foundDevice = 0;
-            for (int p = 0; p < numPlatforms; p++) {
+            for (unsigned int p = 0; p < numPlatforms; p++) {
                 //Now we do the same thing for devices...
                 cl_uint numDevices;
                 err = clGetDeviceIDs(platforms[p], CL_DEVICE_TYPE_ALL, 0, NULL, &numDevices);
@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
                 err = clGetDeviceIDs(platforms[p], CL_DEVICE_TYPE_ALL, numDevices, devices, NULL);
                 clErrCheck(err, "clGetDeviceIDs - Getting list of available OpenCL devices");
 
-                for (int d = 0; d < numDevices; d++) {
+                for (unsigned int d = 0; d < numDevices; d++) {
                     printf_s("Platform ID %i, Device ID %i\n", p, d);
 
                     // Get Device Info
@@ -157,6 +157,14 @@ int main(int argc, char **argv) {
 
     // Build the program
     err = clBuildProgram(ssKernelProgram, 1, &device, NULL, NULL, NULL);
+    if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
+        size_t logLength = 0;
+        err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);
+        char *buf = calloc(logLength, sizeof(char));
+        err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, logLength, buf, NULL);
+        printf_s(buf);
+        printf_s("\n");
+    }
     clErrCheck(err, "clBuildProgram - Building OpenCL program");
 
     // Create OpenCL kernel
@@ -177,5 +185,11 @@ int main(int argc, char **argv) {
     err = clReleaseProgram(ssKernelProgram);
     err = clReleaseCommandQueue(queue);
     err = clReleaseContext(ctx);
+
+    // CPU test for comparison
+    char* in = strdup("WHATISHAPPENING");
+    long double hash = pseudohash(in);
+    printf("CPU Output: <%.13Lf>\n",hash);
+
     return 0;
 }
