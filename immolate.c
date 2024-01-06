@@ -3,7 +3,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.0.2\n");
+    printf_s("Immolate v0.1.0\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
             printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
+            return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
             platformID = atoi(argv[i+1]);

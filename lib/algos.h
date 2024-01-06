@@ -41,7 +41,7 @@ long double pseudohash(char* s) {
     for (int i = 15; i >= 0; i--) {
         mask = mask^(lsh32(mask,7)+rsh32(mask,3)+s[i]);
     }
-    return roundDigits(fract(sqrt((long double)(abs(mask)))),13);
+    return roundDigits(fract(sqrt(fabs((long double)mask))),13);
 }
 
 // Other implementations:

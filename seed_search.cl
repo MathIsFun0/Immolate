@@ -1,5 +1,7 @@
 #include "lib/immolate.cl"
 
 __kernel void search() {
-    printf("GPU Output: <%i>\n",add(1, 22));
+    __constant char* in = "WHATISHAPPENING";
+    double hash = pseudohash(in, 15);
+    printf("GPU Output: <%.13lf>\n",hash);
 }
