@@ -2,6 +2,10 @@
 #include <string.h>
 #include <math.h>
 
+/*
+Pseudohash implementation
+*/
+
 // ChatGPT implementation
 void resizeString(char **str, size_t newSize, char fillChar) {
     size_t currentSize = strlen(*str);
@@ -69,3 +73,69 @@ fl balahash(str s){
     return round_to_digits(fract(std::sqrt(static_cast<fl>(std::abs(mask)))),13_i);
 }
 */
+
+/*
+Lua math.random implementation
+*/
+
+union DoubleLong {
+    double d;
+    unsigned long long ul;
+};
+
+static unsigned long long dbl2u64(double dbl) {
+    union DoubleLong caster;
+    caster.d = dbl;
+    return caster.ul;
+}
+
+static double u642dbl(unsigned long long u64) {
+    union DoubleLong caster;
+    caster.ul = u64;
+    return caster.d;
+}
+
+unsigned long long _randint(unsigned long long state[]) {
+    unsigned long long z, r = 0;
+    z = state[0];
+    z = (((z<<31)^z)>>45)^((z&((unsigned long long)(long long)-1<<1))<<18);
+    r ^= z;
+    state[0] = z;
+    z = state[1];
+    z = (((z<<19)^z)>>30)^((z&((unsigned long long)(long long)-1<<6))<<28);
+    r ^= z;
+    state[1] = z;
+    z = state[2];
+    z = (((z<<24)^z)>>48)^((z&((unsigned long long)(long long)-1<<9))<<7);
+    r ^= z;
+    state[2] = z;
+    z = state[3];
+    z = (((z<<21)^z)>>39)^((z&((unsigned long long)(long long)-1<<17))<<8);
+    r ^= z;
+    state[3] = z;
+    return r;
+}
+
+unsigned long long randdblmem(unsigned long long state[]) {
+    return (_randint(state)&4503599627370495)|4607182418800017408;
+}
+
+void randomseed(unsigned long long state[], double d) {
+    unsigned int r = 0x11090601;
+    size_t i;
+    for (i = 0; i < 4; i++) {
+        unsigned long long u;
+        unsigned int m = 1 << (r&255);
+        r >>= 8;
+        d = d*3.14159265358979323846+2.7182818284590452354;
+        u = dbl2u64(d);
+        if (u<m) u+=m;
+        state[i] = u;
+    }
+    for (i = 0; i < 10; i++) {
+        _randint(state);
+    }
+}
+double random(unsigned long long state[]) {
+    return u642dbl(randdblmem(state))-1.0;
+}

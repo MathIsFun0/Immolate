@@ -3,11 +3,12 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.1.0\n");
+    printf_s("Immolate v0.1.1\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
     unsigned int deviceID = 0;
+    int useGPU = 1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
             printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
@@ -20,6 +21,9 @@ int main(int argc, char **argv) {
         if (strcmp(argv[i],  "-d")==0) {
             deviceID = atoi(argv[i+1]);
             i++;
+        }
+        if (strcmp(argv[i],  "--cpu")==0) {
+            useGPU = 0;
         }
         if (strcmp(argv[i],  "--list_devices")==0) {
             cl_int err;
@@ -83,7 +87,7 @@ int main(int argc, char **argv) {
             return 0;
         }
     }
-
+    if (useGPU == 1) {
     cl_int err;
 
     // Load the kernel source code into the array ssKernel
@@ -186,11 +190,13 @@ int main(int argc, char **argv) {
     err = clReleaseProgram(ssKernelProgram);
     err = clReleaseCommandQueue(queue);
     err = clReleaseContext(ctx);
-
+    }
     // CPU test for comparison
-    char* in = strdup("WHATISHAPPENING");
-    long double hash = pseudohash(in);
-    printf("CPU Output: <%.13Lf>\n",hash);
+    unsigned long long state[4];
+    randomseed(state, 123);
+    printf("CPU Output: <%.13Lf>\n",random(state));
+    printf("CPU Output: <%.13Lf>\n",random(state));
+    printf("CPU Output: <%.13Lf>\n",random(state));
 
     return 0;
 }
