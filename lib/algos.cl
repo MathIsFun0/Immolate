@@ -1,6 +1,10 @@
 // Credits to 00001H for porting these algorithms to C++, which was the basis of my C and OpenCL ports
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
+/*
+Pseudohash
+*/
+
 unsigned int lsh32(unsigned int x, size_t l) {
     return x<<l;
 }
@@ -37,4 +41,71 @@ double pseudohash(__constant char* s, size_t stringLen) {
 
 int add(int x, int y) {
     return x+y;
+}
+
+/*
+Math.random
+*/
+
+union DoubleLong {
+    double d;
+    ulong ul;
+};
+
+struct LuaRandom {
+    ulong4 state;
+    union DoubleLong out;
+};
+
+struct LuaRandom _randint(struct LuaRandom lr) {
+    ulong z, r = 0;
+    z = lr.state[0];
+    z = (((z<<31)^z)>>45)^((z&((ulong)(long)-1<<1))<<18);
+    r ^= z;
+    lr.state[0] = z;
+    z = lr.state[1];
+    z = (((z<<19)^z)>>30)^((z&((ulong)(long)-1<<6))<<28);
+    r ^= z;
+    lr.state[1] = z;
+    z = lr.state[2];
+    z = (((z<<24)^z)>>48)^((z&((ulong)(long)-1<<9))<<7);
+    r ^= z;
+    lr.state[2] = z;
+    z = lr.state[3];
+    z = (((z<<21)^z)>>39)^((z&((ulong)(long)-1<<17))<<8);
+    r ^= z;
+    lr.state[3] = z;
+    lr.out.ul = r;
+    return lr;
+}
+
+struct LuaRandom randdblmem(struct LuaRandom lr) {
+    lr = _randint(lr);
+    lr.out.ul = (lr.out.ul&4503599627370495)|4607182418800017408;
+    return lr;
+}
+
+struct LuaRandom randomseed(double d) {
+    struct LuaRandom lr;
+    uint r = 0x11090601;
+    size_t i;
+    for (i = 0; i < 4; i++) {
+        ulong u;
+        uint m = 1 << (r&255);
+        r >>= 8;
+        d = d*3.14159265358979323846+2.7182818284590452354;
+        lr.out.d = d;
+        u = lr.out.ul;
+        if (u<m) u+=m;
+        lr.state[i] = u;
+    }
+    for (i = 0; i < 10; i++) {
+        lr = _randint(lr);
+    }
+    return lr;
+}
+struct LuaRandom random(struct LuaRandom lr) {
+    lr = randdblmem(lr);
+    lr.out.d -= 1.0;
+    return lr;
 }
