@@ -39,8 +39,21 @@ double pseudohash(__constant char* s, size_t stringLen) {
     return roundDigits(fract(sqrt((double)(abs(mask)))),13);
 }
 
-int add(int x, int y) {
-    return x+y;
+double c16_pseudohash(char16 s) {
+    //resizeString(&s, 16, ' ');
+    int mask = 0;
+    for (int i = 15; i >= 0; i--) {
+        mask = mask^(lsh32(mask,7)+rsh32(mask,3)+s[i]);
+    }
+    return roundDigits(fract(sqrt((double)(abs(mask)))),13);
+}
+
+char16 c8_as_c16(char8 c8) {
+    char16 c16 = ' ';
+    for (int i = 0; i < 8; i++) {
+        c16[i] = c8[i];
+    }
+    return c16;
 }
 
 /*
