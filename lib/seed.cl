@@ -69,6 +69,11 @@ char8 s_to_string(struct Seed* s) {
     return str;
 }
 
+void s_print(struct Seed* s) {
+    char8 s_str = s_to_string(s);
+    printf("%c%c%c%c%c%c%c%c\n",s_str[0],s_str[1],s_str[2],s_str[3],s_str[4],s_str[5],s_str[6],s_str[7]);
+}
+
 struct RankedSeedList {
     long rank;
     int numSeeds;

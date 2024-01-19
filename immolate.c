@@ -173,8 +173,8 @@ int main(int argc, char **argv) {
 
     // Execute OpenCL kernel
     // For now, just one thread - this is more for testing consistency of code compared to C code
-    size_t globalSize = 1;
-    size_t localSize = 1;
+    size_t globalSize = 16384;
+    size_t localSize = 128;
     err = clEnqueueNDRangeKernel(queue, ssKernel, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);
     clErrCheck(err, "clEnqueueNDRangeKernel - Executing OpenCL kernel");
 
