@@ -69,8 +69,7 @@ double i_get_seed(struct GameInstance* inst, enum RandomType r) {
     if (inst->rngCache[r] == INFINITY) {
         inst->rngCache[r] = c16_pseudohash(char_repr(r, inst->seed));
     }
-    printf("%.13lf\n",inst->rngCache[r]*124.72431234);
-    inst->rngCache[r] = roundDigits(fract(532.134453421+inst->rngCache[r]*124.72431234),13);
+    inst->rngCache[r] = roundDigits(fract(inst->rngCache[r]*124.72431234+532.134453421),13);
     return (inst->rngCache[r]+inst->hashedSeed)/2.0;
 }
 double i_random(struct GameInstance* inst, enum RandomType r) {

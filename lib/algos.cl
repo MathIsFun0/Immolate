@@ -15,7 +15,7 @@ double fract(double f) {
     return f-floor(f);
 }
 double roundDigits(double f, int d) {
-    double power = pow((float)10, d);
+    double power = pow((double)10, d);
     return round(f*power)/power;
 }
 
