@@ -7,6 +7,7 @@ enum RandomType {
     Aura,
     Tags,
     Misprint,
+    Lucky,
     Nothing,
     RT_END
 };
@@ -24,6 +25,7 @@ char16 rt_to_string(enum RandomType rt) {
         case Aura:        return (char16)('a','u','r','a',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
         case Tags:        return (char16)('t','a','g','s',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
         case Misprint:    return (char16)('m','i','s','p','r','i','n','t',' ',' ',' ',' ',' ',' ',' ',' ');
+        case Lucky:       return (char16)('p','a','y','o','u','t','_','c','h','i','p',' ',' ',' ',' ',' ');
         default:          return (char16)(' ');
     }
 }

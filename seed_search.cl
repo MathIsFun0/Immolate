@@ -7,9 +7,17 @@ __kernel void search() {
     if (get_global_id(0) != 0) {
         s_skip(&seed, get_global_id(0));
     }
-    for (long i = get_global_id(0); i < 10000000000; i+=get_global_size(0)) {
+    for (long i = get_global_id(0); i < 1000000000000; i+=get_global_size(0)) {
         struct GameInstance inst = i_new(seed);
-        if (i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20 && i_randint(&inst, Misprint, 0, 20) == 20) {
+        bool good = true;
+        for (int i = 0; i < 8; i++) {
+            i_random(&inst, Lucky);
+            if (i_random(&inst, Lucky) >= 1.0/25) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
             s_print(&seed);
         }
         s_skip(&seed,get_global_size(0));
