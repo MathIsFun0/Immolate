@@ -3,14 +3,19 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.0n.0\n");
+    printf_s("Immolate v0.9.0n.1\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
     unsigned int deviceID = 0;
+    cl_char8 startingSeed;
+    for (int i = 0; i < 8; i++) {
+        startingSeed.s[i] = '1';
+    };
+    cl_long numSeeds = 1000000000;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to 1 billion.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
@@ -19,6 +24,20 @@ int main(int argc, char **argv) {
         }
         if (strcmp(argv[i],  "-d")==0) {
             deviceID = atoi(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-n")==0) {
+            numSeeds = atol(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-s")==0) {
+            if (strlen(argv[i+1]) == 8) {
+                for (int j = 0; j < 8; j++) {
+                    startingSeed.s[j] = argv[i+1][j];
+                }
+            } else {
+                printf_s("Warning: Inputted seed does not have 8 characters, ignoring...\n");
+            }
             i++;
         }
         if (strcmp(argv[i],  "--list_devices")==0) {
@@ -170,6 +189,12 @@ int main(int argc, char **argv) {
     // Create OpenCL kernel
     cl_kernel ssKernel = clCreateKernel(ssKernelProgram, "search", &err);
     clErrCheck(err, "clCreateKernel - Creating OpenCL kernel");
+
+    // Set arguments
+    err = clSetKernelArg(ssKernel, 0, sizeof(startingSeed), &startingSeed);
+    clErrCheck(err, "clSetKernelArg - Adding starting seed argument");
+    err = clSetKernelArg(ssKernel, 1, sizeof(numSeeds), &numSeeds);
+    clErrCheck(err, "clSetKernelArg - Adding number of seeds argument");
 
     // Execute OpenCL kernel
     // For now, just one thread - this is more for testing consistency of code compared to C code

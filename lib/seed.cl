@@ -71,13 +71,14 @@ char8 s_to_string(struct Seed* s) {
 
 void s_print(struct Seed* s) {
     char8 s_str = s_to_string(s);
-    printf("%c%c%c%c%c%c%c%c\n",s_str[0],s_str[1],s_str[2],s_str[3],s_str[4],s_str[5],s_str[6],s_str[7]);
+    printf("%c%c%c%c%c%c%c%c",s_str[0],s_str[1],s_str[2],s_str[3],s_str[4],s_str[5],s_str[6],s_str[7]);
 }
 
 struct RankedSeedList {
     long rank;
     int numSeeds;
     struct Seed seeds[MAX_RANKED_SEEDS]; //arbitrary max number of seeds, because OpenCL...
+    bool lock;
 };
 struct RankedSeedList rs_new(long r) {
     struct RankedSeedList rs;
@@ -85,18 +86,25 @@ struct RankedSeedList rs_new(long r) {
     rs.numSeeds = 0;
     return rs;
 }
+void rs_init(struct RankedSeedList* rs, long r) {
+    rs->rank = r;
+    rs->numSeeds = 0;
+}
 long rs_score(struct RankedSeedList* rs) {
     return rs->rank;
 }
-void rs_clear(struct RankedSeedList* rs) {
+void rs_clear(struct RankedSeedList* rs, long rank) {
     rs->numSeeds = 0;
+    rs->rank = rank;
 }
 void rs_add(struct RankedSeedList* rs, long rank, struct Seed seed) {
     if (rank<rs->rank) return;
-    if (rank>rs->rank) rs_clear(rs);
+    if (rank>rs->rank) rs_clear(rs, rank);
     if (rs->numSeeds >= MAX_RANKED_SEEDS) return;
     rs->seeds[rs->numSeeds] = seed;
     rs->numSeeds++;
+    s_print(&seed);
+    printf(" (%li)\n",rank);
 }
 void rs_merge(struct RankedSeedList* rs1, struct RankedSeedList* rs2) {
     if (rs1->rank < rs2->rank) {
