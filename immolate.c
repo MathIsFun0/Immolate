@@ -1,9 +1,8 @@
 #include "lib/immolate.h"
-
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.0n.1\n");
+    printf_s("Immolate v0.9.0n.2\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -13,9 +12,10 @@ int main(int argc, char **argv) {
         startingSeed.s[i] = '1';
     };
     cl_long numSeeds = 1000000000;
+    cl_long cutoff = 1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to 1 billion.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to 1 billion.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
@@ -28,6 +28,10 @@ int main(int argc, char **argv) {
         }
         if (strcmp(argv[i],  "-n")==0) {
             numSeeds = atol(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-c")==0) {
+            cutoff = atol(argv[i+1]);
             i++;
         }
         if (strcmp(argv[i],  "-s")==0) {
@@ -109,7 +113,7 @@ int main(int argc, char **argv) {
     char *ssKernelCode;
     size_t ssKernelSize;
  
-    fp = fopen("seed_search.cl", "r");
+    fp = fopen("filter.cl", "r");
     if (!fp) {
         fprintf(stderr, "Failed to load kernel.\n");
         exit(1);
@@ -195,6 +199,8 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clSetKernelArg - Adding starting seed argument");
     err = clSetKernelArg(ssKernel, 1, sizeof(numSeeds), &numSeeds);
     clErrCheck(err, "clSetKernelArg - Adding number of seeds argument");
+    err = clSetKernelArg(ssKernel, 2, sizeof(cutoff), &cutoff);
+    clErrCheck(err, "clSetKernelArg - Adding cutoff argument");
 
     // Execute OpenCL kernel
     // For now, just one thread - this is more for testing consistency of code compared to C code
