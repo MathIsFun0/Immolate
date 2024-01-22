@@ -27,11 +27,11 @@ int main(int argc, char **argv) {
             i++;
         }
         if (strcmp(argv[i],  "-n")==0) {
-            numSeeds = atol(argv[i+1]);
+            numSeeds = strtoll(argv[i+1], NULL, 10);
             i++;
         }
         if (strcmp(argv[i],  "-c")==0) {
-            cutoff = atol(argv[i+1]);
+            cutoff = strtoll(argv[i+1], NULL, 10);
             i++;
         }
         if (strcmp(argv[i],  "-s")==0) {
