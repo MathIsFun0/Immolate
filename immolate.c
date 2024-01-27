@@ -2,7 +2,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.3-pre1\n");
+    printf_s("Immolate v0.9.3-pre2\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -183,8 +183,16 @@ int main(int argc, char **argv) {
     if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
         size_t logLength = 0;
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);
+        if (err != CL_SUCCESS) {
+            printf("Error getting build log length: %d\n", err);
+            return;
+        }
         char *buf = calloc(logLength, sizeof(char));
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, logLength, buf, NULL);
+        if (err != CL_SUCCESS) {
+            printf("Error getting build log: %d\n", err);
+            return;
+        }
         printf_s(buf);
         printf_s("\n");
     }

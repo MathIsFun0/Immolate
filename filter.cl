@@ -1,7 +1,7 @@
 #include "immolate.cl"
 
 
-// Poly Blueprint+Dusk as first 2 jokers
+/*// Poly Blueprint+Dusk as first 2 jokers
 long filter(struct GameInstance* inst) {
     enum Item jkr1 = i_random_joker(inst);
     enum Item jkr2 = i_random_joker(inst);
@@ -12,28 +12,14 @@ long filter(struct GameInstance* inst) {
         return 1;
     }
     return 0;
-}
-
-/*
-Lucky Cards
-long filter(struct GameInstance* inst) {
-    long score = 0;
-    i_random(inst, R_Lucky);
-    while (i_random(inst, R_Lucky) < 1.0/25) {
-        score++;
-        i_random(inst, R_Lucky);
-    }
-    return score;
 }*/
-
-
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
 
 __global struct RankedSeedList rs;
 
 __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
-    // Initialize global vars
+    /*// Initialize global vars
     if (get_global_id(0) == 0) {
         rs_init(&rs, filter_cutoff);
     }
@@ -47,5 +33,15 @@ __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
         struct GameInstance inst = i_new(seed);
         rs_add(&rs, filter(&inst), seed);
         s_skip(&seed,get_global_size(0));
+    }*/
+    
+    // Testing code
+    if (get_global_id(0) == 0) {
+        struct Text str1 = init_text("IMMOLATE", 8);
+        struct Text str2 = init_text("BALATRO", 7);
+        text_concat(&str1, &str2);
+        for (int i = 0; i < 15; i++) {
+            printf("%c",str1.str[i]);
+        }
     }
 }

@@ -2,21 +2,64 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 // Pseudohash
+struct Text {
+    char str[256];
+    int len;
+};
+
+inline struct Text init_text(__constant char* str, int len) {
+    struct Text t;
+    for (int i = 0; i < len; i++){
+        t.str[i] = str[i];
+    }
+    t.len = len;
+    return t;
+}
+
+struct Text text_concat(struct Text a, struct Text b) {
+    struct Text temp = a;
+    for (int j = 0; j < b.len; j++) {
+        temp.str[a.len+j] = b.str[j];
+    }
+    temp.len += b.len;
+    return temp;
+}
+
+double fract(double f) {
+    return f-floor(f);
+}
+
+double pseudohash(struct Text s) {
+    //resizeString(&s, 16, ' ');
+    double num = 1;
+    for (int i = s.len - 1; i >= 0; i--) {
+        num = fract((1.1239285023/num)*s.str[i]*3.14159265358979323846);
+    }
+    return num;
+}
+
+double pseudohash8(char8 s) {
+    //resizeString(&s, 16, ' ');
+    double num = 1;
+    for (int i = 7; i >= 0; i--) {
+        num = fract((1.1239285023/num)*s[i]*3.14159265358979323846);
+    }
+    return num;
+}
+
+// Pseudohash Legacy
 unsigned int lsh32(unsigned int x, size_t l) {
     return x<<l;
 }
 unsigned int rsh32(unsigned int x, size_t r) {
     return x>>r;
 }
-double fract(double f) {
-    return f-floor(f);
-}
 double roundDigits(double f, int d) {
     double power = pow((double)10, d);
     return round(f*power)/power;
 }
 
-double pseudohash(__constant char* s, size_t stringLen) {
+double pseudohash_legacy(__constant char* s, size_t stringLen) {
     //resizeString(&s, 16, ' ');
     int mask = 0;
     if (stringLen >= 16) {
@@ -36,7 +79,7 @@ double pseudohash(__constant char* s, size_t stringLen) {
     return roundDigits(fract(sqrt((double)(abs(mask)))),13);
 }
 
-double c16_pseudohash(char16 s) {
+double c16_pseudohash_legacy(char16 s) {
     //resizeString(&s, 16, ' ');
     int mask = 0;
     for (int i = 15; i >= 0; i--) {
@@ -122,7 +165,6 @@ ulong randint(struct LuaRandom* lr, ulong min, ulong max) {
 
 // SEEDS
 
-
 // Some important definitions
 __constant char SEEDCHARS[] = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 __constant int NUM_CHARS = 35;
@@ -184,17 +226,18 @@ long s_tell(struct Seed* s) {
     }
     return loc;
 }
-char8 s_to_string(struct Seed* s) {
-    char8 str;
+struct Text s_to_string(struct Seed* s) {
+    struct Text str;
     for (int i = 0; i < 8; i++) {
-        str[i]=s_char_at(s, i);
+        str.str[i]=s_char_at(s, i);
     }
+    str.len = 8;
     return str;
 }
 
 void s_print(struct Seed* s) {
-    char8 s_str = s_to_string(s);
-    printf("%c%c%c%c%c%c%c%c",s_str[0],s_str[1],s_str[2],s_str[3],s_str[4],s_str[5],s_str[6],s_str[7]);
+    struct Text s_str = s_to_string(s);
+    printf("%c%c%c%c%c%c%c%c",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7]);
 }
 
 struct RankedSeedList {
@@ -240,20 +283,6 @@ void rs_merge(struct RankedSeedList* rs1, struct RankedSeedList* rs2) {
     }
 }
 
-// Enums, helpers, and lists
-enum RandomType {
-    R_Joker,
-    R_Edition,
-    R_JokerRarity,
-    R_Tarot,
-    R_Spectral,
-    R_Aura,
-    R_Tags,
-    R_Misprint,
-    R_Lucky,
-    R_Nothing,
-    R_END
-};
 
 // Contains every kind of thing you could search for!
 // Updated as of 0.9.3
@@ -411,6 +440,7 @@ enum Item {
 
     // Enhancements
     ENHANCEMENT_BEGIN,
+    No_Enhancement,
     Bonus_Card,
     Mult_Card,
     Wild_Card,
@@ -423,6 +453,7 @@ enum Item {
 
     // Seals
     SEAL_BEGIN,
+    No_Seal,
     Gold_Seal,
     Red_Seal,
     Blue_Seal,
@@ -431,7 +462,7 @@ enum Item {
 
     // Editions
     E_BEGIN,
-    Base,
+    No_Edition,
     Foil,
     Holographic,
     Polychrome,
@@ -502,6 +533,31 @@ enum Item {
     Cerulean_Bell,
     B_END,
 
+    // Suits
+    SUIT_BEGIN,
+    Spades,
+    Clubs,
+    Hearts,
+    Diamonds,
+    SUIT_END,
+
+    // Ranks
+    RANK_BEGIN,
+    _2,
+    _3,
+    _4,
+    _5,
+    _6,
+    _7,
+    _8,
+    _9,
+    _10,
+    Jack,
+    Queen,
+    King,
+    Ace,
+    RANK_END,
+
     ITEMS_END
 };
 
@@ -560,50 +616,155 @@ enum Item CommonJokers[] = {
     Superposition*/
 };
 
-// Note: These functions assume string contains 16 chars, uses null as end of string
 
-char16 rt_to_string(enum RandomType rt) {
-    switch (rt) {
-        // char16 literals are no joker...
-        case R_Joker:       return (char16)('j','o','k','e','r',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Edition:     return (char16)('e','d','i','t','i','o','n',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_JokerRarity: return (char16)('r','a','r','i','t','y',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Tarot:       return (char16)('t','a','r','o','t',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Spectral:    return (char16)('s','p','e','c','t','r','a','l',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Aura:        return (char16)('a','u','r','a',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Tags:        return (char16)('t','a','g','s',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Misprint:    return (char16)('m','i','s','p','r','i','n','t',' ',' ',' ',' ',' ',' ',' ',' ');
-        case R_Lucky:       return (char16)('p','a','y','o','u','t','_','c','h','i','p',' ',' ',' ',' ',' ');
-        default:          return (char16)(' ');
+// RNG Cache
+enum RandomType {
+    R_Joker_Common,
+    R_Joker_Uncommon,
+    R_Joker_Rare,
+    R_END
+};
+enum RNGSource {
+    S_Shop,
+    S_Emperor,
+    S_High_Priestess,
+    S_Judgement,
+    S_Wraith,
+    S_Arcana,
+    S_Celestial,
+    S_Spectral,
+    S_Standard,
+    S_Buffoon,
+    S_Vagabond,
+    S_Superposition,
+    S_Seance,
+    S_Top_Up,
+    S_Rare_Tag,
+    S_Uncommon_Tag,
+    SOURCE_END
+};
+enum NodeType {
+    N_Root,
+    N_Type,
+    N_Source,
+    N_Ante,
+    N_Resample
+};
+struct Text int_to_str(int x) {
+    // Get length
+    int temp = x;
+    int digits = 1;
+    while (temp / 10 > 0) {
+        digits++;
+        temp /= 10;
+    }
+    struct Text out;
+    for (int i = digits-1; i >= 0; i--) {
+        out.str[i] = '0' + x%10;
+        x/=10;
+    }
+    out.len = digits;
+    return out;
+}
+// String values for each node
+struct Text type_str(int x) {
+    switch(x) {
+        case R_Joker_Common:   return init_text("Joker1", 6);
+        case R_Joker_Uncommon: return init_text("Joker2", 6);
+        case R_Joker_Rare:     return init_text("Joker3", 6);
+        default:               return init_text("", 0);
+    }
+}
+struct Text source_str(int x) {
+    switch(x) {
+        case S_Shop:           return init_text("sho", 3);
+        case S_Emperor:        return init_text("emp", 3);
+        case S_High_Priestess: return init_text("pri", 3);
+        case S_Judgement:      return init_text("jud", 3);
+        case S_Wraith:         return init_text("wra", 3);
+        case S_Arcana:         return init_text("ar1", 3);
+        case S_Celestial:      return init_text("pl1", 3);
+        case S_Spectral:       return init_text("spe", 3);
+        case S_Standard:       return init_text("sta", 3);
+        case S_Buffoon:        return init_text("buf", 3);
+        case S_Vagabond:       return init_text("vag", 3);
+        case S_Superposition:  return init_text("sup", 3);
+        case S_Seance:         return init_text("sea", 3);
+        case S_Top_Up:         return init_text("top", 3);
+        case S_Rare_Tag:       return init_text("rta", 3);
+        case S_Uncommon_Tag:   return init_text("uta", 3);
+        default:               return init_text("", 0);
+    }
+}
+struct Text resample_str(int x) {
+    if (x == 0) {
+        return init_text("", 0);
+    } else {
+        struct Text str1 = init_text("_resample", 9);
+        struct Text str2 = int_to_str(x+1);
+        return text_concat(str1, str2);
     }
 }
 
-char16 char_repr(enum RandomType rt, struct Seed seed) {
-    char16 rt_str = rt_to_string(rt);
-    char8 s_str = s_to_string(&seed);
-    char16 result;
-    int i = 0;
-    while (i < 16) {
-        if (rt_str[i] == ' ') {
-            break;
-        }
-        result[i] = rt_str[i];
-        i++;
+struct CNWrapper {
+    struct CacheNode* node;
+};
+struct CacheNode {
+    struct CNWrapper children[256];
+    enum NodeType nodeType;
+    double rngState;
+};
+
+struct Text node_str(enum NodeType nt, int x) {
+    switch (nt) {
+        case N_Root: return init_text("", 0);
+        case N_Type: return type_str(x);
+        case N_Source: return source_str(x);
+        case N_Ante: return int_to_str(x);
+        case N_Resample: return resample_str(x);
     }
-    for (int x = i; x < 16; x++) {
-        if (x-i<8) {
-            result[x] = s_str[x-i];
-        } else {
-            result[x] = ' ';
-        }
+}
+struct CacheNode init_node(enum NodeType nodeType) {
+    struct CacheNode cn;
+    cn.nodeType = nodeType;
+    return cn;
+};
+// NODE INITIALIZATION
+// Returns true if that node wasn't made before - so we have to initialize the starting value
+bool init_node_child(struct CacheNode* cn, enum NodeType nodeType, int idx) {
+    if (cn->children[idx].node != NULL) {
+        struct CacheNode newNode = init_node(nodeType);
+        cn->children[idx].node = &newNode;
+        return true;
     }
-    return result;
+    return false;
+}
+bool init_node_child_2D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2) {
+    if (cn->children[idx1].node != NULL) {
+        struct CacheNode newNode = init_node(nt1);
+        cn->children[idx1].node = &newNode;
+    }   
+    return init_node_child(cn->children[idx1].node, nt2, idx2);
+}
+bool init_node_child_3D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2, enum NodeType nt3, int idx3) {
+    if (cn->children[idx1].node != NULL) {
+        struct CacheNode newNode = init_node(nt1);
+        cn->children[idx1].node = &newNode;
+    }   
+    return init_node_child_2D(cn->children[idx1].node, nt2, idx2, nt3, idx3);
+}
+bool init_node_child_4D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2, enum NodeType nt3, int idx3, enum NodeType nt4, int idx4) {
+    if (cn->children[idx1].node != NULL) {
+        struct CacheNode newNode = init_node(nt1);
+        cn->children[idx1].node = &newNode;
+    }   
+    return init_node_child_3D(cn->children[idx1].node, nt2, idx2, nt3, idx3, nt4, idx4);
 }
 
 // Instance
 struct GameInstance {
     struct Seed seed;
-    double rngCache[R_END];
+    struct CacheNode rngCache;
     double hashedSeed;
     struct LuaRandom rng;
 };
@@ -613,17 +774,16 @@ struct GameInstance i_new(struct Seed s) {
     for (int i = 0; i < R_END; i++) {
         inst.rngCache[i] = INFINITY;
     }
-    inst.hashedSeed = c16_pseudohash(c8_as_c16(s_to_string(&s)));
+    inst.hashedSeed = pseudohash(s_to_string(&s));
     return inst;
 }
-double i_get_seed(struct GameInstance* inst, enum RandomType r) {
-    if (inst->rngCache[r] == INFINITY) {
-        inst->rngCache[r] = c16_pseudohash(char_repr(r, inst->seed));
+double get_node_child(struct GameInstance* inst, enum NodeType nodeType, int idx) {
+    if (init_node_child(inst->rngCache, nodeType, idx)) {
+        inst->rngCache->children[idx].node->rngState = pseudohash(text_concat(s_to_string(&inst->seed), node_str(nodeType, idx)));
     }
-    inst->rngCache[r] = roundDigits(fract(inst->rngCache[r]*124.72431234+532.134453421),13);
-    return (inst->rngCache[r]+inst->hashedSeed)/2.0;
+    inst->rngCache->children[idx].node->rngState = roundDigits(fract(inst->rngCache->children[idx].node->rngState*1.72431234+2.134453429141),13);
 }
-double i_random(struct GameInstance* inst, enum RandomType r) {
+/*double i_random(struct GameInstance* inst, enum RandomType r) {
     if (r != R_Nothing) {
         inst->rng = randomseed(i_get_seed(inst, r));
     }
@@ -656,4 +816,4 @@ enum Item i_random_edition(struct GameInstance* inst) {
     if (rng > 0.98) return Holographic;
     if (rng > 0.96) return Foil;
     return No_Edition;
-}
+}*/
