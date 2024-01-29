@@ -25,6 +25,13 @@ struct Text text_concat(struct Text a, struct Text b) {
     return temp;
 }
 
+void print_text(struct Text x) {
+    for (int i = 0; i < x.len; i++) {
+        printf("%c",x.str[i]);
+    }
+    printf("\n");
+}
+
 double fract(double f) {
     return f-floor(f);
 }
@@ -179,7 +186,19 @@ struct Seed s_new_empty() {
     seed.data = 0; //fills with zeros
     return seed;
 }
-struct Seed s_new(char8 str_seed) {
+struct Seed s_new(__constant char* str_seed, int seed_size) {
+    struct Seed seed;
+    for (int i = 0; i < seed_size; i++) {
+        for (char j = 0; j < NUM_CHARS; j++) {
+            if (SEEDCHARS[j] == str_seed[i]) {
+                seed.data[i] = j;
+            }
+        }
+    }
+    return seed;
+}
+
+struct Seed s_new_c8(char8 str_seed) {
     struct Seed seed;
     for (int i = 0; i < 8; i++) {
         for (char j = 0; j < NUM_CHARS; j++) {
@@ -558,62 +577,63 @@ enum Item {
     Ace,
     RANK_END,
 
+    // Cards
+    C_BEGIN,
+    C_2,
+    C_3,
+    C_4,
+    C_5,
+    C_6,
+    C_7,
+    C_8,
+    C_9,
+    C_A,
+    C_J,
+    C_K,
+    C_Q,
+    C_T,
+    D_2,
+    D_3,
+    D_4,
+    D_5,
+    D_6,
+    D_7,
+    D_8,
+    D_9,
+    D_A,
+    D_J,
+    D_K,
+    D_Q,
+    D_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_J,
+    H_K,
+    H_Q,
+    H_T,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_J,
+    S_K,
+    S_Q,
+    S_T,
+    C_END,
+
     ITEMS_END
-};
-
-// The ordering of these matter - it is the game's internal order
-enum Item RareJokers[] = {
-    /*Blueprint,
-    Smeared_Joker,
-    DNA,
-    Joker_Stencil*/
-};
-
-enum Item UncommonJokers[] = {
-    /*Ceremonial_Dagger,
-    Four_Fingers,
-    Hiker,
-    Burglar,
-    Loyalty_Card,
-    Astronomer,
-    Runner,
-    _8_Ball,
-    Cartomancer,
-    Banner,
-    Constellation,
-    Raised_Fist,
-    Marble_Joker,
-    Dusk,
-    Blackboard,
-    Fibonacci*/
-};
-
-enum Item CommonJokers[] = {
-    /*Supernova,
-    Droll_Joker,
-    Golden_Joker,
-    Delayed_Gratification,
-    Scary_Face,
-    Ride_the_Bus,
-    Even_Steven,
-    Half_Joker,
-    Business_Card,
-    Gros_Michel,
-    Scholar,
-    Egg,
-    Ice_Cream,
-    Mystic_Summit,
-    Splash,
-    Mad_Joker,
-    Abstract_Joker,
-    Odd_Todd,
-    To_Do_List,
-    Zany_Joker,
-    Crazy_Joker,
-    Joker,
-    Juggler,
-    Misprint,
-    Superposition*/
 };
 
 
@@ -622,6 +642,13 @@ enum RandomType {
     R_Joker_Common,
     R_Joker_Uncommon,
     R_Joker_Rare,
+    R_Misprint,
+    R_Standard_Has_Enhancement,
+    R_Enhancement,
+    R_Card,
+    R_Standard_Edition,
+    R_Standard_Has_Seal,
+    R_Standard_Seal,
     R_END
 };
 enum RNGSource {
@@ -644,7 +671,6 @@ enum RNGSource {
     SOURCE_END
 };
 enum NodeType {
-    N_Root,
     N_Type,
     N_Source,
     N_Ante,
@@ -669,10 +695,17 @@ struct Text int_to_str(int x) {
 // String values for each node
 struct Text type_str(int x) {
     switch(x) {
-        case R_Joker_Common:   return init_text("Joker1", 6);
-        case R_Joker_Uncommon: return init_text("Joker2", 6);
-        case R_Joker_Rare:     return init_text("Joker3", 6);
-        default:               return init_text("", 0);
+        case R_Joker_Common:             return init_text("Joker1", 6);
+        case R_Joker_Uncommon:           return init_text("Joker2", 6);
+        case R_Joker_Rare:               return init_text("Joker3", 6);
+        case R_Misprint:                 return init_text("misprint", 8);
+        case R_Standard_Has_Enhancement: return init_text("stdset", 6);
+        case R_Enhancement:              return init_text("Enhanced", 8);
+        case R_Card:                     return init_text("front", 5);
+        case R_Standard_Edition:         return init_text("standard_edition", 16);
+        case R_Standard_Has_Seal:        return init_text("stdseal", 7);
+        case R_Standard_Seal:            return init_text("stdsealtype", 11);
+        default:                         return init_text("", 0);
     }
 }
 struct Text source_str(int x) {
@@ -706,106 +739,252 @@ struct Text resample_str(int x) {
     }
 }
 
-struct CNWrapper {
-    struct CacheNode* node;
-};
-struct CacheNode {
-    struct CNWrapper children[256];
-    enum NodeType nodeType;
+struct RNGInfo {
+    enum NodeType nodeTypes[4];
+    int nodeValues[4];
+    int depth;
     double rngState;
+};
+
+struct Cache {
+    struct RNGInfo nodes[64];
+    int nextFreeNode;
 };
 
 struct Text node_str(enum NodeType nt, int x) {
     switch (nt) {
-        case N_Root: return init_text("", 0);
         case N_Type: return type_str(x);
         case N_Source: return source_str(x);
         case N_Ante: return int_to_str(x);
         case N_Resample: return resample_str(x);
     }
 }
-struct CacheNode init_node(enum NodeType nodeType) {
-    struct CacheNode cn;
-    cn.nodeType = nodeType;
-    return cn;
-};
-// NODE INITIALIZATION
-// Returns true if that node wasn't made before - so we have to initialize the starting value
-bool init_node_child(struct CacheNode* cn, enum NodeType nodeType, int idx) {
-    if (cn->children[idx].node != NULL) {
-        struct CacheNode newNode = init_node(nodeType);
-        cn->children[idx].node = &newNode;
-        return true;
+int init_node(struct Cache* c, enum NodeType nodeTypes[], int nodeValues[], int depth) {
+    for (int i = 0; i < depth; i++) {
+        c->nodes[c->nextFreeNode].nodeTypes[i] = nodeTypes[i];
+        c->nodes[c->nextFreeNode].nodeValues[i] = nodeValues[i];
     }
-    return false;
+    c->nodes[c->nextFreeNode].depth = depth;
+    c->nextFreeNode++;
+    return c->nextFreeNode-1;
+};
+
+// Lists
+enum Item ENHANCEMENTS[] = {
+    8,
+    Bonus_Card,
+    Mult_Card,
+    Wild_Card,
+    Glass_Card,
+    Steel_Card,
+    Stone_Card,
+    Gold_Card,
+    Lucky_Card
+};
+enum Item CARDS[] = {
+    52,
+    C_2,
+    C_3,
+    C_4,
+    C_5,
+    C_6,
+    C_7,
+    C_8,
+    C_9,
+    C_A,
+    C_J,
+    C_K,
+    C_Q,
+    C_T,
+    D_2,
+    D_3,
+    D_4,
+    D_5,
+    D_6,
+    D_7,
+    D_8,
+    D_9,
+    D_A,
+    D_J,
+    D_K,
+    D_Q,
+    D_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_J,
+    H_K,
+    H_Q,
+    H_T,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_J,
+    S_K,
+    S_Q,
+    S_T
+};
+
+// Helper functions
+enum Item c_suit(enum Item card) {
+    if (card <= C_T) return Clubs;
+    if (card <= D_T) return Diamonds;
+    if (card <= H_T) return Hearts;
+    return Spades;
 }
-bool init_node_child_2D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2) {
-    if (cn->children[idx1].node != NULL) {
-        struct CacheNode newNode = init_node(nt1);
-        cn->children[idx1].node = &newNode;
-    }   
-    return init_node_child(cn->children[idx1].node, nt2, idx2);
-}
-bool init_node_child_3D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2, enum NodeType nt3, int idx3) {
-    if (cn->children[idx1].node != NULL) {
-        struct CacheNode newNode = init_node(nt1);
-        cn->children[idx1].node = &newNode;
-    }   
-    return init_node_child_2D(cn->children[idx1].node, nt2, idx2, nt3, idx3);
-}
-bool init_node_child_4D(struct CacheNode* cn, enum NodeType nt1, int idx1, enum NodeType nt2, int idx2, enum NodeType nt3, int idx3, enum NodeType nt4, int idx4) {
-    if (cn->children[idx1].node != NULL) {
-        struct CacheNode newNode = init_node(nt1);
-        cn->children[idx1].node = &newNode;
-    }   
-    return init_node_child_3D(cn->children[idx1].node, nt2, idx2, nt3, idx3, nt4, idx4);
+enum Item c_rank(enum Item card) {
+    if (card % 13 == C_2 % 13) return _2;
+    if (card % 13 == C_3 % 13) return _3;
+    if (card % 13 == C_4 % 13) return _4;
+    if (card % 13 == C_5 % 13) return _5;
+    if (card % 13 == C_6 % 13) return _6;
+    if (card % 13 == C_7 % 13) return _7;
+    if (card % 13 == C_8 % 13) return _8;
+    if (card % 13 == C_9 % 13) return _9;
+    if (card % 13 == C_T % 13) return _10;
+    if (card % 13 == C_J % 13) return Jack;
+    if (card % 13 == C_Q % 13) return Queen;
+    if (card % 13 == C_K % 13) return King;
+    return Ace;
 }
 
 // Instance
 struct GameInstance {
     struct Seed seed;
-    struct CacheNode rngCache;
+    struct Cache rngCache;
     double hashedSeed;
     struct LuaRandom rng;
 };
 struct GameInstance i_new(struct Seed s) {
     struct GameInstance inst;
     inst.seed = s;
-    for (int i = 0; i < R_END; i++) {
-        inst.rngCache[i] = INFINITY;
-    }
     inst.hashedSeed = pseudohash(s_to_string(&s));
+    inst.rngCache.nextFreeNode = 0;
     return inst;
 }
-double get_node_child(struct GameInstance* inst, enum NodeType nodeType, int idx) {
-    if (init_node_child(inst->rngCache, nodeType, idx)) {
-        inst->rngCache->children[idx].node->rngState = pseudohash(text_concat(s_to_string(&inst->seed), node_str(nodeType, idx)));
+double get_node_child(struct GameInstance* inst, enum NodeType nts[], int ids[], int num) {
+    double temp = 0; // will store value set to node, which has some post-processing at the end
+    int node_id = -1;
+    // Check if node exists
+    for (int i = 0; i < inst->rngCache.nextFreeNode; i++) {
+        if (num != inst->rngCache.nodes[i].depth) continue;
+        bool good = true;
+        for (int n = 0; n < num; n++) {
+            if (nts[n] != inst->rngCache.nodes[i].nodeTypes[n]) {
+                good = false;
+                break;
+            }
+            if (ids[n] != inst->rngCache.nodes[i].nodeValues[n]) {
+                good = false;
+                break;
+            }
+        }
+        if (good) {
+            node_id = i;
+            break;
+        }
     }
-    inst->rngCache->children[idx].node->rngState = roundDigits(fract(inst->rngCache->children[idx].node->rngState*1.72431234+2.134453429141),13);
+    if (node_id == -1) {
+        node_id = init_node(&(inst->rngCache),nts,ids,num);
+        struct Text phvalue = node_str(nts[0],ids[0]);
+        for (int i = 1; i < num; i++) {
+            phvalue = text_concat(phvalue, node_str(nts[i],ids[i]));
+        }
+        phvalue = text_concat(phvalue,s_to_string(&inst->seed));
+        inst->rngCache.nodes[node_id].rngState = pseudohash(phvalue);
+    }
+    inst->rngCache.nodes[node_id].rngState = roundDigits(fract(inst->rngCache.nodes[node_id].rngState*1.72431234+2.134453429141),13);
+    return (inst->rngCache.nodes[node_id].rngState + inst->hashedSeed)/2;
 }
-/*double i_random(struct GameInstance* inst, enum RandomType r) {
-    if (r != R_Nothing) {
-        inst->rng = randomseed(i_get_seed(inst, r));
+double i_random(struct GameInstance* inst, enum NodeType nts[], int ids[], int num) {
+    if (num > 0) {
+        inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
     return random(&(inst->rng));
 }
-ulong i_randint(struct GameInstance* inst, enum RandomType r, ulong min, ulong max) {
-    if (r != R_Nothing) {
-        inst->rng = randomseed(i_get_seed(inst, r));
+double i_random_simple(struct GameInstance* inst, enum RandomType rt) {
+    return i_random(inst, (enum NodeType[]){N_Type}, (int[]){rt}, 1);
+}
+ulong i_randint(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, ulong min, ulong max) {
+    if (num > 0) {
+        inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
     return randint(&(inst->rng), min, max);
 }
 
-enum Item i_randchoice(struct GameInstance* inst, enum RandomType r, __global enum Item items[], size_t item_size) {
-    if (r != R_Nothing) {
-        inst->rng = randomseed(i_get_seed(inst, r));
+enum Item i_randchoice(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, __global enum Item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
+    if (num > 0) {
+        inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
-    return items[randint(&(inst->rng), 0, item_size/sizeof(enum Item)-1)];
+    return items[randint(&(inst->rng), 1, items[0])];
 }
 
 // Helper functions for common actions
-enum Item i_random_joker(struct GameInstance* inst) {
-    double rng = i_random(inst, R_JokerRarity);
+int i_misprint(struct GameInstance* inst) {
+    return (int)i_randint(inst, (enum NodeType[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
+}
+
+struct Card {
+    enum Item base;
+    enum Item enhancement;
+    enum Item edition;
+    enum Item seal;
+};
+
+enum Item i_standard_enhancement(struct GameInstance* inst, int ante) {
+    if (i_random_simple(inst, R_Standard_Has_Enhancement) <= 0.6) return No_Enhancement;
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Enhancement, S_Standard, ante}, 3, ENHANCEMENTS);
+}
+enum Item i_standard_base(struct GameInstance* inst, int ante) {
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Card, S_Standard, ante}, 3, CARDS);
+}
+enum Item i_standard_edition(struct GameInstance* inst) {
+    double val = i_random_simple(inst, R_Standard_Edition);
+    if (val > 0.988) return Polychrome;
+    if (val > 0.96) return Holographic;
+    if (val > 0.92) return Foil;
+    return No_Edition;
+}
+enum Item i_standard_seal(struct GameInstance* inst) {
+    if (i_random_simple(inst, R_Standard_Has_Seal) <= 0.8) return No_Seal;
+    double val = i_random_simple(inst, R_Standard_Seal);
+    if (val > 0.75) return Red_Seal;
+    if (val > 0.5) return Blue_Seal;
+    if (val > 0.25) return Gold_Seal;
+    return Purple_Seal;
+}
+struct Card i_standard_card(struct GameInstance* inst, int ante) {
+    struct Card out;
+    out.enhancement = i_standard_enhancement(inst, ante);
+    out.base = i_standard_base(inst, ante);
+    out.edition = i_standard_edition(inst);
+    out.seal = i_standard_seal(inst);
+    return out;
+}
+
+/*
+poll_edition('standard_edition', 2, true)
+stdset
+Enhancedsta1
+frontsta1
+standard_edition
+stdseal
+*/
+
+/*enum Item i_random_joker(struct GameInstance* inst) {
+    double rng = i_random(inst, R_JokerRarity)i
     return i_randchoice(inst, R_Joker, (rng>0.97?RareJokers:(rng>0.82?UncommonJokers:CommonJokers)), (rng>0.97?sizeof(RareJokers):(rng>0.82?sizeof(UncommonJokers):sizeof(CommonJokers))));
 }
 
