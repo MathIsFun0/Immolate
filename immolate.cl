@@ -331,7 +331,6 @@ enum Item {
     Photograph,
     Fortune_Teller,
     Drunkard,
-    Diet_Cola,
     Popcorn,
     Swashbuckler,
     Credit_Card,
@@ -347,13 +346,13 @@ enum Item {
     Shortcut,
     Hologram,
     Vagabond,
-    Obelisk,
     Ramen,
     Reserved_Parking,
     Bull,
     Throwback,
     Flower_Pot,
     Trading_Card,
+    Diet_Cola,
     J_U_END,
 
     J_R_BEGIN,
@@ -363,6 +362,7 @@ enum Item {
     The_Trio,
     Invisible_Joker,
     Brainstorm,
+    Obelisk,
     J_R_END,
 
     J_END,
@@ -649,6 +649,7 @@ enum RandomType {
     R_Standard_Edition,
     R_Standard_Has_Seal,
     R_Standard_Seal,
+    R_Shop_Pack,
     R_END
 };
 enum RNGSource {
@@ -705,6 +706,7 @@ struct Text type_str(int x) {
         case R_Standard_Edition:         return init_text("standard_edition", 16);
         case R_Standard_Has_Seal:        return init_text("stdseal", 7);
         case R_Standard_Seal:            return init_text("stdsealtype", 11);
+        case R_Shop_Pack:                return init_text("shop_pack", 9);
         default:                         return init_text("", 0);
     }
 }
@@ -767,6 +769,10 @@ int init_node(struct Cache* c, enum NodeType nodeTypes[], int nodeValues[], int 
     c->nodes[c->nextFreeNode].depth = depth;
     c->nextFreeNode++;
     return c->nextFreeNode-1;
+};
+struct WeightedItem {
+    enum Item item;
+    double weight;
 };
 
 // Lists
@@ -835,6 +841,24 @@ enum Item CARDS[] = {
     S_K,
     S_Q,
     S_T
+};
+struct WeightedItem PACKS[] = {
+    {RETRY, 22.42}, //total
+    {Arcana_Pack, 4},
+    {Jumbo_Arcana_Pack, 2},
+    {Mega_Arcana_Pack, 0.5},
+    {Celestial_Pack, 4},
+    {Jumbo_Celestial_Pack, 2},
+    {Mega_Celestial_Pack, 0.5},
+    {Standard_Pack, 4},
+    {Jumbo_Standard_Pack, 2},
+    {Mega_Standard_Pack, 0.5},
+    {Buffoon_Pack, 1.2},
+    {Jumbo_Buffoon_Pack, 0.6},
+    {Mega_Buffoon_Pack, 0.15},
+    {Spectral_Pack, 0.6},
+    {Jumbo_Spectral_Pack, 0.3},
+    {Mega_Spectral_Pack, 0.07}
 };
 
 // Helper functions
@@ -931,6 +955,17 @@ enum Item i_randchoice(struct GameInstance* inst, enum NodeType nts[], int ids[]
     return items[randint(&(inst->rng), 1, items[0])];
 }
 
+enum Item i_randweightedchoice(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, __global struct WeightedItem items[]) {
+    double poll = i_random(inst, nts, ids, num)*items[0].weight;
+    int idx = 1;
+    double weight = 0;
+    while (weight < poll) {
+        weight += items[idx].weight;
+        idx++;
+    }
+    return items[idx-1].item;
+}
+
 // Helper functions for common actions
 int i_misprint(struct GameInstance* inst) {
     return (int)i_randint(inst, (enum NodeType[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
@@ -974,14 +1009,10 @@ struct Card i_standard_card(struct GameInstance* inst, int ante) {
     return out;
 }
 
-/*
-poll_edition('standard_edition', 2, true)
-stdset
-Enhancedsta1
-frontsta1
-standard_edition
-stdseal
-*/
+enum Item i_next_pack(struct GameInstance* inst) {
+    return i_randweightedchoice(inst, (enum NodeType[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
+}
+
 
 /*enum Item i_random_joker(struct GameInstance* inst) {
     double rng = i_random(inst, R_JokerRarity)i

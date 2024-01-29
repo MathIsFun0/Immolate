@@ -1,12 +1,37 @@
 #include "immolate.cl"
 
 
-// Poly Blueprint+Dusk as first 2 jokers
+// Red Poly Glass Hack-Compatible Cards
 long filter(struct GameInstance* inst) {
-    if (i_standard_enhancement(inst, 1) != Glass_Card) return 0;
-    if (i_standard_edition(inst) != Polychrome) return 0;
-    if (i_standard_seal(inst) != Red_Seal) return 0;
-    return 1;
+    int num_cards = 0;
+    enum Item pack1 = i_next_pack(inst);
+    enum Item pack2 = i_next_pack(inst);
+    if (pack1 >= Standard_Pack && pack1 <= Mega_Standard_Pack) {
+        if (pack1 == Standard_Pack) {
+            num_cards = 3;
+        } else {
+            num_cards = 5;
+        }
+    }
+    if (pack2 >= Standard_Pack && pack2 <= Mega_Standard_Pack) {
+        if (pack2 == Standard_Pack && num_cards < 3) {
+            num_cards = 3;
+        } else {
+            num_cards = 5;
+        }
+    }
+    if (num_cards == 0) return 0;
+    bool found = false;
+    for (int i = 0; i < num_cards; i++) {
+        found = true;
+        struct Card card = i_standard_card(inst, 1);
+        if (card.enhancement != Glass_Card) found = false;
+        if (card.edition != Polychrome) found = false;
+        if (card.seal != Red_Seal) found = false;
+        if (c_rank(card.base) > _5) found = false;
+        if (found) return 1;
+    }
+    return 0;
 }
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
