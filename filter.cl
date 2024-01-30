@@ -2,7 +2,7 @@
 
 
 // Red Poly Glass Hack-Compatible Cards
-long filter(struct GameInstance* inst) {
+/*long filter(struct GameInstance* inst) {
     int num_cards = 0;
     enum Item pack1 = i_next_pack(inst);
     enum Item pack2 = i_next_pack(inst);
@@ -32,6 +32,26 @@ long filter(struct GameInstance* inst) {
         if (found) return 1;
     }
     return 0;
+}*/
+
+// Emperor-Fool Chains
+long filter(struct GameInstance* inst) {
+    int bestAnte = 0;
+    long bestScore = 0;
+    for (int ante = 1; ante <= 6; ante++) {
+        long score = 0;
+        while (true) {
+            enum Item tarot1 = i_next_tarot(inst, S_Emperor, ante);
+            enum Item tarot2 = i_next_tarot(inst, S_Emperor, ante);
+            if (tarot1 == The_Fool || tarot2 == The_Fool) score++;
+            else break;
+        }
+        if (score >= bestScore) {
+            bestAnte = ante;
+            bestScore = score;
+        }
+    }
+    return bestScore*10+bestAnte;
 }
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.

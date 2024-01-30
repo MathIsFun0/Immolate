@@ -530,7 +530,7 @@ enum Item {
     Juggle_Tag,
     D6_Tag,
     Top_up_Tag,
-    Skip_Tag,
+    Speed_Tag,
     Orbital_Tag,
     Economy_Tag,
     TAG_END,
@@ -650,6 +650,7 @@ enum RandomType {
     R_Standard_Has_Seal,
     R_Standard_Seal,
     R_Shop_Pack,
+    R_Tarot,
     R_END
 };
 enum RNGSource {
@@ -707,6 +708,7 @@ struct Text type_str(int x) {
         case R_Standard_Has_Seal:        return init_text("stdseal", 7);
         case R_Standard_Seal:            return init_text("stdsealtype", 11);
         case R_Shop_Pack:                return init_text("shop_pack", 9);
+        case R_Tarot:                    return init_text("Tarot", 5);
         default:                         return init_text("", 0);
     }
 }
@@ -859,6 +861,31 @@ struct WeightedItem PACKS[] = {
     {Spectral_Pack, 0.6},
     {Jumbo_Spectral_Pack, 0.3},
     {Mega_Spectral_Pack, 0.07}
+};
+enum Item TAROTS[] = {
+    22,
+    The_Fool,
+    The_Magician,
+    The_High_Priestess,
+    The_Empress,
+    The_Emperor,
+    The_Hierophant,
+    The_Lovers,
+    The_Chariot,
+    Justice,
+    The_Hermit,
+    The_Wheel_of_Fortune,
+    Strength,
+    The_Hanged_Man,
+    Death,
+    Temperance,
+    The_Devil,
+    The_Tower,
+    The_Star,
+    The_Moon,
+    The_Sun,
+    Judgement,
+    The_World
 };
 
 // Helper functions
@@ -1013,6 +1040,31 @@ enum Item i_next_pack(struct GameInstance* inst) {
     return i_randweightedchoice(inst, (enum NodeType[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
 }
 
+// These functions can probably be used to encompass a lot of packs
+enum Item i_next_tarot(struct GameInstance* inst, enum RNGSource src, int ante) {
+    // Note: assumes no redraws
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Tarot, src, ante}, 3, TAROTS);
+}
+
+enum Item i_next_tarot_resample(struct GameInstance* inst, enum RNGSource src, int ante, int iter) {
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tarot, src, ante, iter}, 4, TAROTS);
+}
+
+// Don't use this right now, it's really slow for some reason
+void i_tarot_pack(enum Item out[], struct GameInstance* inst, enum RNGSource src, int ante, int size) {
+    for (int n = 0; n < size; n++) {
+        enum Item tarot = i_next_tarot(inst, src, ante);
+        int resampleID = 1;
+        for (int i = 0; i < n; i++) {
+            if (out[i] == tarot) {
+                tarot = i_next_tarot_resample(inst, src, ante, resampleID);
+                resampleID++;
+                i = -1;
+            }
+        }
+        out[n] = tarot;
+    }
+}
 
 /*enum Item i_random_joker(struct GameInstance* inst) {
     double rng = i_random(inst, R_JokerRarity)i
