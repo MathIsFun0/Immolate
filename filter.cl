@@ -35,7 +35,7 @@
 }*/
 
 // Emperor-Fool Chains
-long filter(struct GameInstance* inst) {
+/*long filter(struct GameInstance* inst) {
     int bestAnte = 0;
     long bestScore = 0;
     for (int ante = 1; ante <= 6; ante++) {
@@ -52,7 +52,26 @@ long filter(struct GameInstance* inst) {
         }
     }
     return bestScore*10+bestAnte;
+}*/
+
+long filter(struct GameInstance* inst) {
+    // Buffoon Pack
+    enum Item pack1 = i_next_pack(inst);
+    enum Item pack2 = i_next_pack(inst);
+    if (pack1 != Mega_Buffoon_Pack && pack2 != Mega_Buffoon_Pack) return 0;
+
+    // Diet Cola and Invisible Joker
+    bool foundCola = false;
+    bool foundInvis = false;
+    for (int i = 0; i < 4; i++) {
+        enum Item jkr = i_next_joker(inst, S_Buffoon, 1);
+        if (jkr == Diet_Cola) foundCola = true;
+        if (jkr == Invisible_Joker) foundInvis = true;
+    }
+    if (foundCola && foundInvis) return 1;
+    return 0;
 }
+
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
 

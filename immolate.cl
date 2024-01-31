@@ -642,6 +642,8 @@ enum RandomType {
     R_Joker_Common,
     R_Joker_Uncommon,
     R_Joker_Rare,
+    R_Joker_Rarity,
+    R_Joker_Edition,
     R_Misprint,
     R_Standard_Has_Enhancement,
     R_Enhancement,
@@ -700,6 +702,8 @@ struct Text type_str(int x) {
         case R_Joker_Common:             return init_text("Joker1", 6);
         case R_Joker_Uncommon:           return init_text("Joker2", 6);
         case R_Joker_Rare:               return init_text("Joker3", 6);
+        case R_Joker_Rarity:             return init_text("rarity", 6);
+        case R_Joker_Edition:            return init_text("edi", 3);
         case R_Misprint:                 return init_text("misprint", 8);
         case R_Standard_Has_Enhancement: return init_text("stdset", 6);
         case R_Enhancement:              return init_text("Enhanced", 8);
@@ -887,6 +891,60 @@ enum Item TAROTS[] = {
     Judgement,
     The_World
 };
+enum Item COMMON_JOKERS[] = {
+    23,
+    Joker,
+    Greedy_Joker,
+    Lusty_Joker,
+    Wrathful_Joker,
+    Gluttonous_Joker,
+    Sly_Joker,
+    Wily_Joker,
+    Devious_Joker,
+    Crafty_Joker,
+    Gros_Michel,
+    Even_Steven,
+    Odd_Todd,
+    Spare_Trousers,
+    Misprint,
+    Green_Joker,
+    Photograph,
+    Fortune_Teller,
+    Drunkard,
+    Popcorn,
+    Swashbuckler,
+    Credit_Card,
+    Superposition,
+    Raised_Fist
+};
+enum Item UNCOMMON_JOKERS[] = {
+    15,
+    Four_Fingers,
+    Banner,
+    Fibonacci,
+    Hack,
+    Gift_Card,
+    Shortcut,
+    Hologram,
+    Vagabond,
+    Ramen,
+    Reserved_Parking,
+    Bull,
+    Diet_Cola,
+    Throwback,
+    Flower_Pot,
+    Trading_Card
+};
+enum Item RARE_JOKERS[] = {
+    7,
+    Seance,
+    Obelisk,
+    Baseball_Card,
+    Hit_the_Road,
+    The_Trio,
+    Invisible_Joker,
+    Brainstorm
+};
 
 // Helper functions
 enum Item c_suit(enum Item card) {
@@ -1050,7 +1108,23 @@ enum Item i_next_tarot_resample(struct GameInstance* inst, enum RNGSource src, i
     return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tarot, src, ante, iter}, 4, TAROTS);
 }
 
-// Don't use this right now, it's really slow for some reason
+enum Item i_next_joker(struct GameInstance* inst, enum RNGSource src, int ante) {
+    double rarity = i_random(inst, (enum NodeType[]){N_Type, N_Ante, N_Source}, (int[]){R_Joker_Rarity, ante, src}, 3);
+    if (rarity > 0.95) return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Rare, src, ante}, 3, RARE_JOKERS);
+    if (rarity > 0.7) return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Uncommon, src, ante}, 3, UNCOMMON_JOKERS);
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Common, src, ante}, 3, COMMON_JOKERS);
+}
+
+enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, int ante) {
+    double poll = i_random(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Edition, src, ante}, 3);
+    if (poll > 0.997) return Negative;
+    if (poll > 0.994) return Polychrome;
+    if (poll > 0.98) return Holographic;
+    if (poll > 0.96) return Foil;
+    return No_Edition;
+}
+
+// Don't use this right now, it's relatively slow for some reason
 void i_tarot_pack(enum Item out[], struct GameInstance* inst, enum RNGSource src, int ante, int size) {
     for (int n = 0; n < size; n++) {
         enum Item tarot = i_next_tarot(inst, src, ante);
