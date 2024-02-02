@@ -554,10 +554,10 @@ enum Item {
 
     // Suits
     SUIT_BEGIN,
-    Spades,
-    Clubs,
     Hearts,
+    Clubs,
     Diamonds,
+    Spades,
     SUIT_END,
 
     // Ranks
@@ -653,6 +653,9 @@ enum RandomType {
     R_Standard_Seal,
     R_Shop_Pack,
     R_Tarot,
+    R_Spectral,
+    R_Tags,
+    R_Shuffle_New_Round,
     R_END
 };
 enum RNGSource {
@@ -672,6 +675,7 @@ enum RNGSource {
     S_Top_Up,
     S_Rare_Tag,
     S_Uncommon_Tag,
+    S_Null,
     SOURCE_END
 };
 enum NodeType {
@@ -713,6 +717,9 @@ struct Text type_str(int x) {
         case R_Standard_Seal:            return init_text("stdsealtype", 11);
         case R_Shop_Pack:                return init_text("shop_pack", 9);
         case R_Tarot:                    return init_text("Tarot", 5);
+        case R_Spectral:                 return init_text("Spectral", 8);
+        case R_Tags:                     return init_text("Tag", 3);
+        case R_Shuffle_New_Round:        return init_text("nr", 2);
         default:                         return init_text("", 0);
     }
 }
@@ -848,6 +855,60 @@ enum Item CARDS[] = {
     S_Q,
     S_T
 };
+enum Item DECK_ORDER[] = {
+    D_4,
+    C_4,
+    C_J,
+    H_Q,
+    H_A,
+    H_9,
+    D_Q,
+    D_A,
+    D_5,
+    C_Q,
+    C_A,
+    C_9,
+    S_6,
+    S_2,
+    S_A,
+    D_7,
+    S_K,
+    H_6,
+    H_2,
+    S_Q,
+    S_J,
+    D_6,
+    D_2,
+    D_9,
+    S_7,
+    S_3,
+    C_6,
+    C_2,
+    S_9,
+    S_5,
+    S_8,
+    S_4,
+    D_8,
+    D_J,
+    C_7,
+    S_T,
+    H_3,
+    D_K,
+    C_K,
+    C_5,
+    D_3,
+    C_3,
+    H_K,
+    H_4,
+    H_5,
+    H_T,
+    C_8,
+    H_J,
+    H_7,
+    H_8,
+    D_T,
+    C_T
+};
 struct WeightedItem PACKS[] = {
     {RETRY, 22.42}, //total
     {Arcana_Pack, 4},
@@ -945,6 +1006,54 @@ enum Item RARE_JOKERS[] = {
     Invisible_Joker,
     Brainstorm
 };
+enum Item SPECTRALS[] = {
+    18,
+    Familiar,
+    Grim,
+    Incantation,
+    Talisman,
+    Aura,
+    Wraith,
+    Sigil,
+    Ouija,
+    Ectoplasm,
+    Immolate,
+    Ankh,
+    Deja_Vu,
+    Hex,
+    Trance,
+    Medium,
+    Cryptid,
+    RETRY, //Soul
+    RETRY //Black_Hole
+};
+enum Item TAGS[] = {
+    24,
+    Uncommon_Tag,
+    Rare_Tag,
+    Negative_Tag,
+    Foil_Tag,
+    Holographic_Tag,
+    Polychrome_Tag,
+    Investment_Tag,
+    Voucher_Tag,
+    Boss_Tag,
+    Standard_Tag,
+    Charm_Tag,
+    Meteor_Tag,
+    Buffoon_Tag,
+    Handy_Tag,
+    Garbage_Tag,
+    Ethereal_Tag,
+    Coupon_Tag,
+    Double_Tag,
+    Juggle_Tag,
+    D6_Tag,
+    Top_up_Tag,
+    Speed_Tag,
+    Orbital_Tag,
+    Economy_Tag
+};
 
 // Helper functions
 enum Item c_suit(enum Item card) {
@@ -967,6 +1076,35 @@ enum Item c_rank(enum Item card) {
     if (card % 13 == C_Q % 13) return Queen;
     if (card % 13 == C_K % 13) return King;
     return Ace;
+}
+enum Item c_next_rank(enum Item rank) {
+    if (rank == Ace) return _2;
+    return (int)rank+1;
+}
+enum Item c_suit_repr(enum Item suit) {
+    if (suit == Clubs) return C_2;
+    if (suit == Diamonds) return D_2;
+    if (suit == Hearts) return H_2;
+    return S_2;
+}
+enum Item c_rank_repr(enum Item rank) {
+    if (rank == _2) return C_2;
+    if (rank == _3) return C_3;
+    if (rank == _4) return C_4;
+    if (rank == _5) return C_5;
+    if (rank == _6) return C_6;
+    if (rank == _7) return C_7;
+    if (rank == _8) return C_8;
+    if (rank == _9) return C_9;
+    if (rank == _10) return C_T;
+    if (rank == Jack) return C_J;
+    if (rank == Queen) return C_Q;
+    if (rank == King) return C_K;
+    return C_A;
+}
+
+enum Item c_from_rank_suit(enum Item rank, enum Item suit) {
+    return c_suit_repr(suit) + c_rank_repr(rank) - C_2;
 }
 
 // Instance
@@ -1040,6 +1178,11 @@ enum Item i_randchoice(struct GameInstance* inst, enum NodeType nts[], int ids[]
     return items[randint(&(inst->rng), 1, items[0])];
 }
 
+// The most common form of randchoice
+enum Item i_randchoice_common(struct GameInstance* inst, enum RandomType rngType, enum RNGSource src, int ante, __global enum Item items[]) {
+    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
+}
+
 enum Item i_randweightedchoice(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, __global struct WeightedItem items[]) {
     double poll = i_random(inst, nts, ids, num)*items[0].weight;
     int idx = 1;
@@ -1049,6 +1192,16 @@ enum Item i_randweightedchoice(struct GameInstance* inst, enum NodeType nts[], i
         idx++;
     }
     return items[idx-1].item;
+}
+
+void i_shuffle_deck(struct GameInstance* inst, enum Item deck[], int ante) {
+    inst->rng = randomseed(get_node_child(inst, (enum NodeType[]){N_Type, N_Ante}, (int[]){R_Shuffle_New_Round, ante}, 2));
+    for (int i = 51; i >= 1; i--) {
+        int x = randint(&(inst->rng), 0, i);
+        enum Item temp = deck[i];
+        deck[i] = deck[x];
+        deck[x] = temp;
+    }
 }
 
 // Helper functions for common actions
@@ -1065,10 +1218,10 @@ struct Card {
 
 enum Item i_standard_enhancement(struct GameInstance* inst, int ante) {
     if (i_random_simple(inst, R_Standard_Has_Enhancement) <= 0.6) return No_Enhancement;
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Enhancement, S_Standard, ante}, 3, ENHANCEMENTS);
+    return i_randchoice_common(inst, R_Enhancement, S_Standard, ante, ENHANCEMENTS);
 }
 enum Item i_standard_base(struct GameInstance* inst, int ante) {
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Card, S_Standard, ante}, 3, CARDS);
+    return i_randchoice_common(inst, R_Card, S_Standard, ante, CARDS);
 }
 enum Item i_standard_edition(struct GameInstance* inst) {
     double val = i_random_simple(inst, R_Standard_Edition);
@@ -1101,7 +1254,11 @@ enum Item i_next_pack(struct GameInstance* inst) {
 // These functions can probably be used to encompass a lot of packs
 enum Item i_next_tarot(struct GameInstance* inst, enum RNGSource src, int ante) {
     // Note: assumes no redraws
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Tarot, src, ante}, 3, TAROTS);
+    return i_randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+}
+
+enum Item i_next_spectral(struct GameInstance* inst, enum RNGSource src, int ante) {
+    return i_randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
 }
 
 enum Item i_next_tarot_resample(struct GameInstance* inst, enum RNGSource src, int ante, int iter) {
@@ -1110,9 +1267,9 @@ enum Item i_next_tarot_resample(struct GameInstance* inst, enum RNGSource src, i
 
 enum Item i_next_joker(struct GameInstance* inst, enum RNGSource src, int ante) {
     double rarity = i_random(inst, (enum NodeType[]){N_Type, N_Ante, N_Source}, (int[]){R_Joker_Rarity, ante, src}, 3);
-    if (rarity > 0.95) return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Rare, src, ante}, 3, RARE_JOKERS);
-    if (rarity > 0.7) return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Uncommon, src, ante}, 3, UNCOMMON_JOKERS);
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Common, src, ante}, 3, COMMON_JOKERS);
+    if (rarity > 0.95) return i_randchoice_common(inst, R_Joker_Rare, src, ante, RARE_JOKERS);
+    if (rarity > 0.7) return i_randchoice_common(inst, R_Joker_Uncommon, src, ante, UNCOMMON_JOKERS);
+    return i_randchoice_common(inst, R_Joker_Common, src, ante, COMMON_JOKERS);
 }
 
 enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, int ante) {
@@ -1122,6 +1279,24 @@ enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, in
     if (poll > 0.98) return Holographic;
     if (poll > 0.96) return Foil;
     return No_Edition;
+}
+
+enum Item i_next_tag(struct GameInstance* inst, int ante) {
+    if (ante == 1) {
+        enum Item item = i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
+        int r = 1;
+        enum Item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag};
+        for (int i = 0; i < 7; i++) {
+            if (banlist[i] == item) {
+                item = i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tags, S_Null, ante, r}, 4, TAGS);
+                r++;
+                i = 0;
+            }
+        }
+        return item;
+    } else {
+        return i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
+    }
 }
 
 // Don't use this right now, it's relatively slow for some reason
