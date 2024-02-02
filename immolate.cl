@@ -656,6 +656,7 @@ enum RandomType {
     R_Spectral,
     R_Tags,
     R_Shuffle_New_Round,
+    R_Card_Type,
     R_END
 };
 enum RNGSource {
@@ -720,6 +721,7 @@ struct Text type_str(int x) {
         case R_Spectral:                 return init_text("Spectral", 8);
         case R_Tags:                     return init_text("Tag", 3);
         case R_Shuffle_New_Round:        return init_text("nr", 2);
+        case R_Card_Type:                return init_text("card_type", 9);
         default:                         return init_text("", 0);
     }
 }
@@ -1279,6 +1281,13 @@ enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, in
     if (poll > 0.98) return Holographic;
     if (poll > 0.96) return Foil;
     return No_Edition;
+}
+
+// Accounts for shop not giving jokers sometimes
+enum Item i_shop_joker(struct GameInstance* inst, int ante) {
+    double card_type = i_random_simple(inst, R_Card_Type) * 28;
+    if (card_type <= 20) return i_next_joker(inst, S_Shop, ante);
+    return RETRY;
 }
 
 enum Item i_next_tag(struct GameInstance* inst, int ante) {

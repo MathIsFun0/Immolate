@@ -151,15 +151,36 @@
 
 }*/
 
-// 7 of Hearts
+// SPEEDRUN
 long filter(struct GameInstance* inst) {
+    long passed_filters = 0;
+
+    // Banner, Popcorn in ante 2
+    enum Item jkr1 = i_shop_joker(inst, 2);
+    enum Item jkr2 = i_shop_joker(inst, 2);
+    if ((jkr1 == Banner && jkr2 == Popcorn) || (jkr1 == Popcorn && jkr2 == Banner)) passed_filters++;
+    else return passed_filters;
+
+    // Throwback, Flower Pot, Baseball Card in antes 3-5
+    enum Item jkrs[6] = {i_shop_joker(inst, 3),i_shop_joker(inst, 3),i_shop_joker(inst, 4),i_shop_joker(inst, 4),i_shop_joker(inst, 5),i_shop_joker(inst, 5)};
+    bool hasThrowback = false;
+    bool hasPot = false;
+    bool hasBaseball = false;
+    for (int i = 0; i < 6; i++) {
+        if (jkrs[i] == Throwback) hasThrowback = true;
+        if (jkrs[i] == Flower_Pot) hasPot = true;
+        if (jkrs[i] == Baseball_Card) hasBaseball = true;
+    }
+    if (hasBaseball && hasThrowback && hasPot) passed_filters++;
+    else return passed_filters;
+
+    // Check for straight flush
     enum Item deck[52];
     for (int i = 0; i < 52; i++) {
         deck[i] = DECK_ORDER[i];
     }
     i_shuffle_deck(inst, deck, 1);
     enum Item hand[8] = {deck[44], deck[45], deck[46], deck[47], deck[48], deck[49], deck[50], deck[51]};
-    // Check for straight flush
     bool isStrush = false;
     for (int i = 0; i < 8; i++) {
         enum Item rank = c_rank(hand[i]);
@@ -178,8 +199,8 @@ long filter(struct GameInstance* inst) {
         }
         if (isStrush) break;
     }
-    if (isStrush) return 1;
-    return 0;
+    if (isStrush) return 999;
+    return passed_filters;
 }
 
 // Search
