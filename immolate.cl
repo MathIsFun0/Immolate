@@ -2,13 +2,13 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 // Pseudohash
-struct Text {
+typedef struct Text {
     char str[256];
     int len;
-};
+} text;
 
-inline struct Text init_text(__constant char* str, int len) {
-    struct Text t;
+inline text init_text(__constant char* str, int len) {
+    text t;
     for (int i = 0; i < len; i++){
         t.str[i] = str[i];
     }
@@ -16,8 +16,8 @@ inline struct Text init_text(__constant char* str, int len) {
     return t;
 }
 
-struct Text text_concat(struct Text a, struct Text b) {
-    struct Text temp = a;
+text text_concat(text a, text b) {
+    text temp = a;
     for (int j = 0; j < b.len; j++) {
         temp.str[a.len+j] = b.str[j];
     }
@@ -25,7 +25,7 @@ struct Text text_concat(struct Text a, struct Text b) {
     return temp;
 }
 
-void print_text(struct Text x) {
+void print_text(text x) {
     for (int i = 0; i < x.len; i++) {
         printf("%c",x.str[i]);
     }
@@ -36,7 +36,7 @@ double fract(double f) {
     return f-floor(f);
 }
 
-double pseudohash(struct Text s) {
+double pseudohash(text s) {
     //resizeString(&s, 16, ' ');
     double num = 1;
     int k = 20; //determines size of left and right shifts...
@@ -111,17 +111,17 @@ char16 c8_as_c16(char8 c8) {
 
 // math.random
 
-union DoubleLong {
+typedef union DoubleLong {
     double d;
     ulong ul;
-};
+} dbllong;
 
-struct LuaRandom {
+typedef struct LuaRandom {
     ulong4 state;
-    union DoubleLong out;
-};
+    dbllong out;
+} lrandom;
 
-void _randint(struct LuaRandom* lr) {
+void _randint(lrandom* lr) {
     ulong z, r = 0;
     z = lr->state[0];
     z = (((z<<31)^z)>>45)^((z&((ulong)(long)-1<<1))<<18);
@@ -142,13 +142,13 @@ void _randint(struct LuaRandom* lr) {
     lr->out.ul = r;
 }
 
-void randdblmem(struct LuaRandom* lr) {
+void randdblmem(lrandom* lr) {
     _randint(lr);
     lr->out.ul = (lr->out.ul&4503599627370495)|4607182418800017408;
 }
 
-struct LuaRandom randomseed(double d) {
-    struct LuaRandom lr;
+lrandom randomseed(double d) {
+    lrandom lr;
     uint r = 0x11090601;
     size_t i;
     for (i = 0; i < 4; i++) {
@@ -166,12 +166,12 @@ struct LuaRandom randomseed(double d) {
     }
     return lr;
 }
-double random(struct LuaRandom* lr) {
+double random(lrandom* lr) {
     randdblmem(lr);
     lr->out.d -= 1.0;
     return lr->out.d;
 }
-ulong randint(struct LuaRandom* lr, ulong min, ulong max) {
+ulong randint(lrandom* lr, ulong min, ulong max) {
     random(lr);
     return (ulong)(lr->out.d*(max-min+1))+min;
 }
@@ -184,16 +184,16 @@ __constant int NUM_CHARS = 35;
 __constant long NUM_SEEDS = 2251875390625; //35^8
 __constant int MAX_RANKED_SEEDS = 1000;
 
-struct Seed {
+typedef struct Seed {
     ulong8 data;
-};
-struct Seed s_new_empty() {
-    struct Seed seed;
+} seed;
+seed s_new_empty() {
+    seed seed;
     seed.data = 0; //fills with zeros
     return seed;
 }
-struct Seed s_new(__constant char* str_seed, int seed_size) {
-    struct Seed seed;
+seed s_new(__constant char* str_seed, int seed_size) {
+    seed seed;
     for (int i = 0; i < seed_size; i++) {
         for (char j = 0; j < NUM_CHARS; j++) {
             if (SEEDCHARS[j] == str_seed[i]) {
@@ -204,8 +204,8 @@ struct Seed s_new(__constant char* str_seed, int seed_size) {
     return seed;
 }
 
-struct Seed s_new_c8(char8 str_seed) {
-    struct Seed seed;
+seed s_new_c8(char8 str_seed) {
+    seed seed;
     for (int i = 0; i < 8; i++) {
         for (char j = 0; j < NUM_CHARS; j++) {
             if (SEEDCHARS[j] == str_seed[i]) {
@@ -215,7 +215,7 @@ struct Seed s_new_c8(char8 str_seed) {
     }
     return seed;
 }
-void s_next(struct Seed* s) {
+void s_next(seed* s) {
     bool carry = true;
     for (int i = 1; i <= 8; i++) {
         int j = 8-i;
@@ -227,7 +227,7 @@ void s_next(struct Seed* s) {
         } else break;
     }
 }
-void s_skip(struct Seed* s, long n) {
+void s_skip(seed* s, long n) {
     long carry = n;
     for (int i = 1; i <= 8; i++) {
         int j = 8-i;
@@ -239,10 +239,10 @@ void s_skip(struct Seed* s, long n) {
         } else break;
     }
 }
-char s_char_at(struct Seed* s, int c) {
+char s_char_at(seed* s, int c) {
     return SEEDCHARS[s->data[c]];
 }
-long s_tell(struct Seed* s) {
+long s_tell(seed* s) {
     long loc = 0;
     long mult = 0;
     for (int i = 0; i < 8; i++) {
@@ -251,8 +251,8 @@ long s_tell(struct Seed* s) {
     }
     return loc;
 }
-struct Text s_to_string(struct Seed* s) {
-    struct Text str;
+text s_to_string(seed* s) {
+    text str;
     for (int i = 0; i < 8; i++) {
         str.str[i]=s_char_at(s, i);
     }
@@ -260,35 +260,35 @@ struct Text s_to_string(struct Seed* s) {
     return str;
 }
 
-void s_print(struct Seed* s) {
-    struct Text s_str = s_to_string(s);
+void s_print(seed* s) {
+    text s_str = s_to_string(s);
     printf("%c%c%c%c%c%c%c%c",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7]);
 }
 
-struct RankedSeedList {
+typedef struct RankedSeedList {
     long rank;
     int numSeeds;
-    struct Seed seeds[MAX_RANKED_SEEDS]; //arbitrary max number of seeds, because OpenCL...
+    seed seeds[MAX_RANKED_SEEDS]; //arbitrary max number of seeds, because OpenCL...
     bool lock;
-};
-struct RankedSeedList rs_new(long r) {
-    struct RankedSeedList rs;
+} rslist;
+rslist rs_new(long r) {
+    rslist rs;
     rs.rank = r;
     rs.numSeeds = 0;
     return rs;
 }
-void rs_init(struct RankedSeedList* rs, long r) {
+void rs_init(rslist* rs, long r) {
     rs->rank = r;
     rs->numSeeds = 0;
 }
-long rs_score(struct RankedSeedList* rs) {
+long rs_score(rslist* rs) {
     return rs->rank;
 }
-void rs_clear(struct RankedSeedList* rs, long rank) {
+void rs_clear(rslist* rs, long rank) {
     rs->numSeeds = 0;
     rs->rank = rank;
 }
-void rs_add(struct RankedSeedList* rs, long rank, struct Seed seed) {
+void rs_add(rslist* rs, long rank, seed seed) {
     if (rank<rs->rank) return;
     if (rank>rs->rank) rs_clear(rs, rank);
     if (rs->numSeeds >= MAX_RANKED_SEEDS) return;
@@ -297,7 +297,7 @@ void rs_add(struct RankedSeedList* rs, long rank, struct Seed seed) {
     s_print(&seed);
     printf(" (%li)\n",rank);
 }
-void rs_merge(struct RankedSeedList* rs1, struct RankedSeedList* rs2) {
+void rs_merge(rslist* rs1, rslist* rs2) {
     if (rs1->rank < rs2->rank) {
         rs1 = rs2;
     } else if (rs1->rank > rs2->rank) {
@@ -311,7 +311,7 @@ void rs_merge(struct RankedSeedList* rs1, struct RankedSeedList* rs2) {
 
 // Contains every kind of thing you could search for!
 // Updated as of 0.9.3
-enum Item {
+typedef enum Item {
     RETRY,
 
     //Jokers
@@ -640,11 +640,10 @@ enum Item {
     C_END,
 
     ITEMS_END
-};
-
+} item;
 
 // RNG Cache
-enum RandomType {
+typedef enum RandomType {
     R_Joker_Common,
     R_Joker_Uncommon,
     R_Joker_Rare,
@@ -664,8 +663,9 @@ enum RandomType {
     R_Shuffle_New_Round,
     R_Card_Type,
     R_END
-};
-enum RNGSource {
+} rtype;
+
+typedef enum RNGSource {
     S_Shop,
     S_Emperor,
     S_High_Priestess,
@@ -684,14 +684,16 @@ enum RNGSource {
     S_Uncommon_Tag,
     S_Null,
     SOURCE_END
-};
-enum NodeType {
+} rsrc;
+
+typedef enum NodeType {
     N_Type,
     N_Source,
     N_Ante,
     N_Resample
-};
-struct Text int_to_str(int x) {
+} ntype;
+
+text int_to_str(int x) {
     // Get length
     int temp = x;
     int digits = 1;
@@ -699,7 +701,7 @@ struct Text int_to_str(int x) {
         digits++;
         temp /= 10;
     }
-    struct Text out;
+    text out;
     for (int i = digits-1; i >= 0; i--) {
         out.str[i] = '0' + x%10;
         x/=10;
@@ -708,7 +710,7 @@ struct Text int_to_str(int x) {
     return out;
 }
 // String values for each node
-struct Text type_str(int x) {
+text type_str(int x) {
     switch(x) {
         case R_Joker_Common:             return init_text("Joker1", 6);
         case R_Joker_Uncommon:           return init_text("Joker2", 6);
@@ -731,7 +733,7 @@ struct Text type_str(int x) {
         default:                         return init_text("", 0);
     }
 }
-struct Text source_str(int x) {
+text source_str(int x) {
     switch(x) {
         case S_Shop:           return init_text("sho", 3);
         case S_Emperor:        return init_text("emp", 3);
@@ -752,29 +754,29 @@ struct Text source_str(int x) {
         default:               return init_text("", 0);
     }
 }
-struct Text resample_str(int x) {
+text resample_str(int x) {
     if (x == 0) {
         return init_text("", 0);
     } else {
-        struct Text str1 = init_text("_resample", 9);
-        struct Text str2 = int_to_str(x+1);
+        text str1 = init_text("_resample", 9);
+        text str2 = int_to_str(x+1);
         return text_concat(str1, str2);
     }
 }
 
-struct RNGInfo {
-    enum NodeType nodeTypes[4];
+typedef struct RNGInfo {
+    ntype nodeTypes[4];
     int nodeValues[4];
     int depth;
     double rngState;
-};
+} rnginfo;
 
-struct Cache {
-    struct RNGInfo nodes[64];
+typedef struct Cache {
+    rnginfo nodes[64];
     int nextFreeNode;
-};
+} cache;
 
-struct Text node_str(enum NodeType nt, int x) {
+text node_str(ntype nt, int x) {
     switch (nt) {
         case N_Type: return type_str(x);
         case N_Source: return source_str(x);
@@ -782,7 +784,7 @@ struct Text node_str(enum NodeType nt, int x) {
         case N_Resample: return resample_str(x);
     }
 }
-int init_node(struct Cache* c, enum NodeType nodeTypes[], int nodeValues[], int depth) {
+int init_node(cache* c, ntype nodeTypes[], int nodeValues[], int depth) {
     for (int i = 0; i < depth; i++) {
         c->nodes[c->nextFreeNode].nodeTypes[i] = nodeTypes[i];
         c->nodes[c->nextFreeNode].nodeValues[i] = nodeValues[i];
@@ -791,13 +793,13 @@ int init_node(struct Cache* c, enum NodeType nodeTypes[], int nodeValues[], int 
     c->nextFreeNode++;
     return c->nextFreeNode-1;
 };
-struct WeightedItem {
-    enum Item item;
+typedef struct WeightedItem {
+    item _item;
     double weight;
-};
+} weighteditem;
 
 // Lists
-enum Item ENHANCEMENTS[] = {
+item ENHANCEMENTS[] = {
     8,
     Bonus_Card,
     Mult_Card,
@@ -808,7 +810,7 @@ enum Item ENHANCEMENTS[] = {
     Gold_Card,
     Lucky_Card
 };
-enum Item CARDS[] = {
+item CARDS[] = {
     52,
     C_2,
     C_3,
@@ -864,7 +866,7 @@ enum Item CARDS[] = {
     S_T
 };
 // This list will probably have to be updated, I didn't check
-enum Item DECK_ORDER[] = {
+item DECK_ORDER[] = {
     D_4,
     C_4,
     C_J,
@@ -918,7 +920,7 @@ enum Item DECK_ORDER[] = {
     D_T,
     C_T
 };
-struct WeightedItem PACKS[] = {
+weighteditem PACKS[] = {
     {RETRY, 22.42}, //total
     {Arcana_Pack, 4},
     {Jumbo_Arcana_Pack, 2},
@@ -936,7 +938,7 @@ struct WeightedItem PACKS[] = {
     {Jumbo_Spectral_Pack, 0.3},
     {Mega_Spectral_Pack, 0.07}
 };
-enum Item TAROTS[] = {
+item TAROTS[] = {
     22,
     The_Fool,
     The_Magician,
@@ -961,7 +963,7 @@ enum Item TAROTS[] = {
     Judgement,
     The_World
 };
-enum Item COMMON_JOKERS[] = {
+item COMMON_JOKERS[] = {
     22,
     Joker,
     Greedy_Joker,
@@ -986,7 +988,7 @@ enum Item COMMON_JOKERS[] = {
     Superposition,
     Raised_Fist
 };
-enum Item UNCOMMON_JOKERS[] = {
+item UNCOMMON_JOKERS[] = {
     16,
     Four_Fingers,
     Banner,
@@ -1005,7 +1007,7 @@ enum Item UNCOMMON_JOKERS[] = {
     Flower_Pot,
     Trading_Card
 };
-enum Item RARE_JOKERS[] = {
+item RARE_JOKERS[] = {
     7,
     Seance,
     Obelisk,
@@ -1015,7 +1017,7 @@ enum Item RARE_JOKERS[] = {
     Invisible_Joker,
     Brainstorm
 };
-enum Item SPECTRALS[] = {
+item SPECTRALS[] = {
     18,
     Familiar,
     Grim,
@@ -1036,7 +1038,7 @@ enum Item SPECTRALS[] = {
     RETRY, //Soul
     RETRY //Black_Hole
 };
-enum Item TAGS[] = {
+item TAGS[] = {
     24,
     Uncommon_Tag,
     Rare_Tag,
@@ -1065,13 +1067,13 @@ enum Item TAGS[] = {
 };
 
 // Helper functions
-enum Item c_suit(enum Item card) {
+item c_suit(item card) {
     if (card <= C_T) return Clubs;
     if (card <= D_T) return Diamonds;
     if (card <= H_T) return Hearts;
     return Spades;
 }
-enum Item c_rank(enum Item card) {
+item c_rank(item card) {
     if (card % 13 == C_2 % 13) return _2;
     if (card % 13 == C_3 % 13) return _3;
     if (card % 13 == C_4 % 13) return _4;
@@ -1086,17 +1088,17 @@ enum Item c_rank(enum Item card) {
     if (card % 13 == C_K % 13) return King;
     return Ace;
 }
-enum Item c_next_rank(enum Item rank) {
+item c_next_rank(item rank) {
     if (rank == Ace) return _2;
     return (int)rank+1;
 }
-enum Item c_suit_repr(enum Item suit) {
+item c_suit_repr(item suit) {
     if (suit == Clubs) return C_2;
     if (suit == Diamonds) return D_2;
     if (suit == Hearts) return H_2;
     return S_2;
 }
-enum Item c_rank_repr(enum Item rank) {
+item c_rank_repr(item rank) {
     if (rank == _2) return C_2;
     if (rank == _3) return C_3;
     if (rank == _4) return C_4;
@@ -1112,25 +1114,25 @@ enum Item c_rank_repr(enum Item rank) {
     return C_A;
 }
 
-enum Item c_from_rank_suit(enum Item rank, enum Item suit) {
+item c_from_rank_suit(item rank, item suit) {
     return c_suit_repr(suit) + c_rank_repr(rank) - C_2;
 }
 
 // Instance
-struct GameInstance {
-    struct Seed seed;
-    struct Cache rngCache;
+typedef struct GameInstance {
+    seed seed;
+    cache rngCache;
     double hashedSeed;
-    struct LuaRandom rng;
-};
-struct GameInstance i_new(struct Seed s) {
-    struct GameInstance inst;
+    lrandom rng;
+} instance;
+instance i_new(seed s) {
+    instance inst;
     inst.seed = s;
     inst.hashedSeed = pseudohash(s_to_string(&s));
     inst.rngCache.nextFreeNode = 0;
     return inst;
 }
-double get_node_child(struct GameInstance* inst, enum NodeType nts[], int ids[], int num) {
+double get_node_child(instance* inst, ntype nts[], int ids[], int num) {
     double temp = 0; // will store value set to node, which has some post-processing at the end
     int node_id = -1;
     // Check if node exists
@@ -1154,7 +1156,7 @@ double get_node_child(struct GameInstance* inst, enum NodeType nts[], int ids[],
     }
     if (node_id == -1) {
         node_id = init_node(&(inst->rngCache),nts,ids,num);
-        struct Text phvalue = node_str(nts[0],ids[0]);
+        text phvalue = node_str(nts[0],ids[0]);
         for (int i = 1; i < num; i++) {
             phvalue = text_concat(phvalue, node_str(nts[i],ids[i]));
         }
@@ -1164,23 +1166,23 @@ double get_node_child(struct GameInstance* inst, enum NodeType nts[], int ids[],
     inst->rngCache.nodes[node_id].rngState = roundDigits(fract(inst->rngCache.nodes[node_id].rngState*1.72431234+2.134453429141),13);
     return (inst->rngCache.nodes[node_id].rngState + inst->hashedSeed)/2;
 }
-double i_random(struct GameInstance* inst, enum NodeType nts[], int ids[], int num) {
+double i_random(instance* inst, ntype nts[], int ids[], int num) {
     if (num > 0) {
         inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
     return random(&(inst->rng));
 }
-double i_random_simple(struct GameInstance* inst, enum RandomType rt) {
-    return i_random(inst, (enum NodeType[]){N_Type}, (int[]){rt}, 1);
+double i_random_simple(instance* inst, rtype rt) {
+    return i_random(inst, (ntype[]){N_Type}, (int[]){rt}, 1);
 }
-ulong i_randint(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, ulong min, ulong max) {
+ulong i_randint(instance* inst, ntype nts[], int ids[], int num, ulong min, ulong max) {
     if (num > 0) {
         inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
     return randint(&(inst->rng), min, max);
 }
 
-enum Item i_randchoice(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, __global enum Item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
+item i_randchoice(instance* inst, ntype nts[], int ids[], int num, __global item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
     if (num > 0) {
         inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
@@ -1188,11 +1190,11 @@ enum Item i_randchoice(struct GameInstance* inst, enum NodeType nts[], int ids[]
 }
 
 // The most common form of randchoice
-enum Item i_randchoice_common(struct GameInstance* inst, enum RandomType rngType, enum RNGSource src, int ante, __global enum Item items[]) {
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
+item i_randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
+    return i_randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
 }
 
-enum Item i_randweightedchoice(struct GameInstance* inst, enum NodeType nts[], int ids[], int num, __global struct WeightedItem items[]) {
+item i_randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __global weighteditem items[]) {
     double poll = i_random(inst, nts, ids, num)*items[0].weight;
     int idx = 1;
     double weight = 0;
@@ -1200,46 +1202,46 @@ enum Item i_randweightedchoice(struct GameInstance* inst, enum NodeType nts[], i
         weight += items[idx].weight;
         idx++;
     }
-    return items[idx-1].item;
+    return items[idx-1]._item;
 }
 
-void i_shuffle_deck(struct GameInstance* inst, enum Item deck[], int ante) {
-    inst->rng = randomseed(get_node_child(inst, (enum NodeType[]){N_Type, N_Ante}, (int[]){R_Shuffle_New_Round, ante}, 2));
+void i_shuffle_deck(instance* inst, item deck[], int ante) {
+    inst->rng = randomseed(get_node_child(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Shuffle_New_Round, ante}, 2));
     for (int i = 51; i >= 1; i--) {
         int x = randint(&(inst->rng), 0, i);
-        enum Item temp = deck[i];
+        item temp = deck[i];
         deck[i] = deck[x];
         deck[x] = temp;
     }
 }
 
 // Helper functions for common actions
-int i_misprint(struct GameInstance* inst) {
-    return (int)i_randint(inst, (enum NodeType[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
+int i_misprint(instance* inst) {
+    return (int)i_randint(inst, (ntype[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
 }
 
-struct Card {
-    enum Item base;
-    enum Item enhancement;
-    enum Item edition;
-    enum Item seal;
-};
+typedef struct Card {
+    item base;
+    item enhancement;
+    item edition;
+    item seal;
+} card;
 
-enum Item i_standard_enhancement(struct GameInstance* inst, int ante) {
+item i_standard_enhancement(instance* inst, int ante) {
     if (i_random_simple(inst, R_Standard_Has_Enhancement) <= 0.6) return No_Enhancement;
     return i_randchoice_common(inst, R_Enhancement, S_Standard, ante, ENHANCEMENTS);
 }
-enum Item i_standard_base(struct GameInstance* inst, int ante) {
+item i_standard_base(instance* inst, int ante) {
     return i_randchoice_common(inst, R_Card, S_Standard, ante, CARDS);
 }
-enum Item i_standard_edition(struct GameInstance* inst) {
+item i_standard_edition(instance* inst) {
     double val = i_random_simple(inst, R_Standard_Edition);
     if (val > 0.988) return Polychrome;
     if (val > 0.96) return Holographic;
     if (val > 0.92) return Foil;
     return No_Edition;
 }
-enum Item i_standard_seal(struct GameInstance* inst) {
+item i_standard_seal(instance* inst) {
     if (i_random_simple(inst, R_Standard_Has_Seal) <= 0.8) return No_Seal;
     double val = i_random_simple(inst, R_Standard_Seal);
     if (val > 0.75) return Red_Seal;
@@ -1247,8 +1249,8 @@ enum Item i_standard_seal(struct GameInstance* inst) {
     if (val > 0.25) return Gold_Seal;
     return Purple_Seal;
 }
-struct Card i_standard_card(struct GameInstance* inst, int ante) {
-    struct Card out;
+card i_standard_card(instance* inst, int ante) {
+    card out;
     out.enhancement = i_standard_enhancement(inst, ante);
     out.base = i_standard_base(inst, ante);
     out.edition = i_standard_edition(inst);
@@ -1256,33 +1258,33 @@ struct Card i_standard_card(struct GameInstance* inst, int ante) {
     return out;
 }
 
-enum Item i_next_pack(struct GameInstance* inst) {
-    return i_randweightedchoice(inst, (enum NodeType[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
+item i_next_pack(instance* inst) {
+    return i_randweightedchoice(inst, (ntype[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
 }
 
 // These functions can probably be used to encompass a lot of packs
-enum Item i_next_tarot(struct GameInstance* inst, enum RNGSource src, int ante) {
+item i_next_tarot(instance* inst, rsrc src, int ante) {
     // Note: assumes no redraws
     return i_randchoice_common(inst, R_Tarot, src, ante, TAROTS);
 }
 
-enum Item i_next_spectral(struct GameInstance* inst, enum RNGSource src, int ante) {
+item i_next_spectral(instance* inst, rsrc src, int ante) {
     return i_randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
 }
 
-enum Item i_next_tarot_resample(struct GameInstance* inst, enum RNGSource src, int ante, int iter) {
-    return i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tarot, src, ante, iter}, 4, TAROTS);
+item i_next_tarot_resample(instance* inst, rsrc src, int ante, int iter) {
+    return i_randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tarot, src, ante, iter}, 4, TAROTS);
 }
 
-enum Item i_next_joker(struct GameInstance* inst, enum RNGSource src, int ante) {
-    double rarity = i_random(inst, (enum NodeType[]){N_Type, N_Ante, N_Source}, (int[]){R_Joker_Rarity, ante, src}, 3);
+item i_next_joker(instance* inst, rsrc src, int ante) {
+    double rarity = i_random(inst, (ntype[]){N_Type, N_Ante, N_Source}, (int[]){R_Joker_Rarity, ante, src}, 3);
     if (rarity > 0.95) return i_randchoice_common(inst, R_Joker_Rare, src, ante, RARE_JOKERS);
     if (rarity > 0.7) return i_randchoice_common(inst, R_Joker_Uncommon, src, ante, UNCOMMON_JOKERS);
     return i_randchoice_common(inst, R_Joker_Common, src, ante, COMMON_JOKERS);
 }
 
-enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, int ante) {
-    double poll = i_random(inst, (enum NodeType[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Edition, src, ante}, 3);
+item i_next_joker_edition(instance* inst, rsrc src, int ante) {
+    double poll = i_random(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Edition, src, ante}, 3);
     if (poll > 0.997) return Negative;
     if (poll > 0.994) return Polychrome;
     if (poll > 0.98) return Holographic;
@@ -1291,34 +1293,34 @@ enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, in
 }
 
 // Accounts for shop not giving jokers sometimes
-enum Item i_shop_joker(struct GameInstance* inst, int ante) {
-    double card_type = i_random(inst, (enum NodeType[]){N_Type, N_Ante}, (int[]){R_Card_Type, ante}, 2) * 28;
+item i_shop_joker(instance* inst, int ante) {
+    double card_type = i_random(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Card_Type, ante}, 2) * 28;
     if (card_type <= 20) return i_next_joker(inst, S_Shop, ante);
     return RETRY;
 }
 
-enum Item i_next_tag(struct GameInstance* inst, int ante) {
+item i_next_tag(instance* inst, int ante) {
     if (ante == 1) {
-        enum Item item = i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
+        item _item = i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
         int r = 1;
-        enum Item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag, Handy_Tag, Garbage_Tag};
+        item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag, Handy_Tag, Garbage_Tag};
         for (int i = 0; i < 9; i++) {
-            if (banlist[i] == item) {
-                item = i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tags, S_Null, ante, r}, 4, TAGS);
+            if (banlist[i] == _item) {
+                _item = i_randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tags, S_Null, ante, r}, 4, TAGS);
                 r++;
                 i = 0;
             }
         }
-        return item;
+        return _item;
     } else {
         return i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
     }
 }
 
 // Don't use this right now, it's relatively slow for some reason
-void i_tarot_pack(enum Item out[], struct GameInstance* inst, enum RNGSource src, int ante, int size) {
+void i_tarot_pack(item out[], instance* inst, rsrc src, int ante, int size) {
     for (int n = 0; n < size; n++) {
-        enum Item tarot = i_next_tarot(inst, src, ante);
+        item tarot = i_next_tarot(inst, src, ante);
         int resampleID = 1;
         for (int i = 0; i < n; i++) {
             if (out[i] == tarot) {
@@ -1331,12 +1333,12 @@ void i_tarot_pack(enum Item out[], struct GameInstance* inst, enum RNGSource src
     }
 }
 
-/*enum Item i_random_joker(struct GameInstance* inst) {
+/*item i_random_joker(instance* inst) {
     double rng = i_random(inst, R_JokerRarity)i
     return i_randchoice(inst, R_Joker, (rng>0.97?RareJokers:(rng>0.82?UncommonJokers:CommonJokers)), (rng>0.97?sizeof(RareJokers):(rng>0.82?sizeof(UncommonJokers):sizeof(CommonJokers))));
 }
 
-enum Item i_random_edition(struct GameInstance* inst) {
+item i_random_edition(instance* inst) {
     double rng = i_random(inst, R_Edition);
     if (rng > 0.997) return Negative;
     if (rng > 0.994) return Polychrome;
