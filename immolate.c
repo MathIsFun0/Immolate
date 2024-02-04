@@ -2,7 +2,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.3g.0\n");
+    printf_s("Immolate v0.9.3i.0\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clCreateProgramWithSource - Creating OpenCL program");
 
     // Build the program
-    err = clBuildProgram(ssKernelProgram, 1, &device, "-cl-mad-enable", NULL, NULL);
+    err = clBuildProgram(ssKernelProgram, 1, &device, "", NULL, NULL);
     if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
         size_t logLength = 0;
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);

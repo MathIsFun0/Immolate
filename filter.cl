@@ -152,7 +152,7 @@
 }*/
 
 // SPEEDRUN
-long filter(struct GameInstance* inst) {
+/*long filter(struct GameInstance* inst) {
     long passed_filters = 0;
 
     // Banner, Popcorn in ante 2
@@ -164,14 +164,14 @@ long filter(struct GameInstance* inst) {
     // Throwback, Flower Pot, Baseball Card in antes 3-5
     enum Item jkrs[6] = {i_shop_joker(inst, 3),i_shop_joker(inst, 3),i_shop_joker(inst, 4),i_shop_joker(inst, 4),i_shop_joker(inst, 5),i_shop_joker(inst, 5)};
     bool hasThrowback = false;
-    bool hasPot = false;
+    bool hasRamen = false;
     bool hasBaseball = false;
     for (int i = 0; i < 6; i++) {
         if (jkrs[i] == Throwback) hasThrowback = true;
-        if (jkrs[i] == Flower_Pot) hasPot = true;
+        if (jkrs[i] == Ramen) hasRamen = true;
         if (jkrs[i] == Baseball_Card) hasBaseball = true;
     }
-    if (hasBaseball && hasThrowback && hasPot) passed_filters++;
+    if (hasBaseball && hasThrowback && hasRamen) passed_filters++;
     else return passed_filters;
 
     // Check for straight flush
@@ -201,6 +201,20 @@ long filter(struct GameInstance* inst) {
     }
     if (isStrush) return 999;
     return passed_filters;
+}*/
+
+long filter(struct GameInstance* inst) {
+    int start_id = 1;
+    // Code for fixing shuffler
+    enum Item deck[52];
+    for (int i = 1; i <= 52; i++) {
+        deck[i] = i;
+    }
+    i_shuffle_deck(inst, deck, 1);
+    if (deck[51] == start_id && deck[50] == start_id+1 && deck[49] == start_id+2 && deck[48] == start_id+3 && deck[47] == start_id+4) {
+        return 1;
+    }
+    return 0;
 }
 
 // Search

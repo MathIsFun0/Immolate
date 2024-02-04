@@ -39,8 +39,14 @@ double fract(double f) {
 double pseudohash(struct Text s) {
     //resizeString(&s, 16, ' ');
     double num = 1;
+    int k = 20; //determines size of left and right shifts...
     for (int i = s.len - 1; i >= 0; i--) {
-        num = fract((1.1239285023/num)*s.str[i]*3.14159265358979323846);
+        // Floating point addition is weird, so we have to make it have more room for error
+        long int_part = (1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1))*(1<<k);
+        double fract_part = fract(fract((1.1239285023/num*s.str[i]*3.141592653589793116)*(1<<k))+fract((3.141592653589793116*(i+1))*(1<<k)));
+        num = fract(((double)(int_part)+fract_part)/(1<<k));
+        // What the original function would look like:
+        //num = fract(1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1));
     }
     return num;
 }
@@ -325,7 +331,6 @@ enum Item {
     Gros_Michel,
     Even_Steven,
     Odd_Todd,
-    Spare_Trousers,
     Misprint,
     Green_Joker,
     Photograph,
@@ -353,6 +358,7 @@ enum Item {
     Flower_Pot,
     Trading_Card,
     Diet_Cola,
+    Spare_Trousers,
     J_U_END,
 
     J_R_BEGIN,
@@ -721,7 +727,7 @@ struct Text type_str(int x) {
         case R_Spectral:                 return init_text("Spectral", 8);
         case R_Tags:                     return init_text("Tag", 3);
         case R_Shuffle_New_Round:        return init_text("nr", 2);
-        case R_Card_Type:                return init_text("card_type", 9);
+        case R_Card_Type:                return init_text("cdt", 3);
         default:                         return init_text("", 0);
     }
 }
@@ -857,6 +863,7 @@ enum Item CARDS[] = {
     S_Q,
     S_T
 };
+// This list will probably have to be updated, I didn't check
 enum Item DECK_ORDER[] = {
     D_4,
     C_4,
@@ -955,7 +962,7 @@ enum Item TAROTS[] = {
     The_World
 };
 enum Item COMMON_JOKERS[] = {
-    23,
+    22,
     Joker,
     Greedy_Joker,
     Lusty_Joker,
@@ -968,7 +975,6 @@ enum Item COMMON_JOKERS[] = {
     Gros_Michel,
     Even_Steven,
     Odd_Todd,
-    Spare_Trousers,
     Misprint,
     Green_Joker,
     Photograph,
@@ -981,12 +987,13 @@ enum Item COMMON_JOKERS[] = {
     Raised_Fist
 };
 enum Item UNCOMMON_JOKERS[] = {
-    15,
+    16,
     Four_Fingers,
     Banner,
     Fibonacci,
     Hack,
     Gift_Card,
+    Spare_Trousers,
     Shortcut,
     Hologram,
     Vagabond,
@@ -1285,7 +1292,7 @@ enum Item i_next_joker_edition(struct GameInstance* inst, enum RNGSource src, in
 
 // Accounts for shop not giving jokers sometimes
 enum Item i_shop_joker(struct GameInstance* inst, int ante) {
-    double card_type = i_random_simple(inst, R_Card_Type) * 28;
+    double card_type = i_random(inst, (enum NodeType[]){N_Type, N_Ante}, (int[]){R_Card_Type, ante}, 2) * 28;
     if (card_type <= 20) return i_next_joker(inst, S_Shop, ante);
     return RETRY;
 }
@@ -1294,8 +1301,8 @@ enum Item i_next_tag(struct GameInstance* inst, int ante) {
     if (ante == 1) {
         enum Item item = i_randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
         int r = 1;
-        enum Item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag};
-        for (int i = 0; i < 7; i++) {
+        enum Item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag, Handy_Tag, Garbage_Tag};
+        for (int i = 0; i < 9; i++) {
             if (banlist[i] == item) {
                 item = i_randchoice(inst, (enum NodeType[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tags, S_Null, ante, r}, 4, TAGS);
                 r++;
