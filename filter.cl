@@ -1,5 +1,5 @@
-#include "immolate.cl"
-#include "examples/red_poly_glass.cl"
+#include "lib/immolate.cl"
+#include "filters/red_poly_glass.cl"
 
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
