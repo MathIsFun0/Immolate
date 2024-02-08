@@ -5,9 +5,10 @@ typedef struct GameInstance {
     cache rngCache;
     double hashedSeed;
     lrandom rng;
+    bool locked[ITEMS_END];
 } instance;
 instance i_new(seed s) {
-    instance inst;
+    instance inst = {.locked = {true}};
     inst.seed = s;
     inst.hashedSeed = pseudohash(s_to_string(&s));
     inst.rngCache.nextFreeNode = 0;
@@ -71,8 +72,27 @@ item randchoice(instance* inst, ntype nts[], int ids[], int num, __global item i
 }
 
 // The most common form of randchoice
+// Now with rerolls!
 item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
-    return randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
+    item i = randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
+    if (inst->locked[i]) {
+        int resampleNum = 1;
+        while (inst->locked[i]) {
+            i = randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){rngType, src, ante, resampleNum}, 4, items);
+            resampleNum++;
+        }
+    }
+    return i;
+}
+
+void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
+    for (int i = 0; i < size; i++) {
+        out[i] = randchoice_common(inst, rngType, src, ante, items);
+        inst->locked[out[i]] = true; // temporary reroll for locked items
+    }
+    for (int i = 0; i < size; i++) {
+        inst->locked[out[i]] = false;
+    }
 }
 
 item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __global weighteditem items[]) {

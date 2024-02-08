@@ -1,5 +1,3 @@
-
-
 void shuffle_deck(instance* inst, item deck[], int ante) {
     inst->rng = randomseed(get_node_child(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Shuffle_New_Round, ante}, 2));
     for (int i = 51; i >= 1; i--) {
@@ -10,7 +8,6 @@ void shuffle_deck(instance* inst, item deck[], int ante) {
     }
 }
 
-// Helper functions for common actions
 int misprint(instance* inst) {
     return (int)randint(inst, (ntype[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
 }
@@ -59,16 +56,11 @@ item next_pack(instance* inst) {
 
 // These functions can probably be used to encompass a lot of packs
 item next_tarot(instance* inst, rsrc src, int ante) {
-    // Note: assumes no redraws
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
 }
 
 item next_spectral(instance* inst, rsrc src, int ante) {
     return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
-}
-
-item next_tarot_resample(instance* inst, rsrc src, int ante, int iter) {
-    return randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tarot, src, ante, iter}, 4, TAROTS);
 }
 
 item next_joker(instance* inst, rsrc src, int ante) {
@@ -117,18 +109,27 @@ item next_tag(instance* inst, int ante) {
     }
 }
 
-// Don't use this right now, it's relatively slow for some reason. Still figuring out resampling...
-void tarot_pack(item out[], instance* inst, rsrc src, int ante, int size) {
-    for (int n = 0; n < size; n++) {
-        item tarot = next_tarot(inst, src, ante);
-        int resampleID = 1;
-        for (int i = 0; i < n; i++) {
-            if (out[i] == tarot) {
-                tarot = next_tarot_resample(inst, src, ante, resampleID);
-                resampleID++;
-                i = -1;
-            }
-        }
-        out[n] = tarot;
+void arcana_pack(item out[], int size, instance* inst, int ante) {
+    randlist(out, size, inst, R_Tarot, S_Arcana, ante, TAROTS);
+}
+void spectral_pack(item out[], int size, instance* inst, int ante) {
+    randlist(out, size, inst, R_Spectral, S_Spectral, ante, SPECTRALS);
+}
+void buffoon_pack(item out[], int size, instance* inst, int ante) {
+    for (int i = 0; i < size; i++) {
+        out[i] = next_joker(inst, S_Buffoon, ante);
+        inst->locked[out[i]] = true; // temporary reroll for locked items
+    }
+    for (int i = 0; i < size; i++) {
+        inst->locked[out[i]] = false;
+    }
+}
+void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
+    for (int i = 0; i < size; i++) {
+        out[i] = next_joker_edition(inst, S_Buffoon, ante);
+        inst->locked[out[i]] = true; // temporary reroll for locked items
+    }
+    for (int i = 0; i < size; i++) {
+        inst->locked[out[i]] = false;
     }
 }
