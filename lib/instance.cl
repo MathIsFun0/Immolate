@@ -105,3 +105,72 @@ item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __globa
     }
     return items[idx-1]._item;
 }
+
+// Locks
+void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
+    // Impossible to obtain in 0.9.3
+    inst->locked[Rare_Tag] = true;
+    inst->locked[The_Ox] = true;
+    
+    // Locked behind antes
+    if (ante < 2) {
+        inst->locked[The_Mouth] = true;
+        inst->locked[The_Fish] = true;
+        inst->locked[The_Wall] = true;
+        inst->locked[The_House] = true;
+        inst->locked[The_Mark] = true;
+        inst->locked[Negative_Tag] = true;
+        inst->locked[Standard_Tag] = true;
+        inst->locked[Meteor_Tag] = true;
+        inst->locked[Buffoon_Tag] = true;
+        inst->locked[Handy_Tag] = true;
+        inst->locked[Garbage_Tag] = true;
+        inst->locked[Ethereal_Tag] = true;
+        inst->locked[Top_up_Tag] = true;
+        inst->locked[Orbital_Tag] = true;
+    }
+    if (ante < 3) {
+        inst->locked[The_Tooth] = true;
+    }
+
+    // Locked in a fresh profile
+    if (fresh_profile) {
+        inst->locked[Negative_Tag] = true;
+        inst->locked[Foil_Tag] = true;
+        inst->locked[Holographic_Tag] = true;
+        inst->locked[Polychrome_Tag] = true;
+    }
+
+    // Locked in start of run
+    if (fresh_run) {
+        inst->locked[Planet_X] = true;
+        inst->locked[Ceres] = true;
+        inst->locked[Eris] = true;
+        inst->locked[Five_of_a_Kind] = true;
+        inst->locked[Flush_House] = true;
+        inst->locked[Flush_Five] = true;
+    }
+}
+
+// Things that are unlocked when switching antes
+void init_unlocks(instance* inst, int ante, bool fresh_profile) {
+    if (ante == 2) {
+        inst->locked[The_Mouth] = false;
+        inst->locked[The_Fish] = false;
+        inst->locked[The_Wall] = false;
+        inst->locked[The_House] = false;
+        inst->locked[The_Mark] = false;
+        if (!fresh_profile) inst->locked[Negative_Tag] = false;
+        inst->locked[Standard_Tag] = false;
+        inst->locked[Meteor_Tag] = false;
+        inst->locked[Buffoon_Tag] = false;
+        inst->locked[Handy_Tag] = false;
+        inst->locked[Garbage_Tag] = false;
+        inst->locked[Ethereal_Tag] = false;
+        inst->locked[Top_up_Tag] = false;
+        inst->locked[Orbital_Tag] = false;
+    }
+    if (ante == 3) {
+        inst->locked[The_Tooth] = false;
+    }
+}

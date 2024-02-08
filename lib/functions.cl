@@ -92,21 +92,7 @@ item shop_tarot(instance* inst, int ante) {
 }
 
 item next_tag(instance* inst, int ante) {
-    if (ante == 1) {
-        item _item = randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
-        int r = 1;
-        item banlist[] = {Negative_Tag, Standard_Tag, Meteor_Tag, Buffoon_Tag, Ethereal_Tag, Top_up_Tag, Orbital_Tag, Handy_Tag, Garbage_Tag};
-        for (int i = 0; i < 9; i++) {
-            if (banlist[i] == _item) {
-                _item = randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){R_Tags, S_Null, ante, r}, 4, TAGS);
-                r++;
-                i = 0;
-            }
-        }
-        return _item;
-    } else {
-        return randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
-    }
+    return randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
 }
 
 void arcana_pack(item out[], int size, instance* inst, int ante) {

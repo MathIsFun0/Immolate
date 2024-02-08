@@ -1,5 +1,5 @@
 #include "lib/immolate.cl"
-#include "filters/red_poly_glass.cl"
+#include "filters/four_deadly_jokers.cl"
 
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
