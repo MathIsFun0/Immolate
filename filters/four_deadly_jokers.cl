@@ -1,4 +1,5 @@
 // Searches for a first shop buffoon pack with the four jokers that give increased mult to suits.
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     // Buffoon Pack of Size 4
     bool suitablePack = false;

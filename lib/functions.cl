@@ -8,10 +8,6 @@ void shuffle_deck(instance* inst, item deck[], int ante) {
     }
 }
 
-int misprint(instance* inst) {
-    return (int)randint(inst, (ntype[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
-}
-
 typedef struct Card {
     item base;
     item enhancement;
@@ -54,9 +50,12 @@ item next_pack(instance* inst) {
     return randweightedchoice(inst, (ntype[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
 }
 
-// These functions can probably be used to encompass a lot of packs
 item next_tarot(instance* inst, rsrc src, int ante) {
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+}
+
+item next_planet(instance* inst, rsrc src, int ante) {
+    return randchoice_common(inst, R_Planet, src, ante, PLANETS);
 }
 
 item next_spectral(instance* inst, rsrc src, int ante) {
@@ -98,6 +97,9 @@ item next_tag(instance* inst, int ante) {
 void arcana_pack(item out[], int size, instance* inst, int ante) {
     randlist(out, size, inst, R_Tarot, S_Arcana, ante, TAROTS);
 }
+void celestial_pack(item out[], int size, instance* inst, int ante) {
+    randlist(out, size, inst, R_Planet, S_Celestial, ante, PLANETS);
+}
 void spectral_pack(item out[], int size, instance* inst, int ante) {
     randlist(out, size, inst, R_Spectral, S_Spectral, ante, SPECTRALS);
 }
@@ -110,6 +112,7 @@ void buffoon_pack(item out[], int size, instance* inst, int ante) {
         inst->locked[out[i]] = false;
     }
 }
+
 void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_joker_edition(inst, S_Buffoon, ante);
@@ -118,4 +121,56 @@ void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
     }
+}
+
+// More specific RNG types
+
+int misprint(instance* inst) {
+    return (int)randint(inst, (ntype[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
+}
+bool lucky_mult(instance* inst) {
+    return random_simple(inst, R_Lucky_Mult) < 1.0/5;
+}
+bool lucky_money(instance* inst) {
+    return random_simple(inst, R_Lucky_Money) < 1.0/15;
+}
+item sigil_suit(instance* inst) {
+    return randchoice_simple(inst, R_Sigil, SUITS);
+}
+item ouija_rank(instance* inst) {
+    return randchoice_simple(inst, R_Ouija, RANKS);
+}
+item wheel_of_fortune_edition(instance* inst) {
+    if (random_simple(inst, R_Wheel_of_Fortune) < 1.0/5) {
+        random_simple(inst, R_Wheel_of_Fortune); //Burn function call
+        double poll = random_simple(inst, R_Wheel_of_Fortune);
+        if (poll > 0.85) return Polychrome;
+        if (poll > 0.5) return Holographic;
+        return Foil;
+    } else return No_Edition;
+}
+bool gros_michel_extinct(instance* inst) {
+    return random_simple(inst, R_Gros_Michel) < 1.0/15;
+}
+item next_voucher(instance* inst, int ante) {
+    item i = randchoice(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Voucher, ante}, 2, VOUCHERS);
+    if (inst->locked[i]) {
+        int resampleNum = 1;
+        while (inst->locked[i]) {
+            i = randchoice(inst, (ntype[]){N_Type, N_Ante, N_Resample}, (int[]){R_Voucher, ante, resampleNum}, 3, VOUCHERS);
+            resampleNum++;
+        }
+    }
+    return i;
+}
+item next_voucher_from_tag(instance* inst, int ante) {
+    item i = randchoice_simple(inst, R_Voucher_Tag, VOUCHERS);
+    if (inst->locked[i]) {
+        int resampleNum = 1;
+        while (inst->locked[i]) {
+            i = randchoice(inst, (ntype[]){N_Type, N_Resample}, (int[]){R_Voucher_Tag, resampleNum}, 2, VOUCHERS);
+            resampleNum++;
+        }
+    }
+    return i;
 }

@@ -85,6 +85,10 @@ item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __glob
     return i;
 }
 
+item randchoice_simple(instance* inst, rtype rngType, __global item items[]) {
+    return randchoice(inst, (ntype[]){N_Type}, (int[]){rngType}, 1, items);
+}
+
 void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
     for (int i = 0; i < size; i++) {
         out[i] = randchoice_common(inst, rngType, src, ante, items);

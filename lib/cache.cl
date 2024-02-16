@@ -18,6 +18,15 @@ typedef enum RandomType {
     R_Tags,
     R_Shuffle_New_Round,
     R_Card_Type,
+    R_Planet,
+    R_Lucky_Mult,
+    R_Lucky_Money,
+    R_Sigil,
+    R_Ouija,
+    R_Wheel_of_Fortune,
+    R_Gros_Michel,
+    R_Voucher,
+    R_Voucher_Tag,
     R_END
 } rtype;
 
@@ -38,6 +47,7 @@ typedef enum RNGSource {
     S_Top_Up,
     S_Rare_Tag,
     S_Uncommon_Tag,
+    S_Blue_Seal,
     S_Null,
     SOURCE_END
 } rsrc;
@@ -70,6 +80,15 @@ text type_str(int x) {
         case R_Tags:                     return init_text("Tag", 3);
         case R_Shuffle_New_Round:        return init_text("nr", 2);
         case R_Card_Type:                return init_text("cdt", 3);
+        case R_Planet:                   return init_text("Planet", 6);
+        case R_Lucky_Mult:               return init_text("lucky_mult", 10);
+        case R_Lucky_Money:              return init_text("lucky_money", 11);
+        case R_Sigil:                    return init_text("sigil", 5);
+        case R_Ouija:                    return init_text("ouija", 5);
+        case R_Wheel_of_Fortune:         return init_text("wheel_of_fortune", 16);
+        case R_Gros_Michel:              return init_text("gros_michel", 11);
+        case R_Voucher:                  return init_text("Voucher", 7);
+        case R_Voucher_Tag:              return init_text("Voucher_fromtag", 15);
         default:                         return init_text("", 0);
     }
 }
@@ -91,6 +110,7 @@ text source_str(int x) {
         case S_Top_Up:         return init_text("top", 3);
         case S_Rare_Tag:       return init_text("rta", 3);
         case S_Uncommon_Tag:   return init_text("uta", 3);
+        case S_Blue_Seal:      return init_text("blusl", 5);
         default:               return init_text("", 0);
     }
 }

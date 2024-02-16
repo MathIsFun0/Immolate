@@ -84,6 +84,10 @@ void s_print(seed* s) {
     text s_str = s_to_string(s);
     printf("%c%c%c%c%c%c%c%c",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7]);
 }
+void s_print_rank(seed* s, long rank) {
+    text s_str = s_to_string(s);
+    printf("%c%c%c%c%c%c%c%c (%li)\n",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7],rank);
+}
 
 typedef struct RankedSeedList {
     long rank;
@@ -111,11 +115,13 @@ void rs_clear(rslist* rs, long rank) {
 void rs_add(rslist* rs, long rank, seed seed) {
     if (rank<rs->rank) return;
     if (rank>rs->rank) rs_clear(rs, rank);
-    if (rs->numSeeds >= MAX_RANKED_SEEDS) return;
+    if (rs->numSeeds >= MAX_RANKED_SEEDS) {
+        s_print_rank(&seed,rank);
+        return;
+    }
     rs->seeds[rs->numSeeds] = seed;
     rs->numSeeds++;
-    s_print(&seed);
-    printf(" (%li)\n",rank);
+    s_print_rank(&seed,rank);
 }
 void rs_merge(rslist* rs1, rslist* rs2) {
     if (rs1->rank < rs2->rank) {

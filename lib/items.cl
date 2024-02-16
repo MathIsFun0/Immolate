@@ -1,5 +1,6 @@
 // Contains every kind of thing you could search for!
 // Updated as of 0.9.3
+
 typedef enum Item {
     RETRY,
 
@@ -408,7 +409,29 @@ item CARDS[] = {
     S_Q,
     S_T
 };
-// This list will probably have to be updated, I didn't check
+item SUITS[] = {
+    4,
+    Spades,
+    Hearts,
+    Diamonds,
+    Clubs
+};
+item RANKS[] = {
+    13,
+    _2,
+    _3,
+    _4,
+    _5,
+    _6,
+    _7,
+    _8,
+    _9,
+    _10,
+    Jack,
+    Queen,
+    King,
+    Ace
+};
 item DECK_ORDER[] = {
     D_4,
     C_4,
@@ -526,6 +549,22 @@ item TAROTS[] = {
     Judgement,
     The_World
 };
+item PLANETS[] = {
+    12,
+    Mercury,
+    Venus,
+    Earth,
+    Mars,
+    Jupiter,
+    Saturn,
+    Uranus,
+    Neptune,
+    Pluto,
+    Planet_X,
+    Ceres,
+    Eris
+};
+#ifdef DEMO
 item COMMON_JOKERS[] = {
     22,
     Joker,
@@ -601,6 +640,18 @@ item SPECTRALS[] = {
     RETRY, //Soul
     RETRY //Black_Hole
 };
+item VOUCHERS[] = {
+    8,
+    Overstock,
+    Hone,
+    Crystal_Ball,
+    Grabber,
+    Tarot_Merchant,
+    Planet_Merchant,
+    Seed_Money,
+    Paint_Brush
+};
+#endif
 item TAGS[] = {
     24,
     Uncommon_Tag,

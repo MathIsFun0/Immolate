@@ -1,3 +1,5 @@
+// Searches for a seed with a good setup for high score world record runs
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     int passedFilters = 0;
 

@@ -1,27 +1,33 @@
-// Speedrunning seeds for Set Seed Skips
+// Maximum cash out possible in Ante 1
 #include "lib/immolate.cl"
 long filter(instance* inst) {
     long passedFilters = 0;
+    
+    // The tags we need
+    if (next_tag(inst, 1) != Charm_Tag) return passedFilters;
+    if (next_tag(inst, 1) != Economy_Tag) return passedFilters;
+    passedFilters++;
 
-    // Banner and Popcorn in ante 2
-    item jkr1 = shop_joker(inst, 2);
-    item jkr2 = shop_joker(inst, 2);
-    if ((jkr1 == Banner && jkr2 == Popcorn) || (jkr1 == Popcorn && jkr2 == Banner)) passedFilters++;
-    else return passedFilters;
-
-    // Throwback, Flower Pot, and Baseball Card in antes 3-5
-    item jkrs[6] = {shop_joker(inst, 3),shop_joker(inst, 3),shop_joker(inst, 4),shop_joker(inst, 4),shop_joker(inst, 5),shop_joker(inst, 5)};
-    bool hasThrowback = false;
-    bool hasRamen = false;
-    bool hasBaseball = false;
-    for (int i = 0; i < 6; i++) {
-        if (jkrs[i] == Throwback) hasThrowback = true;
-        if (jkrs[i] == Ramen) hasRamen = true;
-        if (jkrs[i] == Baseball_Card) hasBaseball = true;
+    int hasHermit = 0;
+    int hasEmperor = 0;
+    // Generate pack
+    item tarots[5];
+    arcana_pack(tarots, 5, inst, 1);
+    for (int i = 0; i < 5; i++) {
+        if (tarots[i] == The_Hermit) hasHermit = 1;
+        else if (tarots[i] == The_Emperor) hasEmperor = 1;
+        else inst->locked[tarots[i]] = true; // Locked for emperor generation
     }
-    if (hasBaseball && hasThrowback && hasRamen) passedFilters++;
-    else return passedFilters;
-
+    if (hasHermit + hasEmperor != 2) return passedFilters;
+    passedFilters++;
+    item empTarot1 = next_tarot(inst, S_Emperor, 1);
+    item empTarot2 = next_tarot(inst, S_Emperor, 1);
+    if (empTarot1 != The_Hermit && empTarot2 != The_Hermit) return passedFilters;
+    passedFilters++;
+    bool bonusPoints = false;
+    if (empTarot1 == Judgement || empTarot2 == Judgement) {
+        if (next_joker(inst, S_Judgement, 1) == Diet_Cola) bonusPoints = true;
+    };
     // Check for a Straight Flush. (There's been some bugs here, so this code might need to be looked at more later.)
     item deck[52];
     for (int i = 0; i < 52; i++) {
@@ -48,6 +54,9 @@ long filter(instance* inst) {
         }
         if (isStrush) break;
     }
-    if (isStrush) return 999;
-    return passedFilters;
+    if (isStrush) {
+        if (bonusPoints) return 1000;
+        return 999;
+    }
+    return 900+(bonusPoints?1:0);
 }

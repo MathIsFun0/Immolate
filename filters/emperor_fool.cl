@@ -1,4 +1,5 @@
 // Emperor-Fool Chains
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     int bestAnte = 0;
     long bestScore = 0;
