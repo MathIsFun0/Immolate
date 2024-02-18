@@ -1,7 +1,7 @@
 // Based on C++ program by 00001H and MathIsFun_
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #ifndef GAME_VERSION
-    #define GAME_VERSION {0,9,3,12} //0.9.3L
+    #define GAME_VERSION {0,9,3,14} //0.9.3n
 #endif
 #include "util.cl" // Contains utility functions
 #include "seed.cl" // Contains seed/seed list info

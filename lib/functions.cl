@@ -46,9 +46,16 @@ card standard_card(instance* inst, int ante) {
     return out;
 }
 
+#if V_AT_MOST(0,9,3,12)
 item next_pack(instance* inst) {
     return randweightedchoice(inst, (ntype[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
 }
+#else
+// Becomes ante-based in 0.9.3n
+item next_pack(instance* inst, int ante) {
+    return randweightedchoice(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Shop_Pack, ante}, 2, PACKS);
+}
+#endif
 
 item next_tarot(instance* inst, rsrc src, int ante) {
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
@@ -140,6 +147,7 @@ item sigil_suit(instance* inst) {
 item ouija_rank(instance* inst) {
     return randchoice_simple(inst, R_Ouija, RANKS);
 }
+#if V_AT_MOST(0,9,3,12)
 item wheel_of_fortune_edition(instance* inst) {
     if (random_simple(inst, R_Wheel_of_Fortune) < 1.0/5) {
         random_simple(inst, R_Wheel_of_Fortune); //Burn function call
@@ -149,6 +157,18 @@ item wheel_of_fortune_edition(instance* inst) {
         return Foil;
     } else return No_Edition;
 }
+#else
+//Wheel of Fortune buffed in 0.9.3n
+item wheel_of_fortune_edition(instance* inst) {
+    if (random_simple(inst, R_Wheel_of_Fortune) < 1.0/4) {
+        random_simple(inst, R_Wheel_of_Fortune); //Burn function call
+        double poll = random_simple(inst, R_Wheel_of_Fortune);
+        if (poll > 0.85) return Polychrome;
+        if (poll > 0.5) return Holographic;
+        return Foil;
+    } else return No_Edition;
+}
+#endif
 bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/15;
 }
