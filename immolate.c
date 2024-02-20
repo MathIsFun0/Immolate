@@ -2,7 +2,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.3o.1\n");
+    printf_s("Immolate v0.9.3o.2\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     char *ssKernelCode;
     size_t ssKernelSize;
  
-    fp = fopen("filter.cl", "r");
+    fp = fopen("search.cl", "r");
     if (!fp) {
         fprintf(stderr, "Failed to load kernel.\n");
         exit(1);
