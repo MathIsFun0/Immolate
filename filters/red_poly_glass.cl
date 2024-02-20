@@ -3,8 +3,8 @@
 long filter(instance* inst) {
     int numCards = 0;
     // Check if either pack is a Standard Pack - and which has the most cards
-    pack pack1 = pack_info(next_pack(inst));
-    pack pack2 = pack_info(next_pack(inst));
+    pack pack1 = pack_info(next_pack(inst, 1));
+    pack pack2 = pack_info(next_pack(inst, 1));
     if (pack1.type == Standard_Pack) numCards = pack1.size;
     if (pack2.type == Standard_Pack && pack2.size > numCards) numCards = pack2.size;
     if (numCards == 0) return 0;

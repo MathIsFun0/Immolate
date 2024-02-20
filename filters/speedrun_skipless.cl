@@ -16,8 +16,8 @@ long filter(instance* inst) {
     Immolate for money
     */
 
-    item pack1 = next_pack(inst);
-    item pack2 = next_pack(inst);
+    item pack1 = next_pack(inst, 1);
+    item pack2 = next_pack(inst, 1);
     int speclPack = 0;
     if (pack1 != Mega_Buffoon_Pack && pack2 != Mega_Buffoon_Pack) return passedFilters;
     passedFilters++;

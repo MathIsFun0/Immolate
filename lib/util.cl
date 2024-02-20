@@ -192,16 +192,16 @@ text int_to_str(int x) {
 }
 
 #define V_AT_LEAST(v1,v2,v3,v4) \
-        (GAME_VERSION[0] > v1) || \
-        (GAME_VERSION[0] == v1 && ((GAME_VERSION[1] > v2) ||\
-        (GAME_VERSION[1] == v2 && ((GAME_VERSION[2] > v3) ||\
-        (GAME_VERSION[2] == v3 && GAME_VERSION[3] >= v4)))))
+        (VER1 > v1) || \
+        (VER1 == v1 && ((VER2 > v2) ||\
+        (VER2 == v2 && ((VER3 > v3) ||\
+        (VER3 == v3 && VER4 >= v4)))))
 
 #define V_AT_MOST(v1,v2,v3,v4) \
-        (GAME_VERSION[0] < v1) || \
-        (GAME_VERSION[0] == v1 && ((GAME_VERSION[1] < v2) ||\
-        (GAME_VERSION[1] == v2 && ((GAME_VERSION[2] < v3) ||\
-        (GAME_VERSION[2] == v3 && GAME_VERSION[3] < v4)))))
+        (VER1 < v1) || \
+        (VER1 == v1 && ((VER2 < v2) ||\
+        (VER2 == v2 && ((VER3 < v3) ||\
+        (VER3 == v3 && VER4 < v4)))))
 
 // Define some constants for important game version splits
 #if V_AT_MOST(0,9999,9999,9999)

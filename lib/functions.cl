@@ -1,5 +1,5 @@
 void shuffle_deck(instance* inst, item deck[], int ante) {
-    inst->rng = randomseed(get_node_child(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Shuffle_New_Round, ante}, 2));
+    inst->rng = randomseed(get_node_child(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shuffle_New_Round, ante}, 2));
     for (int i = 51; i >= 1; i--) {
         int x = l_randint(&(inst->rng), 0, i);
         item temp = deck[i];
@@ -22,6 +22,7 @@ item standard_enhancement(instance* inst, int ante) {
 item standard_base(instance* inst, int ante) {
     return randchoice_common(inst, R_Card, S_Standard, ante, CARDS);
 }
+#if V_AT_MOST(0,9,3,14)
 item standard_edition(instance* inst) {
     double val = random_simple(inst, R_Standard_Edition);
     if (val > 0.988) return Polychrome;
@@ -29,6 +30,15 @@ item standard_edition(instance* inst) {
     if (val > 0.92) return Foil;
     return No_Edition;
 }
+#else
+item standard_edition(instance* inst, int ante) {
+    double val = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Standard_Edition, ante}, 2);
+    if (val > 0.988) return Polychrome;
+    if (val > 0.96) return Holographic;
+    if (val > 0.92) return Foil;
+    return No_Edition;
+}
+#endif
 item standard_seal(instance* inst) {
     if (random_simple(inst, R_Standard_Has_Seal) <= 0.8) return No_Seal;
     double val = random_simple(inst, R_Standard_Seal);
@@ -41,19 +51,19 @@ card standard_card(instance* inst, int ante) {
     card out;
     out.enhancement = standard_enhancement(inst, ante);
     out.base = standard_base(inst, ante);
-    out.edition = standard_edition(inst);
+    out.edition = standard_edition(inst, ante);
     out.seal = standard_seal(inst);
     return out;
 }
 
 #if V_AT_MOST(0,9,3,12)
 item next_pack(instance* inst) {
-    return randweightedchoice(inst, (ntype[]){N_Type}, (int[]){R_Shop_Pack}, 1, PACKS);
+    return randweightedchoice(inst, (__private ntype[]){N_Type}, (__private int[]){R_Shop_Pack}, 1, PACKS);
 }
 #else
 // Becomes ante-based in 0.9.3n
 item next_pack(instance* inst, int ante) {
-    return randweightedchoice(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Shop_Pack, ante}, 2, PACKS);
+    return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
 }
 #endif
 
@@ -70,14 +80,14 @@ item next_spectral(instance* inst, rsrc src, int ante) {
 }
 
 item next_joker(instance* inst, rsrc src, int ante) {
-    double rarity = random(inst, (ntype[]){N_Type, N_Ante, N_Source}, (int[]){R_Joker_Rarity, ante, src}, 3);
+    double rarity = random(inst, (__private ntype[]){N_Type, N_Ante, N_Source}, (__private int[]){R_Joker_Rarity, ante, src}, 3);
     if (rarity > 0.95) return randchoice_common(inst, R_Joker_Rare, src, ante, RARE_JOKERS);
     if (rarity > 0.7) return randchoice_common(inst, R_Joker_Uncommon, src, ante, UNCOMMON_JOKERS);
     return randchoice_common(inst, R_Joker_Common, src, ante, COMMON_JOKERS);
 }
 
 item next_joker_edition(instance* inst, rsrc src, int ante) {
-    double poll = random(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){R_Joker_Edition, src, ante}, 3);
+    double poll = random(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){R_Joker_Edition, src, ante}, 3);
     if (poll > 0.997) return Negative;
     if (poll > 0.994) return Polychrome;
     if (poll > 0.98) return Holographic;
@@ -87,12 +97,12 @@ item next_joker_edition(instance* inst, rsrc src, int ante) {
 
 // Accounts for shop not giving jokers sometimes
 item shop_joker(instance* inst, int ante) {
-    double card_type = random(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Card_Type, ante}, 2) * 28;
+    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
     if (card_type <= 20) return next_joker(inst, S_Shop, ante);
     return RETRY;
 }
 item shop_tarot(instance* inst, int ante) {
-    double card_type = random(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Card_Type, ante}, 2) * 28;
+    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
     if (card_type > 20 && card_type <= 24) return next_tarot(inst, S_Shop, ante);
     return RETRY;
 }
@@ -133,7 +143,7 @@ void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
 // More specific RNG types
 
 int misprint(instance* inst) {
-    return (int)randint(inst, (ntype[]){N_Type}, (int[]){R_Misprint}, 1, 0, 20);
+    return (int)randint(inst, (__private ntype[]){N_Type}, (__private int[]){R_Misprint}, 1, 0, 20);
 }
 bool lucky_mult(instance* inst) {
     return random_simple(inst, R_Lucky_Mult) < 1.0/5;
@@ -173,11 +183,11 @@ bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/15;
 }
 item next_voucher(instance* inst, int ante) {
-    item i = randchoice(inst, (ntype[]){N_Type, N_Ante}, (int[]){R_Voucher, ante}, 2, VOUCHERS);
+    item i = randchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Voucher, ante}, 2, VOUCHERS);
     if (inst->locked[i]) {
         int resampleNum = 1;
         while (inst->locked[i]) {
-            i = randchoice(inst, (ntype[]){N_Type, N_Ante, N_Resample}, (int[]){R_Voucher, ante, resampleNum}, 3, VOUCHERS);
+            i = randchoice(inst, (__private ntype[]){N_Type, N_Ante, N_Resample}, (__private int[]){R_Voucher, ante, resampleNum}, 3, VOUCHERS);
             resampleNum++;
         }
     }
@@ -188,7 +198,7 @@ item next_voucher_from_tag(instance* inst, int ante) {
     if (inst->locked[i]) {
         int resampleNum = 1;
         while (inst->locked[i]) {
-            i = randchoice(inst, (ntype[]){N_Type, N_Resample}, (int[]){R_Voucher_Tag, resampleNum}, 2, VOUCHERS);
+            i = randchoice(inst, (__private ntype[]){N_Type, N_Resample}, (__private int[]){R_Voucher_Tag, resampleNum}, 2, VOUCHERS);
             resampleNum++;
         }
     }

@@ -55,7 +55,7 @@ double random(instance* inst, ntype nts[], int ids[], int num) {
     return l_random(&(inst->rng));
 }
 double random_simple(instance* inst, rtype rt) {
-    return random(inst, (ntype[]){N_Type}, (int[]){rt}, 1);
+    return random(inst, (__private ntype[]){N_Type}, (__private int[]){rt}, 1);
 }
 ulong randint(instance* inst, ntype nts[], int ids[], int num, ulong min, ulong max) {
     if (num > 0) {
@@ -64,7 +64,7 @@ ulong randint(instance* inst, ntype nts[], int ids[], int num, ulong min, ulong 
     return l_randint(&(inst->rng), min, max);
 }
 
-item randchoice(instance* inst, ntype nts[], int ids[], int num, __global item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
+item randchoice(instance* inst, ntype nts[], int ids[], int num, __constant item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
     if (num > 0) {
         inst->rng = randomseed(get_node_child(inst, nts, ids, num));
     }
@@ -73,23 +73,23 @@ item randchoice(instance* inst, ntype nts[], int ids[], int num, __global item i
 
 // The most common form of randchoice
 // Now with rerolls!
-item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
-    item i = randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante}, (int[]){rngType, src, ante}, 3, items);
+item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __constant item items[]) {
+    item i = randchoice(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){rngType, src, ante}, 3, items);
     if (inst->locked[i]) {
         int resampleNum = 1;
         while (inst->locked[i]) {
-            i = randchoice(inst, (ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (int[]){rngType, src, ante, resampleNum}, 4, items);
+            i = randchoice(inst, (__private ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (__private int[]){rngType, src, ante, resampleNum}, 4, items);
             resampleNum++;
         }
     }
     return i;
 }
 
-item randchoice_simple(instance* inst, rtype rngType, __global item items[]) {
-    return randchoice(inst, (ntype[]){N_Type}, (int[]){rngType}, 1, items);
+item randchoice_simple(instance* inst, rtype rngType, __constant item items[]) {
+    return randchoice(inst, (__private ntype[]){N_Type}, (__private int[]){rngType}, 1, items);
 }
 
-void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __global item items[]) {
+void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __constant item items[]) {
     for (int i = 0; i < size; i++) {
         out[i] = randchoice_common(inst, rngType, src, ante, items);
         inst->locked[out[i]] = true; // temporary reroll for locked items
@@ -99,7 +99,7 @@ void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int
     }
 }
 
-item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __global weighteditem items[]) {
+item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __constant weighteditem items[]) {
     double poll = random(inst, nts, ids, num)*items[0].weight;
     int idx = 1;
     double weight = 0;

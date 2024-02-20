@@ -2,11 +2,12 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate v0.9.3n.0\n");
+    printf_s("Immolate v0.9.3o.1\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
     unsigned int deviceID = 0;
+    unsigned int numGroups = 16;
     cl_char8 startingSeed;
     for (int i = 0; i < 8; i++) {
         startingSeed.s[i] = '1';
@@ -15,7 +16,7 @@ int main(int argc, char **argv) {
     cl_long cutoff = 1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
@@ -24,6 +25,10 @@ int main(int argc, char **argv) {
         }
         if (strcmp(argv[i],  "-d")==0) {
             deviceID = atoi(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-g")==0) {
+            numGroups = atoi(argv[i+1]);
             i++;
         }
         if (strcmp(argv[i],  "-n")==0) {
@@ -179,6 +184,7 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clCreateProgramWithSource - Creating OpenCL program");
 
     // Build the program
+    printf("Building program...\n");
     err = clBuildProgram(ssKernelProgram, 1, &device, "", NULL, NULL);
     if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
         size_t logLength = 0;
@@ -211,9 +217,9 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clSetKernelArg - Adding cutoff argument");
 
     // Execute OpenCL kernel
-    // For now, just one thread - this is more for testing consistency of code compared to C code
-    size_t globalSize = 16384;
-    size_t localSize = 128;
+    size_t globalSize = numGroups * numGroups;
+    size_t localSize = numGroups;
+    printf("Starting searcher...\n");
     err = clEnqueueNDRangeKernel(queue, ssKernel, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);
     clErrCheck(err, "clEnqueueNDRangeKernel - Executing OpenCL kernel");
 

@@ -4,7 +4,7 @@ long filter(instance* inst) {
     // Buffoon Pack of Size 4
     bool suitablePack = false;
     for (int i = 1; i <= 2; i++) {
-        pack pack = pack_info(next_pack(inst));
+        pack pack = pack_info(next_pack(inst, 1));
         if (pack.type == Buffoon_Pack && pack.size == 4) suitablePack = true;
         if (suitablePack) break;
     }

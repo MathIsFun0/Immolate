@@ -343,7 +343,7 @@ typedef struct Pack {
 } pack;
 
 // Lists
-item ENHANCEMENTS[] = {
+__constant item ENHANCEMENTS[] = {
     8,
     Bonus_Card,
     Mult_Card,
@@ -354,7 +354,7 @@ item ENHANCEMENTS[] = {
     Gold_Card,
     Lucky_Card
 };
-item CARDS[] = {
+__constant item CARDS[] = {
     52,
     C_2,
     C_3,
@@ -409,14 +409,14 @@ item CARDS[] = {
     S_Q,
     S_T
 };
-item SUITS[] = {
+__constant item SUITS[] = {
     4,
     Spades,
     Hearts,
     Diamonds,
     Clubs
 };
-item RANKS[] = {
+__constant item RANKS[] = {
     13,
     _2,
     _3,
@@ -432,7 +432,7 @@ item RANKS[] = {
     King,
     Ace
 };
-item DECK_ORDER[] = {
+__constant item DECK_ORDER[] = {
     D_4,
     C_4,
     C_J,
@@ -486,7 +486,7 @@ item DECK_ORDER[] = {
     D_T,
     C_T
 };
-weighteditem PACKS[] = {
+__constant weighteditem PACKS[] = {
     {RETRY, 22.42}, //total
     {Arcana_Pack, 4},
     {Jumbo_Arcana_Pack, 2},
@@ -504,7 +504,7 @@ weighteditem PACKS[] = {
     {Jumbo_Spectral_Pack, 0.3},
     {Mega_Spectral_Pack, 0.07}
 };
-pack PACK_INFO[] = {
+__constant pack PACK_INFO[] = {
     {Arcana_Pack, 3, 1},
     {Arcana_Pack, 5, 1},
     {Arcana_Pack, 5, 2},
@@ -524,7 +524,7 @@ pack PACK_INFO[] = {
 pack pack_info(item pack) {
     return PACK_INFO[pack-Arcana_Pack];
 }
-item TAROTS[] = {
+__constant item TAROTS[] = {
     22,
     The_Fool,
     The_Magician,
@@ -549,7 +549,7 @@ item TAROTS[] = {
     Judgement,
     The_World
 };
-item PLANETS[] = {
+__constant item PLANETS[] = {
     12,
     Mercury,
     Venus,
@@ -565,7 +565,7 @@ item PLANETS[] = {
     Eris
 };
 #ifdef DEMO
-item COMMON_JOKERS[] = {
+__constant item COMMON_JOKERS[] = {
     22,
     Joker,
     Greedy_Joker,
@@ -590,7 +590,7 @@ item COMMON_JOKERS[] = {
     Superposition,
     Raised_Fist
 };
-item UNCOMMON_JOKERS[] = {
+__constant item UNCOMMON_JOKERS[] = {
     16,
     Four_Fingers,
     Banner,
@@ -609,7 +609,7 @@ item UNCOMMON_JOKERS[] = {
     Flower_Pot,
     Trading_Card
 };
-item RARE_JOKERS[] = {
+__constant item RARE_JOKERS[] = {
     7,
     Seance,
     Obelisk,
@@ -619,7 +619,7 @@ item RARE_JOKERS[] = {
     Invisible_Joker,
     Brainstorm
 };
-item SPECTRALS[] = {
+__constant item SPECTRALS[] = {
     18,
     Familiar,
     Grim,
@@ -640,7 +640,7 @@ item SPECTRALS[] = {
     RETRY, //Soul
     RETRY //Black_Hole
 };
-item VOUCHERS[] = {
+__constant item VOUCHERS[] = {
     8,
     Overstock,
     Hone,
@@ -652,7 +652,7 @@ item VOUCHERS[] = {
     Paint_Brush
 };
 #endif
-item TAGS[] = {
+__constant item TAGS[] = {
     24,
     Uncommon_Tag,
     Rare_Tag,

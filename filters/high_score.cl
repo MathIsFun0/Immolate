@@ -11,8 +11,8 @@ long filter(instance* inst) {
     int standardCards = 0;
     int spectralCards = 0;
     bool isMegaSpectral = false;
-    pack pack1 = pack_info(next_pack(inst));
-    pack pack2 = pack_info(next_pack(inst));
+    pack pack1 = pack_info(next_pack(inst, 1));
+    pack pack2 = pack_info(next_pack(inst, 1));
     if (pack1.type != Standard_Pack) {
         // Assume we have both the packs we want. Pack 1 will always be the Standard Pack now, and Pack 2 will be the Spectral Pack.
         pack temp = pack1;
@@ -29,7 +29,7 @@ long filter(instance* inst) {
     // Red Seal Polychrome Hack-Compatible Card
     bool hasRedPoly = 0;
     for (int c = 1; c <= standardCards; c++) {
-        item edi = standard_edition(inst);
+        item edi = standard_edition(inst, 1);
         item seal = standard_seal(inst);
         item _rank = rank(standard_base(inst, 1));
         if (edi == Polychrome && seal == Red_Seal && _rank <= _5) {
