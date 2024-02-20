@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
  
     fp = fopen("search.cl", "r");
     if (!fp) {
-        fprintf(stderr, "Failed to load kernel.\n");
+        fprintf_s(stderr, "Failed to load kernel.\n");
         exit(1);
     }
     ssKernelCode = (char*)malloc(1000000);
@@ -184,19 +184,19 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clCreateProgramWithSource - Creating OpenCL program");
 
     // Build the program
-    printf("Building program...\n");
+    printf_s("Building program...\n");
     err = clBuildProgram(ssKernelProgram, 1, &device, "", NULL, NULL);
     if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
         size_t logLength = 0;
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);
         if (err != CL_SUCCESS) {
-            printf("Error getting build log length: %d\n", err);
+            printf_s("Error getting build log length: %d\n", err);
             return;
         }
         char *buf = calloc(logLength, sizeof(char));
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, logLength, buf, NULL);
         if (err != CL_SUCCESS) {
-            printf("Error getting build log: %d\n", err);
+            printf_s("Error getting build log: %d\n", err);
             return;
         }
         printf_s(buf);
@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
     // Execute OpenCL kernel
     size_t globalSize = numGroups * numGroups;
     size_t localSize = numGroups;
-    printf("Starting searcher...\n");
+    printf_s("Starting searcher...\n");
     err = clEnqueueNDRangeKernel(queue, ssKernel, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);
     clErrCheck(err, "clEnqueueNDRangeKernel - Executing OpenCL kernel");
 
