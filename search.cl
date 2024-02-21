@@ -1,8 +1,6 @@
-#include "filters/test.cl"
+#include "filters/double_legendary.cl"
 
 // Search
-// Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
-
 __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
     seed _seed = s_new_c8(starting_seed);
     if (get_global_id(0) != 0) {
