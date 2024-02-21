@@ -110,7 +110,7 @@ item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __const
     return items[idx-1]._item;
 }
 
-// Locks
+// Locks - NOT UPDATED FOR 1.0
 void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
     // Impossible to obtain in 0.9.3
     inst->locked[Rare_Tag] = true;

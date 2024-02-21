@@ -372,12 +372,29 @@ typedef enum Item {
     The_Ox,
     The_House,
     The_Wall,
+    The_Wheel,
+    The_Arm,
     The_Club,
     The_Fish,
+    The_Psychic,
+    The_Goad,
+    The_Water,
+    The_Window,
     The_Manacle,
+    The_Eye,
     The_Mouth,
+    The_Plant,
+    The_Serpent,
+    The_Pillar,
+    The_Needle,
+    The_Head,
     The_Tooth,
+    The_Flint,
     The_Mark,
+    Amber_Acorn,
+    Verdant_Leaf,
+    Violet_Vessel,
+    Crimson_Heart,
     Cerulean_Bell,
     B_END,
 
@@ -461,6 +478,50 @@ typedef enum Item {
     S_Q,
     S_T,
     C_END,
+
+    // Decks
+    D_BEGIN,
+    Red_Deck,
+    Blue_Deck,
+    Yellow_Deck,
+    Green_Deck,
+    Black_Deck,
+    Magic_Deck,
+    Nebula_Deck,
+    Ghost_Deck,
+    Abandoned_Deck,
+    Checkered_Deck,
+    Zodiac_Deck,
+    Painted_Deck,
+    Anaglyph_Deck,
+    Plasma_Deck,
+    Erratic_Deck,
+    Challenge_Deck,
+    D_END,
+
+    // Challenges
+    CHAL_BEGIN,
+    The_Omelette,
+    _15_Minute_City,
+    Rich_get_Richer,
+    On_a_Knifes_Edge,
+    X_ray_Vision,
+    Mad_World,
+    Luxury_Tax,
+    Non_Perishable,
+    Medusa,
+    Double_or_Nothing,
+    Typecast,
+    Inflation,
+    Bram_Poker,
+    Fragile,
+    Monolith,
+    Blast_Off,
+    Five_Card_Draw,
+    Golden_Needle,
+    Cruelty,
+    Jokerless,
+    CHAL_END,
 
     ITEMS_END
 } item;
@@ -763,7 +824,7 @@ __constant item VOUCHERS[] = {
     Seed_Money,
     Paint_Brush
 };
-#endif
+#else
 __constant item COMMON_JOKERS[] = {
     60,
     Joker,
@@ -926,6 +987,7 @@ __constant item LEGENDARY_JOKERS[] = {
     Chicot,
     Perkeo
 };
+#endif
 __constant item SPECTRALS[] = {
     18,
     Familiar,

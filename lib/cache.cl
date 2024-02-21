@@ -3,6 +3,7 @@ typedef enum RandomType {
     R_Joker_Common,
     R_Joker_Uncommon,
     R_Joker_Rare,
+    R_Joker_Legendary,
     R_Joker_Rarity,
     R_Joker_Edition,
     R_Misprint,
@@ -27,6 +28,7 @@ typedef enum RandomType {
     R_Gros_Michel,
     R_Voucher,
     R_Voucher_Tag,
+    R_Soul,
     R_END
 } rtype;
 
@@ -48,6 +50,7 @@ typedef enum RNGSource {
     S_Rare_Tag,
     S_Uncommon_Tag,
     S_Blue_Seal,
+    S_Soul,
     S_Null,
     SOURCE_END
 } rsrc;
@@ -65,6 +68,7 @@ text type_str(int x) {
         case R_Joker_Common:             return init_text("Joker1", 6);
         case R_Joker_Uncommon:           return init_text("Joker2", 6);
         case R_Joker_Rare:               return init_text("Joker3", 6);
+        case R_Joker_Legendary:          return init_text("Joker4", 6);
         case R_Joker_Rarity:             return init_text("rarity", 6);
         case R_Joker_Edition:            return init_text("edi", 3);
         case R_Misprint:                 return init_text("misprint", 8);
@@ -89,6 +93,7 @@ text type_str(int x) {
         case R_Gros_Michel:              return init_text("gros_michel", 11);
         case R_Voucher:                  return init_text("Voucher", 7);
         case R_Voucher_Tag:              return init_text("Voucher_fromtag", 15);
+        case R_Soul:                     return init_text("soul_", 5);
         default:                         return init_text("", 0);
     }
 }
@@ -111,6 +116,7 @@ text source_str(int x) {
         case S_Rare_Tag:       return init_text("rta", 3);
         case S_Uncommon_Tag:   return init_text("uta", 3);
         case S_Blue_Seal:      return init_text("blusl", 5);
+        case S_Soul:           return init_text("sou", 3);
         default:               return init_text("", 0);
     }
 }
