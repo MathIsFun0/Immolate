@@ -752,27 +752,6 @@ __constant item RARE_JOKERS[] = {
     Invisible_Joker,
     Brainstorm
 };
-__constant item SPECTRALS[] = {
-    18,
-    Familiar,
-    Grim,
-    Incantation,
-    Talisman,
-    Aura,
-    Wraith,
-    Sigil,
-    Ouija,
-    Ectoplasm,
-    Immolate,
-    Ankh,
-    Deja_Vu,
-    Hex,
-    Trance,
-    Medium,
-    Cryptid,
-    RETRY, //Soul
-    RETRY //Black_Hole
-};
 __constant item VOUCHERS[] = {
     8,
     Overstock,
@@ -948,7 +927,7 @@ __constant item LEGENDARY_JOKERS[] = {
     Perkeo
 };
 __constant item SPECTRALS[] = {
-    16,
+    18,
     Familiar,
     Grim,
     Incantation,
@@ -964,7 +943,9 @@ __constant item SPECTRALS[] = {
     Hex,
     Trance,
     Medium,
-    Cryptid
+    Cryptid,
+    RETRY, //Soul
+    RETRY //Black_Hole
 };
 __constant item TAGS[] = {
     24,

@@ -1,4 +1,4 @@
-#include "filters/four_deadly_jokers.cl"
+#include "filters/test.cl"
 
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.

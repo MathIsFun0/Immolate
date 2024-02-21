@@ -12,7 +12,7 @@ To run:
 `.\build\Release\Immolate.exe`
 
 ## Future Plans
-- Updating to work with 1.0.
+- Full support with all features in Balatro 1.0.
 - Support for stakes and challenges.
 - Saving output to a file.
 - A GUI to interact with the searcher without having as much technical knowledge.
