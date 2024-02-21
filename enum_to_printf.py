@@ -11,8 +11,14 @@ def convert_enum(enum_code):
 
     # Mapping for special cases
     special_cases = {
-        "Seance": "Séance",
+        #"Seance": "Séance",        Unfortunately, OpenCL doesn't work nicely with the accented E...
         "Top up Tag": "Top-up Tag",
+        "Riff raff": "Riff-raff",
+        "Mail In Rebate": "Mail-In Rebate",
+        "Mr Bones": "Mr. Bones",
+        "Oops All 6s": "Oops! All 6s",
+        "Drivers License": "Driver's License",
+        "Directors Cut": "Director's Cut"
     }
 
     # Helper function to format enum item names

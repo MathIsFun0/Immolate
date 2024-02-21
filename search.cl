@@ -1,4 +1,4 @@
-#include "filters/red_poly_glass.cl"
+#include "filters/four_deadly_jokers.cl"
 
 // Search
 // Note that when embedding the files into the C code, this part will have to be included after filter.cl is loaded.
@@ -12,6 +12,7 @@ __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
         instance inst = i_new(_seed);
         long score = filter(&inst);
         if (score > filter_cutoff) filter_cutoff = score;
+        // Known issue: filter_cutoff is not updating globally
         if (score == filter_cutoff) {
             text s_str = s_to_string(&_seed);
             printf("%c%c%c%c%c%c%c%c (%li)\n",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7],score);

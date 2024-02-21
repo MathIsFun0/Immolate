@@ -1,10 +1,10 @@
 // Based on C++ program by 00001H and MathIsFun_
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #ifndef GAME_VERSION
-    #define VER1 0
-    #define VER2 9
-    #define VER3 3
-    #define VER4 15 //0.9.3o
+    #define VER1 1
+    #define VER2 0
+    #define VER3 0
+    #define VER4 9 //1.0.0i
     #define GAME_VERSION
 #endif
 #include "util.cl" // Contains utility functions

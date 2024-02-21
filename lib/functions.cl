@@ -51,7 +51,11 @@ card standard_card(instance* inst, int ante) {
     card out;
     out.enhancement = standard_enhancement(inst, ante);
     out.base = standard_base(inst, ante);
+    #if V_AT_MOST(0,9,3,14)
+    out.edition = standard_edition(inst);
+    #else
     out.edition = standard_edition(inst, ante);
+    #endif
     out.seal = standard_seal(inst);
     return out;
 }
@@ -111,6 +115,8 @@ item next_tag(instance* inst, int ante) {
     return randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
 }
 
+//Todo: account for Black Hole and Soul spawn mechanics
+//Checked separately for each card spawned, both can appear in spectrals
 void arcana_pack(item out[], int size, instance* inst, int ante) {
     randlist(out, size, inst, R_Tarot, S_Arcana, ante, TAROTS);
 }
@@ -182,6 +188,7 @@ item wheel_of_fortune_edition(instance* inst) {
 bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/15;
 }
+#ifdef DEMO
 item next_voucher(instance* inst, int ante) {
     item i = randchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Voucher, ante}, 2, VOUCHERS);
     if (inst->locked[i]) {
@@ -204,3 +211,4 @@ item next_voucher_from_tag(instance* inst, int ante) {
     }
     return i;
 }
+#endif
