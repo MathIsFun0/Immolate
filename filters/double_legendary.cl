@@ -1,5 +1,5 @@
 // Searches for a first shop buffoon pack with the four jokers that give increased mult to suits.
-#include "lib/immolate.cl"
+#include "./lib/immolate.cl"
 long filter(instance* inst) {
     int score = 0;
     for (int i = 1; i <= 2; i++) {
@@ -12,5 +12,5 @@ long filter(instance* inst) {
             }
         };
     }
-    return score;
+    return score/2;
 }

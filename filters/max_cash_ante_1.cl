@@ -1,5 +1,5 @@
 // Maximum cash out possible in Ante 1
-#include "lib/immolate.cl"
+#include "./lib/immolate.cl"
 long filter(instance* inst) {
     long passedFilters = 0;
     
@@ -20,8 +20,8 @@ long filter(instance* inst) {
     }
     if (hasHermit + hasEmperor != 2) return passedFilters;
     passedFilters++;
-    item empTarot1 = next_tarot(inst, S_Emperor, 1);
-    item empTarot2 = next_tarot(inst, S_Emperor, 1);
+    item empTarot1 = next_tarot(inst, S_Emperor, 1, false);
+    item empTarot2 = next_tarot(inst, S_Emperor, 1, false);
     if (empTarot1 != The_Hermit && empTarot2 != The_Hermit) return passedFilters;
     passedFilters++;
     bool bonusPoints = false;

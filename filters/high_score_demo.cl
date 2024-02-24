@@ -1,5 +1,5 @@
 // Searches for a seed with a good setup for high score world record runs
-#include "lib/immolate.cl"
+#include "./lib/immolate.cl"
 long filter(instance* inst) {
     int passedFilters = 0;
 
@@ -30,7 +30,7 @@ long filter(instance* inst) {
     bool hasRedPoly = 0;
     for (int c = 1; c <= standardCards; c++) {
         item edi = standard_edition(inst, 1);
-        item seal = standard_seal(inst);
+        item seal = standard_seal(inst, 1);
         item _rank = rank(standard_base(inst, 1));
         if (edi == Polychrome && seal == Red_Seal && _rank <= _5) {
             hasRedPoly = true;
@@ -46,7 +46,7 @@ long filter(instance* inst) {
     bool hasEcto = false;
     bool extraFilterPassed = false;
     for (int i = 0; i < spectralCards; i++) {
-        item spectral = next_spectral(inst, S_Spectral, 1);
+        item spectral = next_spectral(inst, S_Spectral, 1, true);
         if (spectral == Ankh) hasAnkh = true;
         if (spectral == Ectoplasm) hasEcto = true;
     }

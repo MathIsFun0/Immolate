@@ -14,11 +14,17 @@ typedef struct Card {
     item edition;
     item seal;
 } card;
-
+#if V_AT_MOST(1,0,0,10)
 item standard_enhancement(instance* inst, int ante) {
     if (random_simple(inst, R_Standard_Has_Enhancement) <= 0.6) return No_Enhancement;
     return randchoice_common(inst, R_Enhancement, S_Standard, ante, ENHANCEMENTS);
 }
+#else
+item standard_enhancement(instance* inst, int ante) {
+    if (random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Standard_Has_Enhancement, ante}, 2) <= 0.6) return No_Enhancement;
+    return randchoice_common(inst, R_Enhancement, S_Standard, ante, ENHANCEMENTS);
+}
+#endif
 item standard_base(instance* inst, int ante) {
     return randchoice_common(inst, R_Card, S_Standard, ante, CARDS);
 }
@@ -39,6 +45,7 @@ item standard_edition(instance* inst, int ante) {
     return No_Edition;
 }
 #endif
+#if V_AT_MOST(1,0,0,10)
 item standard_seal(instance* inst) {
     if (random_simple(inst, R_Standard_Has_Seal) <= 0.8) return No_Seal;
     double val = random_simple(inst, R_Standard_Seal);
@@ -47,6 +54,16 @@ item standard_seal(instance* inst) {
     if (val > 0.25) return Gold_Seal;
     return Purple_Seal;
 }
+#else
+item standard_seal(instance* inst, int ante) {
+    if (random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Standard_Has_Seal, ante}, 2) <= 0.8) return No_Seal;
+    double val = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Standard_Seal, ante}, 2);
+    if (val > 0.75) return Red_Seal;
+    if (val > 0.5) return Blue_Seal;
+    if (val > 0.25) return Gold_Seal;
+    return Purple_Seal;
+}
+#endif
 card standard_card(instance* inst, int ante) {
     card out;
     out.enhancement = standard_enhancement(inst, ante);
@@ -56,7 +73,11 @@ card standard_card(instance* inst, int ante) {
     #else
     out.edition = standard_edition(inst, ante);
     #endif
+    #if V_AT_MOST(1,0,0,10)
     out.seal = standard_seal(inst);
+    #else
+    out.seal = standard_seal(inst, ante);
+    #endif
     return out;
 }
 
@@ -81,7 +102,7 @@ item next_planet(instance* inst, rsrc src, int ante) {
 item next_spectral(instance* inst, rsrc src, int ante) {
     return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
 }
-#else
+#elif V_AT_MOST(1,0,0,10)
 item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
     if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Tarot}, 2) > 0.997) {
         return The_Soul;
@@ -101,6 +122,32 @@ item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
             forcedKey = The_Soul;
         }
         if (!inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
+            forcedKey = Black_Hole;
+        }
+        if (forcedKey != RETRY) return forcedKey;
+    }
+    return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
+}
+#else
+item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
+    if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Tarot, ante}, 3) > 0.997) {
+        return The_Soul;
+    }
+    return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+}
+item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
+    if (soulable && !inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Planet, ante}, 3) > 0.997) {
+        return Black_Hole;
+    }
+    return randchoice_common(inst, R_Planet, src, ante, PLANETS);
+}
+item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
+    if (soulable) {
+        item forcedKey = RETRY;
+        if (!inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
+            forcedKey = The_Soul;
+        }
+        if (!inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
             forcedKey = Black_Hole;
         }
         if (forcedKey != RETRY) return forcedKey;
@@ -166,8 +213,6 @@ item next_tag(instance* inst, int ante) {
     return randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
 }
 
-//Todo: account for Black Hole and Soul spawn mechanics
-//Checked separately for each card spawned, both can appear in spectrals
 #ifdef DEMO
 void arcana_pack(item out[], int size, instance* inst, int ante) {
     randlist(out, size, inst, R_Tarot, S_Arcana, ante, TAROTS);
@@ -228,10 +273,15 @@ void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
 }
 
 // More specific RNG types
-
+#ifdef DEMO
 int misprint(instance* inst) {
     return (int)randint(inst, (__private ntype[]){N_Type}, (__private int[]){R_Misprint}, 1, 0, 20);
 }
+#else
+int misprint(instance* inst) {
+    return (int)randint(inst, (__private ntype[]){N_Type}, (__private int[]){R_Misprint}, 1, 0, 23);
+}
+#endif
 bool lucky_mult(instance* inst) {
     return random_simple(inst, R_Lucky_Mult) < 1.0/5;
 }
@@ -266,8 +316,17 @@ item wheel_of_fortune_edition(instance* inst) {
     } else return No_Edition;
 }
 #endif
+#ifdef DEMO
 bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/15;
+}
+#else
+bool gros_michel_extinct(instance* inst) {
+    return random_simple(inst, R_Gros_Michel) < 1.0/4;
+}
+#endif
+bool cavendish_extinct(instance* inst) {
+    return random_simple(inst, R_Cavendish) < 1.0/1000;
 }
 #ifdef DEMO
 item next_voucher(instance* inst, int ante) {

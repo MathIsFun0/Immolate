@@ -26,6 +26,7 @@ typedef enum RandomType {
     R_Ouija,
     R_Wheel_of_Fortune,
     R_Gros_Michel,
+    R_Cavendish,
     R_Voucher,
     R_Voucher_Tag,
     R_Soul,
@@ -91,6 +92,7 @@ text type_str(int x) {
         case R_Ouija:                    return init_text("ouija", 5);
         case R_Wheel_of_Fortune:         return init_text("wheel_of_fortune", 16);
         case R_Gros_Michel:              return init_text("gros_michel", 11);
+        case R_Cavendish:                return init_text("cavendish", 9);
         case R_Voucher:                  return init_text("Voucher", 7);
         case R_Voucher_Tag:              return init_text("Voucher_fromtag", 15);
         case R_Soul:                     return init_text("soul_", 5);

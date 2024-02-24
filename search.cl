@@ -1,4 +1,4 @@
-#include "filters/double_legendary.cl"
+#include "./filters/double_legendary.cl"
 
 // Search
 __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
@@ -18,18 +18,3 @@ __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
         s_skip(&_seed,get_global_size(0));
     }
 }
-
-// Filter for fixing shuffler
-/*long filter(instance* inst) {
-    int start_id = 1;
-    // Code for fixing shuffler
-    item deck[52];
-    for (int i = 1; i <= 52; i++) {
-        deck[i-1] = i;
-    }
-    i_shuffle_deck(inst, deck, 1);
-    if (deck[43] == start_id && deck[42] == start_id+1 && deck[41] == start_id+2 && deck[40] == start_id+3 && deck[39] == start_id+4) {
-        return 1;
-    }
-    return 0;
-}*/

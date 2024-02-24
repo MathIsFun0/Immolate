@@ -1,5 +1,5 @@
-// Red Poly Glass Hack-Compatible Cards
-#include "lib/immolate.cl"
+// Red Poly Glass Cards
+#include "./lib/immolate.cl"
 long filter(instance* inst) {
     int numCards = 0;
     // Check if either pack is a Standard Pack - and which has the most cards
@@ -17,7 +17,6 @@ long filter(instance* inst) {
         if (_card.enhancement != Glass_Card) found = false;
         if (_card.edition != Polychrome) found = false;
         if (_card.seal != Red_Seal) found = false;
-        if (rank(_card.base) > _5) found = false;
         if (found) return 1;
     }
     return 0;

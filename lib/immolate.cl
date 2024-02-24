@@ -4,13 +4,13 @@
     #define VER1 1
     #define VER2 0
     #define VER3 0
-    #define VER4 9 //1.0.0i
+    #define VER4 11 //1.0.0k
     #define GAME_VERSION
 #endif
-#include "util.cl" // Contains utility functions
-#include "seed.cl" // Contains seed/seed list info
-#include "items.cl" // Contains item enums, lists, helper functions
-#include "debug.cl" // Debug printing functions
-#include "cache.cl" // Contains RNG Cache implementation
-#include "instance.cl" // Contains random instance implementation and core functions
+#include "./lib/util.cl" // Contains utility functions
+#include "./lib/seed.cl" // Contains seed/seed list info
+#include "./lib/items.cl" // Contains item enums, lists, helper functions
+#include "./lib/debug.cl" // Debug printing functions
+#include "./lib/cache.cl" // Contains RNG Cache implementation
+#include "./lib/instance.cl" // Contains random instance implementation and core functions
 #include "functions.cl" // Contains utility functions for searching seeds - what the user would interact with
