@@ -2,88 +2,26 @@
 #include "./lib/immolate.cl"
 long filter(instance* inst) {
     long passedFilters = 0;
-    /*
-    Jokers that we want:
-    Baseball Card xMult
-    Bull +Chips
-    Fibo +Mult
-    Ramen Xmult
-    Invisible Joker (duping)
 
-    Combined From:
-    First 3 shop jokers
-    Jumbo Buffoon Pack in shop
-    Immolate for money
-    */
+    // Stuntman ante 1
+    item jkr1 = shop_joker(inst, 1);
+    item jkr2 = shop_joker(inst, 1);
+    if (jkr1 == Stuntman || jkr2 == Stuntman) passedFilters++;
+    else return passedFilters;
 
-    item pack1 = next_pack(inst, 1);
-    item pack2 = next_pack(inst, 1);
-    int speclPack = 0;
-    if (pack1 != Mega_Buffoon_Pack && pack2 != Mega_Buffoon_Pack) return passedFilters;
-    passedFilters++;
-    if (pack1 == Mega_Buffoon_Pack) speclPack = 1;
-    pack speclInfo = pack_info((speclPack == 0 ? pack1 : pack2));
-    if (speclInfo.type != Spectral_Pack) return passedFilters;
-    passedFilters++;
+    // Rocket or To The Moon next shop
+    jkr1 = shop_joker(inst, 1);
+    jkr2 = shop_joker(inst, 1);
+    if (jkr1 == Rocket || jkr2 == Rocket || jkr1 == To_the_Moon || jkr2 == To_the_Moon) passedFilters++;
+    else return passedFilters;
 
-    bool hasImmolate = false;
-    item spectrals[4];
-    spectral_pack(spectrals, speclInfo.size, inst, 1);
-    for (int i = 0; i < speclInfo.size; i++) {
-        if (spectrals[i] == Immolate) hasImmolate = true;
-    }
-    if (!hasImmolate) return passedFilters;
-    passedFilters++;
+    // Bull ante 5
+    shop_joker(inst, 5); //This part is after the boss, which is too early
+    shop_joker(inst, 5);
+    jkr1 = shop_joker(inst, 5);
+    jkr2 = shop_joker(inst, 5);
+    if (jkr1 == Bull || jkr2 == Bull) passedFilters++;
+    else return passedFilters;
 
-    // Joker filters
-    int hasBaseball = 0;
-    int hasBull = 0;
-    int hasFibo = 0;
-    int hasRamen = 0;
-    int hasInvis = 0;
-    for (int i = 0; i < 4; i++) { // Ante 1 shop jokers
-        item jkr = shop_joker(inst, 1);
-        if (jkr == Baseball_Card) {  
-            if (i < 2) {
-                inst->locked[jkr] = true;
-            }
-            hasBaseball = 1;
-        }
-        if (jkr == Bull) {  
-            if (i < 2) {
-                inst->locked[jkr] = true;
-            }
-            hasBull = 1;
-        }
-        if (jkr == Fibonacci) {  
-            if (i < 2) {
-                inst->locked[jkr] = true;
-            }
-            hasFibo = 1;
-        }
-        if (jkr == Ramen) {  
-            if (i < 2) {
-                inst->locked[jkr] = true;
-            }
-            hasRamen = 1;
-        }
-        if (jkr == Invisible_Joker) {  
-            if (i < 2) {
-                inst->locked[jkr] = true;
-            }
-            hasInvis = 1;
-        }
-    }
-    if (hasBaseball + hasBull + hasFibo + hasRamen + hasInvis < 3) return passedFilters;
-    item jokers[4];
-    buffoon_pack(jokers, 4, inst, 1);
-    for (int i = 0; i < 4; i++) {
-        if (jokers[i] == Baseball_Card) hasBaseball = 1;
-        if (jokers[i] == Ramen) hasRamen = 1;
-        if (jokers[i] == Bull) hasBull = 1;
-        if (jokers[i] == Fibonacci) hasFibo = 1;
-        if (jokers[i] == Invisible_Joker) hasInvis = 1;
-    }
-    if (hasBaseball + hasBull + hasFibo + hasRamen + hasInvis == 5) return 999;
-    return 900 + hasBaseball + hasBull + hasFibo + hasRamen + hasInvis;
+    return 999;
 }

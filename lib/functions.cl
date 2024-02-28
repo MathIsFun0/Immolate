@@ -29,7 +29,7 @@ item standard_base(instance* inst, int ante) {
     return randchoice_common(inst, R_Card, S_Standard, ante, CARDS);
 }
 #if V_AT_MOST(0,9,3,14)
-item standard_edition(instance* inst) {
+item standard_edition(instance* inst, int ante) {
     double val = random_simple(inst, R_Standard_Edition);
     if (val > 0.988) return Polychrome;
     if (val > 0.96) return Holographic;
@@ -46,7 +46,7 @@ item standard_edition(instance* inst, int ante) {
 }
 #endif
 #if V_AT_MOST(1,0,0,10)
-item standard_seal(instance* inst) {
+item standard_seal(instance* inst, ante) {
     if (random_simple(inst, R_Standard_Has_Seal) <= 0.8) return No_Seal;
     double val = random_simple(inst, R_Standard_Seal);
     if (val > 0.75) return Red_Seal;
@@ -68,38 +68,42 @@ card standard_card(instance* inst, int ante) {
     card out;
     out.enhancement = standard_enhancement(inst, ante);
     out.base = standard_base(inst, ante);
-    #if V_AT_MOST(0,9,3,14)
-    out.edition = standard_edition(inst);
-    #else
     out.edition = standard_edition(inst, ante);
-    #endif
-    #if V_AT_MOST(1,0,0,10)
-    out.seal = standard_seal(inst);
-    #else
     out.seal = standard_seal(inst, ante);
-    #endif
     return out;
 }
 
-#if V_AT_MOST(0,9,3,12)
-item next_pack(instance* inst) {
-    return randweightedchoice(inst, (__private ntype[]){N_Type}, (__private int[]){R_Shop_Pack}, 1, PACKS);
-}
-#else
-// Becomes ante-based in 0.9.3n
-item next_pack(instance* inst, int ante) {
-    return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
-}
-#endif
-
 #ifdef DEMO
-item next_tarot(instance* inst, rsrc src, int ante) {
+    #if V_AT_MOST(0,9,3,12)
+    item next_pack(instance* inst, int ante) {
+        return randweightedchoice(inst, (__private ntype[]){N_Type}, (__private int[]){R_Shop_Pack}, 1, PACKS);
+    }
+    #else
+    // Becomes ante-based in 0.9.3n
+    item next_pack(instance* inst, int ante) {
+        return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
+    }
+    #endif
+#else
+    #if V_AT_MOST(1,0,0,2)
+    // Not ante-based in first console release (1.0.0b)
+    item next_pack(instance* inst, int ante) {
+        return randweightedchoice(inst, (__private ntype[]){N_Type}, (__private int[]){R_Shop_Pack}, 1, PACKS);
+    }
+    #else
+    item next_pack(instance* inst, int ante) {
+        return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
+    }
+    #endif
+#endif
+#ifdef DEMO
+item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
 }
-item next_planet(instance* inst, rsrc src, int ante) {
+item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
     return randchoice_common(inst, R_Planet, src, ante, PLANETS);
 }
-item next_spectral(instance* inst, rsrc src, int ante) {
+item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
     return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
 }
 #elif V_AT_MOST(1,0,0,10)

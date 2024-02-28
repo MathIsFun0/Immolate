@@ -201,7 +201,7 @@ text int_to_str(int x) {
         (VER1 < v1) || \
         (VER1 == v1 && ((VER2 < v2) ||\
         (VER2 == v2 && ((VER3 < v3) ||\
-        (VER3 == v3 && VER4 < v4)))))
+        (VER3 == v3 && VER4 <= v4)))))
 
 // Define some constants for important game version splits
 #if V_AT_MOST(0,9999,9999,9999)
