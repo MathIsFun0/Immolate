@@ -356,3 +356,9 @@ item next_voucher_from_tag(instance* inst, int ante) {
     return i;
 }
 #endif
+
+void init_erratic_deck(instance* inst, item out[]) {
+    for (int i = 0; i < 52; i++) {
+        out[i] = randchoice_simple(inst, R_Erratic, CARDS);
+    }
+}

@@ -1,4 +1,4 @@
-// Searches for a first shop buffoon pack with the four jokers that give increased mult to suits.
+// Searches for a first shop with two packs that give legendary jokers
 #include "./lib/immolate.cl"
 long filter(instance* inst) {
     int score = 0;

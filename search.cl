@@ -1,4 +1,4 @@
-#include "./filters/double_legendary.cl"
+#include "./filters/erratic_flush_five.cl"
 
 // Search
 __kernel void search(char8 starting_seed, long num_seeds, long filter_cutoff) {
