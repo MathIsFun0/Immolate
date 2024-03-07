@@ -2,7 +2,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate Beta v1.0.0L.0\n");
+    printf_s("Immolate Beta v1.0.0L.1\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     cl_long cutoff = 1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111. Use \"random\" for a random starting seed.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
@@ -40,7 +40,13 @@ int main(int argc, char **argv) {
             i++;
         }
         if (strcmp(argv[i],  "-s")==0) {
-            if (strlen(argv[i+1]) == 8) {
+            if (strcmp(argv[i+1],"random")==0) {
+                srand(time(NULL));
+                char seedCharacters[] = {'1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+                for (int j = 0; j < 8; j++) {
+                    startingSeed.s[j] = seedCharacters[rand() % 35];
+                }
+            } else if (strlen(argv[i+1]) == 8) {
                 for (int j = 0; j < 8; j++) {
                     startingSeed.s[j] = argv[i+1][j];
                 }
@@ -213,7 +219,11 @@ int main(int argc, char **argv) {
     clErrCheck(err, "clSetKernelArg - Adding starting seed argument");
     err = clSetKernelArg(ssKernel, 1, sizeof(numSeeds), &numSeeds);
     clErrCheck(err, "clSetKernelArg - Adding number of seeds argument");
-    err = clSetKernelArg(ssKernel, 2, sizeof(cutoff), &cutoff);
+    // Loading a writable buffer to the kernel
+    cl_mem cutoffBuf = clCreateBuffer(ctx, CL_MEM_READ_WRITE, sizeof(long), NULL, &err);
+    clErrCheck(err, "clCreateBuffer - Creating cutoff buffer");
+    clEnqueueWriteBuffer(queue, cutoffBuf, CL_TRUE, 0, sizeof(long), &cutoff, 0, NULL, NULL);
+    err = clSetKernelArg(ssKernel, 2, sizeof(cl_mem), &cutoffBuf);
     clErrCheck(err, "clSetKernelArg - Adding cutoff argument");
 
     // Execute OpenCL kernel

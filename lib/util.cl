@@ -36,7 +36,7 @@ double fract(double f) {
 double pseudohash(text s) {
     //resizeString(&s, 16, ' ');
     double num = 1;
-    int k = 20; //determines size of left and right shifts...
+    int k = 32; //determines size of left and right shifts...
     for (int i = s.len - 1; i >= 0; i--) {
         // Floating point addition is weird, so we have to make it have more room for error
         long int_part = (1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1))*(1<<k);
