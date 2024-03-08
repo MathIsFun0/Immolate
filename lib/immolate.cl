@@ -4,7 +4,7 @@
     #define VER1 1
     #define VER2 0
     #define VER3 0
-    #define VER4 11 //1.0.0k
+    #define VER4 14 //1.0.0n
     #define GAME_VERSION
 #endif
 #include "./lib/util.cl" // Contains utility functions

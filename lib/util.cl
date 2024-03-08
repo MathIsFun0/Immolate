@@ -34,7 +34,6 @@ double fract(double f) {
 }
 
 double pseudohash(text s) {
-    //resizeString(&s, 16, ' ');
     double num = 1;
     int k = 32; //determines size of left and right shifts...
     for (int i = s.len - 1; i >= 0; i--) {
@@ -152,7 +151,10 @@ lrandom randomseed(double d) {
         ulong u;
         uint m = 1 << (r&255);
         r >>= 8;
-        d = d*3.14159265358979323846+2.7182818284590452354;
+        // Doing these two operations separately fixes the code for some reason...
+        // Probably another roundoff issue...
+        d = d*3.14159265358979323846;
+        d = d+2.7182818284590452354;
         lr.out.d = d;
         u = lr.out.ul;
         if (u<m) u+=m;
