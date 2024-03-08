@@ -1,4 +1,4 @@
-#include "./filters/double_legendary.cl"
+#include "./filters/emperor_fool.cl"
 
 __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_cutoff) {
     seed _seed = s_new_c8(starting_seed);

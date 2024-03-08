@@ -177,24 +177,72 @@ item next_joker_edition(instance* inst, rsrc src, int ante) {
     return No_Edition;
 }
 
-// Accounts for shop not giving jokers sometimes
-#ifdef DEMO
-item shop_joker(instance* inst, int ante) {
-    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
-    if (card_type <= 20) return next_joker(inst, S_Shop, ante);
-    return RETRY;
+shop get_shop_instance(bool ghostDeck, int tarotMerchantLevel, int planetMerchantLevel) {
+    int jokerRate = 20;
+    int tarotRate = 4;
+    int planetRate = 4;
+    int spectralRate = 0;
+
+    if (ghostDeck) {
+        spectralRate = 4;
+    }
+
+    if (tarotMerchantLevel == 1) {
+        tarotRate *= 2;
+    } else if (tarotMerchantLevel == 2) {
+        tarotRate *= 4;
+    }
+
+    if (planetMerchantLevel == 1) {
+        planetRate *= 2;
+    } else if (planetMerchantLevel == 2) {
+        planetRate *= 4;
+    }
+
+    return {jokerRate, tarotRate, planetRate, spectralRate0};
 }
-item shop_tarot(instance* inst, int ante) {
-    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
-    if (card_type > 20 && card_type <= 24) return next_tarot(inst, S_Shop, ante);
-    return RETRY;
+
+int get_total_rate(shop shopInstance) {
+    return shopInstance.jokerRate + shopInstance.tarotRate + shopInstance.planetRate + shopInstance.spectralRate;
 }
-item shop_planet(instance* inst, int ante) {
-    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
-    if (card_type > 24) return next_tarot(inst, S_Shop, ante);
-    return RETRY;
+
+itemtype get_item_type(shop shopInstance, double generatedValue) {
+    if (generatedValue < shopInstance.jokerRate) {
+        return ItemType_Joker;
+    }
+    generatedValue -= shopInstance.jokerRate;
+
+    if (generatedValue < shopInstance.tarotRate) {
+        return ItemType_Tarot;
+    }
+    generatedValue -= shopInstance.tarotRate;
+    
+    if (generatedValue < shopInstance.planetRate) {
+        return ItemType_Planet;
+    }
+
+    return ItemType_Spectral;
 }
-#else
+
+shopitem next_shop_item(instance* inst, int ante, bool ghostDeck, int tarotMerchantLevel, int planetMerchantLevel) {
+    shop shopInstance = get_shop_instance(ghostDeck, tarotMerchantLevel, planetMerchantLevel); // TODO : get these values from game instance?
+
+    double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * get_total_rate(shopInstance);
+    itemtype type = get_item_type(shopInstance, card_type);
+    item shopItem;
+    if (type == ItemType_Joker) {
+        shopItem = next_joker(inst, S_Shop, ante);
+    } else if (type == ItemType_Tarot) {
+        shopItem = next_tarot(inst, S_Shop, ante);
+    } else if (type == ItemType_Planet) {
+        shopItem = next_planet(inst, S_Shop, ante);
+    } else if (type == ItemType_Spectral) {
+        shopItem = next_spectral(inst, S_Shop, ante);
+    }
+
+    return {type, shopItem};
+}
+
 //Todo: Update for vouchers, add a general one for any type of card
 item shop_joker(instance* inst, int ante) {
     double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
@@ -211,7 +259,6 @@ item shop_planet(instance* inst, int ante) {
     if (card_type > 24) return next_planet(inst, S_Shop, ante, false);
     return RETRY;
 }
-#endif
 
 item next_tag(instance* inst, int ante) {
     return randchoice_common(inst, R_Tags, S_Null, ante, TAGS);
