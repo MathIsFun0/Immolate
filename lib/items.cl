@@ -533,7 +533,7 @@ typedef enum ShopItemType {
     ItemType_Spectral
 } itemtype;
 
-typedef struct NextShopItem {
+typedef struct ShopItem {
     itemtype type;
     item _item;
 } shopitem;

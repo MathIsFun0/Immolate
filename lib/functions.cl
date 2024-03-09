@@ -199,7 +199,8 @@ shop get_shop_instance(bool ghostDeck, int tarotMerchantLevel, int planetMerchan
         planetRate *= 4;
     }
 
-    return {jokerRate, tarotRate, planetRate, spectralRate0};
+    shop _shop = {jokerRate, tarotRate, planetRate, spectralRate};
+    return _shop;
 }
 
 int get_total_rate(shop shopInstance) {
@@ -233,14 +234,15 @@ shopitem next_shop_item(instance* inst, int ante, bool ghostDeck, int tarotMerch
     if (type == ItemType_Joker) {
         shopItem = next_joker(inst, S_Shop, ante);
     } else if (type == ItemType_Tarot) {
-        shopItem = next_tarot(inst, S_Shop, ante);
+        shopItem = next_tarot(inst, S_Shop, ante, false);
     } else if (type == ItemType_Planet) {
-        shopItem = next_planet(inst, S_Shop, ante);
+        shopItem = next_planet(inst, S_Shop, ante, false);
     } else if (type == ItemType_Spectral) {
-        shopItem = next_spectral(inst, S_Shop, ante);
+        shopItem = next_spectral(inst, S_Shop, ante, false);
     }
 
-    return {type, shopItem};
+    shopitem nextShopItem = {type, shopItem};
+    return nextShopItem;
 }
 
 //Todo: Update for vouchers, add a general one for any type of card
