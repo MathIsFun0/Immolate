@@ -1,13 +1,3 @@
-void shuffle_deck(instance* inst, item deck[], int ante) {
-    inst->rng = randomseed(get_node_child(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shuffle_New_Round, ante}, 2));
-    for (int i = 51; i >= 1; i--) {
-        int x = l_randint(&(inst->rng), 0, i);
-        item temp = deck[i];
-        deck[i] = deck[x];
-        deck[x] = temp;
-    }
-}
-
 typedef struct Card {
     item base;
     item enhancement;
@@ -409,5 +399,21 @@ item next_voucher_from_tag(instance* inst, int ante) {
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {
         out[i] = randchoice_simple(inst, R_Erratic, CARDS);
+    }
+}
+void init_deck(instance* inst, item out[]) {
+    for (int i = 0; i < 52; i++) {
+        out[i] = DECK_ORDER[i+1];
+    }
+}
+
+void shuffle_deck(instance* inst, item deck[], int ante) {
+    init_deck(inst, deck);
+    inst->rng = randomseed(get_node_child(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shuffle_New_Round, ante}, 2));
+    for (int i = 51; i >= 1; i--) {
+        int x = l_randint(&(inst->rng), 1, i+1)-1;
+        item temp = deck[i];
+        deck[i] = deck[x];
+        deck[x] = temp;
     }
 }
