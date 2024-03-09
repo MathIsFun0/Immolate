@@ -1,47 +1,49 @@
-// Emperor-Fool Chains
+// Emperor->Fool/Emperor Chains with help of Showman
 #include "./lib/immolate.cl"
   
-bool matches(bool hasShowman, item tarot) {
+bool is_chained(bool hasShowman, item tarot) {
     return tarot == The_Fool || (hasShowman && tarot == The_Emperor);
 }
 
-void check_next_item(instance* inst, int ante, bool *hasShowman, bool *hasEmperor) {
-        shopitem shopItem = next_shop_item(inst, ante, false, 0, 0);
-
-        if (shopItem._item == Showman) {
-            *hasShowman = true;
-        }
-        if (shopItem._item == The_Emperor) {
-            *hasEmperor = true;
-        }
+void check_next_item(instance* inst, int ante, bool *hasShowman, int *hasShowmanAnte, bool *hasEmperor, int *hasEmperorAnte) {
+    shopitem shopItem = next_shop_item(inst, ante, false, 0, 0);
+    if (!(*hasShowman) && shopItem._item == Showman) {
+        *hasShowman = true;
+        *hasShowmanAnte = ante;
+    }
+    if (!(*hasEmperor) && shopItem._item == The_Emperor) {
+        *hasEmperor = true;
+        *hasEmperorAnte = ante;
+    }
 }
 
 long filter(instance* inst) {
     int bestAnte = 0;
     long bestScore = 0;
+    int hasShowmanAnte = 0;
+    int hasEmperorAnte = 0;
+
+    bool hasShowman = false; // We can pick up showman ante 1 for extended emperor chain in ante 2, for example.
 
     // Because of ante-based RNG, we check every ante and store the best ante as the result
-    for (int ante = 1; ante <= 2; ante++) {
-        bool hasShowman = false;
+    for (int ante = 1; ante <= 5; ante++) {
         bool hasEmperor = false;
         
-        for (int shopItemIndex = 1; shopItemIndex <= 4; shopItemIndex++) {
-            check_next_item(inst, ante, &hasShowman, &hasEmperor);
+        if (!hasShowman || !hasEmperor) {
+            for (int shopItem = 0; shopItem < 6; shopItem++) {
+                check_next_item(inst, ante, &hasShowman, &hasShowmanAnte, &hasEmperor, &hasEmperorAnte);
+            }
         }
 
-        if (!hasShowman) {
+        if (!hasEmperor) {
             continue;
-        }
-
-        if (hasShowman) {
-            return 111;
         }
 
         long score = 0;
         while (true) {
             item firstTarot = next_tarot(inst, S_Emperor, ante, false);
             item secondTarot = next_tarot(inst, S_Emperor, ante, false);
-            if (matches(hasShowman, firstTarot) || matches(hasShowman, secondTarot)) {
+            if (is_chained(hasShowman, firstTarot) || is_chained(hasShowman, secondTarot)) {
                 score++;
             } else {
                 break;
@@ -54,10 +56,18 @@ long filter(instance* inst) {
         }
     }
 
-    if (bestScore == 0) {
+    if (bestScore < 5) {
         return 0;
     }
 
-    // The ante is returned to make it easier to find in-game. Later antes are better because it's easier to find Emperor and Fool.
-    return bestScore * 1000 + bestAnte;
+    // How to read result: 1020304
+    // score: 1, 
+    // showman ante: 2,  (can be 0, that means no showman)
+    // emperor ante: 3, 
+    // best ante to use emperor: 4
+    return bestScore * 1000000 + hasShowmanAnte * 10000 + hasEmperorAnte * 100 + bestAnte;
+
+    // "Showman ante" means showman should appear in first 6 items in that ante
+    // "Emperor ante" means emperor should appear in first 6 items in that ante
+    // Bug: sometimes showman does not appear in shop, even if it says "ante 1", Idk why
 }

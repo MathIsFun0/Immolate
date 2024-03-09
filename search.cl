@@ -14,18 +14,10 @@ __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_
                 barrier(CLK_GLOBAL_MEM_FENCE);
             #endif
         }
-        /*long ante = -1;
-        if (score > 1000) {
-            ante = score % 1000;
-            score = score / 1000;
-        }*/
 
         if (score >= filter_cutoff[0]) {
             text s_str = s_to_string(&_seed);
-            printf("%c%c%c%c%c%c%c%c (%li)\n",s_str.str[0],s_str.str[1],s_str.str[2],s_str.str[3],s_str.str[4],s_str.str[5],s_str.str[6],s_str.str[7],score);
-            /*printf("%c%c%c%c%c%c%c%c (score: %d, ante: %d)\n",
-                    s_str.str[0], s_str.str[1], s_str.str[2], s_str.str[3], s_str.str[4], s_str.str[5], s_str.str[6], s_str.str[7], // Seed
-                    score, ante);*/
+            printf("%s (%li)\n", s_str, score);
         }
         s_skip(&_seed,get_global_size(0));
     }
