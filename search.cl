@@ -17,7 +17,7 @@ __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_
 
         if (score >= filter_cutoff[0]) {
             text s_str = s_to_string(&_seed);
-            printf("%s (%li)\n", s_str, score);
+            printf("%s (%li)\n", s_str.str, score);
         }
         s_skip(&_seed,get_global_size(0));
     }
