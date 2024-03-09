@@ -17,6 +17,26 @@ void check_next_item(instance* inst, int ante, bool *hasShowman, int *hasShowman
     }
 }
 
+void check_next_pack(instance* inst, int ante, bool *hasShowman, int *hasShowmanAnte) {
+    pack pack = pack_info(next_pack(inst, ante));
+
+    if (pack.type != Buffoon_Pack) {
+        return;
+    }
+
+    // Generate next x jokers that will be in the pack
+    item jokers[4];
+    buffoon_pack(jokers, pack.size, inst, 1);
+
+    for (int index = 0; index < pack.size; index++) {
+        if (jokers[index] == Showman) {
+            *hasShowman = true;
+            *hasShowmanAnte = ante;
+            break;
+        }
+    }
+}
+
 long filter(instance* inst) {
     int bestAnte = 0;
     long bestScore = 0;
@@ -24,6 +44,7 @@ long filter(instance* inst) {
     int hasEmperorAnte = 0;
 
     bool hasShowman = false; // We can pick up showman ante 1 for extended emperor chain in ante 2, for example.
+    int maxPacks = 4;
 
     // Because of ante-based RNG, we check every ante and store the best ante as the result
     for (int ante = 1; ante <= 5; ante++) {
@@ -33,6 +54,13 @@ long filter(instance* inst) {
             for (int shopItem = 0; shopItem < 6; shopItem++) {
                 check_next_item(inst, ante, &hasShowman, &hasShowmanAnte, &hasEmperor, &hasEmperorAnte);
             }
+
+            if (!hasShowman) {
+                for (int shopPack = 0; shopPack < maxPacks; shopPack++) {
+                    check_next_pack(inst, ante, &hasShowman, &hasShowmanAnte);
+                }
+            }
+            maxPacks = 6; // Update packs cap for the following ante
         }
 
         if (!hasEmperor) {
@@ -56,7 +84,7 @@ long filter(instance* inst) {
         }
     }
 
-    if (bestScore < 5) {
+    if (bestScore < 5) { // Cutoff chains that are less than 5.
         return 0;
     }
 
@@ -67,7 +95,7 @@ long filter(instance* inst) {
     // best ante to use emperor: 4
     return bestScore * 1000000 + hasShowmanAnte * 10000 + hasEmperorAnte * 100 + bestAnte;
 
-    // "Showman ante" means showman should appear in first 6 items in that ante
+    // "Showman ante" means showman should appear in first 6 items in that ante or appears in a buffoon pack within that ante
     // "Emperor ante" means emperor should appear in first 6 items in that ante
     // Bug: sometimes showman does not appear in shop, even if it says "ante 1", Idk why
 }
