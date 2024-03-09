@@ -22,11 +22,8 @@ long filter(instance* inst) {
     if (hasBaseball && hasThrowback && hasRamen) passedFilters++;
     else return passedFilters;
 
-    // Check for a Straight Flush. (There's been some bugs here, so this code might need to be looked at more later.)
+    // Check for a Straight Flush.
     item deck[52];
-    for (int i = 0; i < 52; i++) {
-        deck[i] = DECK_ORDER[i];
-    }
     shuffle_deck(inst, deck, 1);
     item hand[8] = {deck[44], deck[45], deck[46], deck[47], deck[48], deck[49], deck[50], deck[51]};
     bool isStrush = false;

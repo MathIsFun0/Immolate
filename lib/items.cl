@@ -645,6 +645,7 @@ __constant item RANKS[] = {
     King,
     Ace
 };
+#if V_AT_MOST(1,0,0,13)
 __constant item DECK_ORDER[] = {
     D_4,
     C_4,
@@ -699,6 +700,64 @@ __constant item DECK_ORDER[] = {
     D_T,
     C_T
 };
+#else
+
+__constant item DECK_ORDER[] = {
+    52,
+    C_2,
+    C_3,
+    C_4,
+    C_5,
+    C_6,
+    C_7,
+    C_8,
+    C_9,
+    C_A,
+    C_J,
+    C_K,
+    C_Q,
+    C_T,
+    D_2,
+    D_3,
+    D_4,
+    D_5,
+    D_6,
+    D_7,
+    D_8,
+    D_9,
+    D_A,
+    D_J,
+    D_K,
+    D_Q,
+    D_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_J,
+    H_K,
+    H_Q,
+    H_T,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_J,
+    S_K,
+    S_Q,
+    S_T
+};
+#endif
 __constant weighteditem PACKS[] = {
     {RETRY, 22.42}, //total
     {Arcana_Pack, 4},
