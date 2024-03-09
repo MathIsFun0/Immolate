@@ -12,7 +12,7 @@ long filter(instance* inst) {
     inst->locked[jkrt2] = true;
     if (jkrt1 != Superposition && jkrt2 != Superposition) return passedFilters;
     passedFilters++;
-    if (next_tarot(inst, S_Superposition, 2) != Judgement) return passedFilters;
+    if (next_tarot(inst, S_Superposition, 2, false) != Judgement) return passedFilters;
     int hasBull = 0;
     int hasGreen = 0;
     int hasFist = 0;

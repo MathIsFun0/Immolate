@@ -526,6 +526,25 @@ typedef enum Item {
     ITEMS_END
 } item;
 
+typedef enum ShopItemType {
+    ItemType_Joker,
+    ItemType_Tarot,
+    ItemType_Planet,
+    ItemType_Spectral
+} itemtype;
+
+typedef struct ShopItem {
+    itemtype type;
+    item _item;
+} shopitem;
+
+typedef struct ShopInstance {
+    int jokerRate;
+    int tarotRate;
+    int planetRate;
+    int spectralRate;
+} shop;
+
 typedef struct WeightedItem {
     item _item;
     double weight;
