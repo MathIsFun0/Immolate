@@ -10,7 +10,12 @@ inline text init_text(__constant char* str, int len) {
         t.str[i] = str[i];
     }
     t.len = len;
+    t.str[t.len] = '\0';
     return t;
+}
+inline void set_text_length(text* t, int len) {
+    t->len = len;
+    t->str[t->len] = '\0';
 }
 
 text text_concat(text a, text b) {
@@ -18,7 +23,7 @@ text text_concat(text a, text b) {
     for (int j = 0; j < b.len; j++) {
         temp.str[a.len+j] = b.str[j];
     }
-    temp.len += b.len;
+    set_text_length(&temp, temp.len+b.len);
     return temp;
 }
 

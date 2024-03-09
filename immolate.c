@@ -10,13 +10,13 @@ int main(int argc, char **argv) {
     unsigned int numGroups = 16;
     cl_char8 startingSeed;
     for (int i = 0; i < 8; i++) {
-        startingSeed.s[i] = '1';
+        startingSeed.s[i] = '\0';
     };
     cl_long numSeeds = 2251875390625;
     cl_long cutoff = 1;
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to 11111111. Use \"random\" for a random starting seed.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to empty seed. Use \"random\" for a random starting seed.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
@@ -46,12 +46,15 @@ int main(int argc, char **argv) {
                 for (int j = 0; j < 8; j++) {
                     startingSeed.s[j] = seedCharacters[rand() % 35];
                 }
-            } else if (strlen(argv[i+1]) == 8) {
-                for (int j = 0; j < 8; j++) {
+            } else if (strlen(argv[i+1]) <= 8) {
+                for (int j = 0; j < strlen(argv[i+1]); j++) {
                     startingSeed.s[j] = argv[i+1][j];
                 }
+                for (int j = strlen(argv[i+1]); j < 8; j++) {
+                    startingSeed.s[j] = '\0';
+                }
             } else {
-                printf_s("Warning: Inputted seed does not have 8 characters, ignoring...\n");
+                printf_s("Warning: Inputted seed is not valid, ignoring...\n");
             }
             i++;
         }

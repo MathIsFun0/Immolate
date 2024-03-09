@@ -14,7 +14,6 @@ __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_
                 barrier(CLK_GLOBAL_MEM_FENCE);
             #endif
         }
-
         if (score >= filter_cutoff[0]) {
             text s_str = s_to_string(&_seed);
             printf("%s (%li)\n", s_str.str, score);
