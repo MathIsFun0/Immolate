@@ -1,3 +1,9 @@
+// Contains settings used for different packs
+typedef struct InstanceParameters {
+    item deck;
+    int tarotMerchantLevel;
+    int planetMerchantLevel;
+} instance_params;
 
 // Instance
 typedef struct GameInstance {
@@ -6,12 +12,15 @@ typedef struct GameInstance {
     double hashedSeed;
     lrandom rng;
     bool locked[ITEMS_END];
+    instance_params params;
 } instance;
 instance i_new(seed s) {
     instance inst = {.locked = {true}};
     inst.seed = s;
     inst.hashedSeed = pseudohash(s_to_string(&s));
     inst.rngCache.nextFreeNode = 0;
+    instance_params params = {.deck = Red_Deck, .tarotMerchantLevel = 0, .planetMerchantLevel = 0};
+    inst.params = params;
     return inst;
 }
 double get_node_child(instance* inst, ntype nts[], int ids[], int num) {
@@ -112,10 +121,6 @@ item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __const
 
 // Locks - NOT UPDATED FOR 1.0
 void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
-    // Impossible to obtain in 0.9.3
-    inst->locked[Rare_Tag] = true;
-    inst->locked[The_Ox] = true;
-    
     // Locked behind antes
     if (ante < 2) {
         inst->locked[The_Mouth] = true;
@@ -123,6 +128,11 @@ void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
         inst->locked[The_Wall] = true;
         inst->locked[The_House] = true;
         inst->locked[The_Mark] = true;
+        inst->locked[The_Wheel] = true;
+        inst->locked[The_Arm] = true;
+        inst->locked[The_Water] = true;
+        inst->locked[The_Needle] = true;
+        inst->locked[The_Flint] = true;
         inst->locked[Negative_Tag] = true;
         inst->locked[Standard_Tag] = true;
         inst->locked[Meteor_Tag] = true;
@@ -135,24 +145,105 @@ void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
     }
     if (ante < 3) {
         inst->locked[The_Tooth] = true;
+        inst->locked[The_Eye] = true;
+    }
+    if (ante < 4) {
+        inst->locked[The_Plant] = true;
+    }
+    if (ante < 5) {
+        inst->locked[The_Serpent] = true;
+    }
+    if (ante < 6) {
+        inst->locked[The_Ox] = true;
     }
 
     // Locked in a fresh profile
     if (fresh_profile) {
+        // Tags
         inst->locked[Negative_Tag] = true;
         inst->locked[Foil_Tag] = true;
         inst->locked[Holographic_Tag] = true;
         inst->locked[Polychrome_Tag] = true;
+
+        // Jokers
+        inst->locked[Golden_Ticket] = true;
+        inst->locked[Mr_Bones] = true;
+        inst->locked[Acrobat] = true;
+        inst->locked[Sock_and_Buskin] = true;
+        inst->locked[Swashbuckler] = true;
+        inst->locked[Troubadour] = true;
+        inst->locked[Certificate] = true;
+        inst->locked[Smeared_Joker] = true;
+        inst->locked[Throwback] = true;
+        inst->locked[Hanging_Chad] = true;
+        inst->locked[Rough_Gem] = true;
+        inst->locked[Bloodstone] = true;
+        inst->locked[Arrowhead] = true;
+        inst->locked[Onyx_Agate] = true;
+        inst->locked[Glass_Joker] = true;
+        inst->locked[Showman] = true;
+        inst->locked[Flower_Pot] = true;
+        inst->locked[Blueprint] = true;
+        inst->locked[Wee_Joker] = true;
+        inst->locked[Merry_Andy] = true;
+        inst->locked[Oops_All_6s] = true;
+        inst->locked[The_Idol] = true;
+        inst->locked[Seeing_Double] = true;
+        inst->locked[Matador] = true;
+        inst->locked[Hit_the_Road] = true;
+        inst->locked[The_Duo] = true;
+        inst->locked[The_Trio] = true;
+        inst->locked[The_Family] = true;
+        inst->locked[The_Order] = true;
+        inst->locked[The_Tribe] = true;
+        inst->locked[Stuntman] = true;
+        inst->locked[Invisible_Joker] = true;
+        inst->locked[Brainstorm] = true;
+        inst->locked[Satellite] = true;
+        inst->locked[Shoot_the_Moon] = true;
+        inst->locked[Drivers_License] = true;
+        inst->locked[Cartomancer] = true;
+        inst->locked[Astronomer] = true;
+        inst->locked[Burnt_Joker] = true;
+        inst->locked[Bootstraps] = true;
+
+        // Vouchers
+        inst->locked[Overstock_Plus] = true;
+        inst->locked[Liquidation] = true;
+        inst->locked[Glow_Up] = true;
+        inst->locked[Reroll_Glut] = true;
+        inst->locked[Omen_Globe] = true;
+        inst->locked[Observatory] = true;
+        inst->locked[Nacho_Tong] = true;
+        inst->locked[Recyclomancy] = true;
+        inst->locked[Tarot_Tycoon] = true;
+        inst->locked[Planet_Tycoon] = true;
+        inst->locked[Money_Tree] = true;
+        inst->locked[Antimatter] = true;
+        inst->locked[Illusion] = true;
+        inst->locked[Petroglyph] = true;
+        inst->locked[Retcon] = true;
+        inst->locked[Palette] = true;
     }
 
     // Locked in start of run
     if (fresh_run) {
+        //Require hand discoveries
         inst->locked[Planet_X] = true;
         inst->locked[Ceres] = true;
         inst->locked[Eris] = true;
         inst->locked[Five_of_a_Kind] = true;
         inst->locked[Flush_House] = true;
         inst->locked[Flush_Five] = true;
+
+        //Requires specific card enhancement
+        inst->locked[Stone_Joker] = true; //Stone
+        inst->locked[Marble_Joker] = true; //Stone
+        inst->locked[Steel_Joker] = true; //Steel
+        inst->locked[Glass_Joker] = true; //Glass
+        inst->locked[Golden_Ticket] = true; //Gold
+        inst->locked[Lucky_Cat] = true; //Lucky
+        inst->locked[Midas_Mask] = true; //Gold
     }
 }
 
@@ -164,6 +255,11 @@ void init_unlocks(instance* inst, int ante, bool fresh_profile) {
         inst->locked[The_Wall] = false;
         inst->locked[The_House] = false;
         inst->locked[The_Mark] = false;
+        inst->locked[The_Wheel] = false;
+        inst->locked[The_Arm] = false;
+        inst->locked[The_Water] = false;
+        inst->locked[The_Needle] = false;
+        inst->locked[The_Flint] = false;
         if (!fresh_profile) inst->locked[Negative_Tag] = false;
         inst->locked[Standard_Tag] = false;
         inst->locked[Meteor_Tag] = false;
@@ -176,5 +272,15 @@ void init_unlocks(instance* inst, int ante, bool fresh_profile) {
     }
     if (ante == 3) {
         inst->locked[The_Tooth] = false;
+        inst->locked[The_Eye] = false;
+    }
+    if (ante == 4) {
+        inst->locked[The_Plant] = false;
+    }
+    if (ante == 5) {
+        inst->locked[The_Serpent] = false;
+    }
+    if (ante == 6) {
+        inst->locked[The_Ox] = false;
     }
 }

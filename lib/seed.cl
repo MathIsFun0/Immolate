@@ -86,7 +86,7 @@ void s_next(seed* s) {
         if (carry) {
             if (s->len<8) {
                 for (int i = 7; i > 0; i--) {
-                    s->data[i] = s->data[i-1];
+                    s->data[i] = 0;
                 }
                 s->data[0] = 0;
                 s->len++;
@@ -98,34 +98,5 @@ void s_next(seed* s) {
     }
 }
 void s_skip(seed* s, long n) {
-    long carry = n;
-    long carry_raw = n;
-    while (carry > 0) {
-        for (int i = 1; i <= s->len; i++) {
-            int j = s->len-i;
-            if (carry > 0) {
-                s->data[j] += carry;
-                if ((carry = (s->data[j]/NUM_CHARS))) {
-                    s->data[j] %= NUM_CHARS;
-                    int x = 1;
-                    for (int q = 1; q < i; q++) {
-                        x *= NUM_CHARS;
-                    }
-                    carry_raw -= carry_raw % x;
-                }
-            } else break;
-        }
-        if (carry > 0) {
-            carry = carry_raw - 1;
-            if (s->len<8) {
-                for (int i = 7; i > 0; i--) {
-                    s->data[i] = 0;
-                }
-                s->data[0] = 0;
-                s->len++;
-            } else {
-                s->len = 0;
-            }
-        }
-    }
+    for (int i = 0; i < n; i++) s_next(s);
 }
