@@ -238,12 +238,13 @@ void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
 
         //Requires specific card enhancement
         inst->locked[Stone_Joker] = true; //Stone
-        inst->locked[Marble_Joker] = true; //Stone
         inst->locked[Steel_Joker] = true; //Steel
         inst->locked[Glass_Joker] = true; //Glass
         inst->locked[Golden_Ticket] = true; //Gold
         inst->locked[Lucky_Cat] = true; //Lucky
-        inst->locked[Midas_Mask] = true; //Gold
+
+        // Requires Gros Michel death
+        inst->locked[Cavendish] = true;
     }
 }
 
