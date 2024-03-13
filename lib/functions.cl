@@ -87,29 +87,29 @@ card standard_card(instance* inst, int ante) {
     #endif
 #endif
 #ifdef DEMO
-item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
-    return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+item next_tarot(instance* inst, rsrc itemSource, int ante, bool soulable) {
+    return randchoice_common(inst, R_Tarot, itemSource, ante, TAROTS);
 }
-item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
-    return randchoice_common(inst, R_Planet, src, ante, PLANETS);
+item next_planet(instance* inst, rsrc itemSource, int ante, bool soulable) {
+    return randchoice_common(inst, R_Planet, itemSource, ante, PLANETS);
 }
-item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
-    return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
+item next_spectral(instance* inst, rsrc itemSource, int ante, bool soulable) {
+    return randchoice_common(inst, R_Spectral, itemSource, ante, SPECTRALS);
 }
 #elif V_AT_MOST(1,0,0,10)
-item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
+item next_tarot(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Tarot}, 2) > 0.997) {
         return The_Soul;
     }
-    return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+    return randchoice_common(inst, R_Tarot, itemSource, ante, TAROTS);
 }
-item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
+item next_planet(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable && !inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Planet}, 2) > 0.997) {
         return Black_Hole;
     }
-    return randchoice_common(inst, R_Planet, src, ante, PLANETS);
+    return randchoice_common(inst, R_Planet, itemSource, ante, PLANETS);
 }
-item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
+item next_spectral(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable) {
         item forcedKey = RETRY;
         if (!inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
@@ -120,22 +120,22 @@ item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
         }
         if (forcedKey != RETRY) return forcedKey;
     }
-    return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
+    return randchoice_common(inst, R_Spectral, itemSource, ante, SPECTRALS);
 }
 #else
-item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
+item next_tarot(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Tarot, ante}, 3) > 0.997) {
         return The_Soul;
     }
-    return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
+    return randchoice_common(inst, R_Tarot, itemSource, ante, TAROTS);
 }
-item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
+item next_planet(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable && !inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Planet, ante}, 3) > 0.997) {
         return Black_Hole;
     }
-    return randchoice_common(inst, R_Planet, src, ante, PLANETS);
+    return randchoice_common(inst, R_Planet, itemSource, ante, PLANETS);
 }
-item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
+item next_spectral(instance* inst, rsrc itemSource, int ante, bool soulable) {
     if (soulable) {
         item forcedKey = RETRY;
         if (!inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
@@ -146,20 +146,53 @@ item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
         }
         if (forcedKey != RETRY) return forcedKey;
     }
-    return randchoice_common(inst, R_Spectral, src, ante, SPECTRALS);
+    return randchoice_common(inst, R_Spectral, itemSource, ante, SPECTRALS);
 }
 #endif
 
-item next_joker(instance* inst, rsrc src, int ante) {
-    if (src == S_Soul) return randchoice_common(inst, R_Joker_Legendary, src, ante, LEGENDARY_JOKERS);
-    double rarity = random(inst, (__private ntype[]){N_Type, N_Ante, N_Source}, (__private int[]){R_Joker_Rarity, ante, src}, 3);
-    if (rarity > 0.95) return randchoice_common(inst, R_Joker_Rare, src, ante, RARE_JOKERS);
-    if (rarity > 0.7) return randchoice_common(inst, R_Joker_Uncommon, src, ante, UNCOMMON_JOKERS);
-    return randchoice_common(inst, R_Joker_Common, src, ante, COMMON_JOKERS);
+// Get rarity of the next joker for the given source type. 
+// Affects the random, unless source S_Soul is requested.
+rarity next_joker_rarity(instance* inst, rsrc itemSource, int ante) {
+    if (itemSource == S_Soul) {
+        return Rarity_Legendary;
+    }
+    // TODO : implement skip tag sources here
+
+    double randomNumber = random(inst, (__private ntype[]){N_Type, N_Ante, N_Source}, (__private int[]){R_Joker_Rarity, ante, itemSource}, 3);
+    if (randomNumber > 0.95) {
+        return Rarity_Rare;
+    }
+    if (randomNumber > 0.7) {
+        return Rarity_Uncommon;
+    }
+    return Rarity_Common;
 }
 
-item next_joker_edition(instance* inst, rsrc src, int ante) {
-    double poll = random(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){R_Joker_Edition, src, ante}, 3);
+// Get an object which carries both joker item, and its rarity.
+rarityjoker next_joker_with_rarity(instance* inst, rsrc itemSource, int ante) {
+    rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
+    item nextJoker;
+
+    if (nextRarity == Rarity_Legendary) {
+        nextJoker = randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+    } else if (nextRarity == Rarity_Rare) {
+        nextJoker = randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
+    } else if (nextRarity == Rarity_Uncommon) {
+        nextJoker = randchoice_common(inst, R_Joker_Uncommon, itemSource, ante, UNCOMMON_JOKERS);
+    } else {
+        nextJoker = randchoice_common(inst, R_Joker_Common, itemSource, ante, COMMON_JOKERS);
+    }
+
+    rarityjoker rarityJoker = {nextJoker, nextRarity};
+    return rarityJoker;
+}
+
+item next_joker(instance* inst, rsrc itemSource, int ante) {
+    return next_joker_with_rarity(inst, itemSource, ante)._item;
+}
+
+item next_joker_edition(instance* inst, rsrc itemSource, int ante) {
+    double poll = random(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){R_Joker_Edition, itemSource, ante}, 3);
     if (poll > 0.997) return Negative;
     if (poll > 0.994) return Polychrome;
     if (poll > 0.98) return Holographic;
