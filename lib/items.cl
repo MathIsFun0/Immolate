@@ -545,6 +545,20 @@ typedef struct ShopInstance {
     int spectralRate;
 } shop;
 
+typedef enum JokerRarity {
+    Rarity_Common,
+    Rarity_Uncommon,
+    Rarity_Rare,
+    Rarity_Legendary
+} rarity;
+
+// TODO rename this to make a bit more sense
+// Object that contains a joker and its rarity.
+typedef struct RarityWithJoker {
+    item _item;
+    rarity _rarity;
+} rarityjoker;
+
 typedef struct WeightedItem {
     item _item;
     double weight;

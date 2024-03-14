@@ -1,4 +1,10 @@
 // Emperor->Fool/Emperor Chains with help of Showman
+// 
+// How to read result: 1020304
+// 1 -> longest chain 
+// 2 -> showman appears ante 2 (in first 6 shop items or in a buffoon pack)
+// 3 -> emperor appears ante 3  (in first 6 shop items)
+// 4 -> best ante to use emperor
 #include "./lib/immolate.cl"
   
 bool is_chained(bool hasShowman, item tarot) {
@@ -88,14 +94,5 @@ long filter(instance* inst) {
         return 0;
     }
 
-    // How to read result: 1020304
-    // score: 1, 
-    // showman ante: 2,  (can be 0, that means no showman)
-    // emperor ante: 3, 
-    // best ante to use emperor: 4
     return bestScore * 1000000 + hasShowmanAnte * 10000 + hasEmperorAnte * 100 + bestAnte;
-
-    // "Showman ante" means showman should appear in first 6 items in that ante or appears in a buffoon pack within that ante
-    // "Emperor ante" means emperor should appear in first 6 items in that ante
-    // Bug: sometimes showman does not appear in shop, even if it says "ante 1", Idk why
 }
