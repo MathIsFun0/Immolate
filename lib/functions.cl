@@ -98,13 +98,13 @@ item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
 }
 #elif V_AT_MOST(1,0,0,10)
 item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
-    if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Tarot}, 2) > 0.997) {
+    if (soulable && (inst->params.showman || !inst->locked[The_Soul]) && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Tarot}, 2) > 0.997) {
         return The_Soul;
     }
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
 }
 item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
-    if (soulable && !inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Planet}, 2) > 0.997) {
+    if (soulable && (inst->params.showman || !inst->locked[Black_Hole]) && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Planet}, 2) > 0.997) {
         return Black_Hole;
     }
     return randchoice_common(inst, R_Planet, src, ante, PLANETS);
@@ -112,10 +112,10 @@ item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
 item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
     if (soulable) {
         item forcedKey = RETRY;
-        if (!inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
+        if ((inst->params.showman || !inst->locked[The_Soul]) && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
             forcedKey = The_Soul;
         }
-        if (!inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
+        if ((inst->params.showman || !inst->locked[Black_Hole]) && random(inst, (__private ntype[]){N_Type, N_Type}, (__private int[]){R_Soul, R_Spectral}, 2) > 0.997) {
             forcedKey = Black_Hole;
         }
         if (forcedKey != RETRY) return forcedKey;
@@ -124,13 +124,13 @@ item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
 }
 #else
 item next_tarot(instance* inst, rsrc src, int ante, bool soulable) {
-    if (soulable && !inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Tarot, ante}, 3) > 0.997) {
+    if (soulable && (inst->params.showman || !inst->locked[The_Soul]) && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Tarot, ante}, 3) > 0.997) {
         return The_Soul;
     }
     return randchoice_common(inst, R_Tarot, src, ante, TAROTS);
 }
 item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
-    if (soulable && !inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Planet, ante}, 3) > 0.997) {
+    if (soulable && (inst->params.showman || !inst->locked[Black_Hole]) && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Planet, ante}, 3) > 0.997) {
         return Black_Hole;
     }
     return randchoice_common(inst, R_Planet, src, ante, PLANETS);
@@ -138,10 +138,10 @@ item next_planet(instance* inst, rsrc src, int ante, bool soulable) {
 item next_spectral(instance* inst, rsrc src, int ante, bool soulable) {
     if (soulable) {
         item forcedKey = RETRY;
-        if (!inst->locked[The_Soul] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
+        if ((inst->params.showman || !inst->locked[The_Soul]) && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
             forcedKey = The_Soul;
         }
-        if (!inst->locked[Black_Hole] && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
+        if ((inst->params.showman || !inst->locked[Black_Hole]) && random(inst, (__private ntype[]){N_Type, N_Type, N_Ante}, (__private int[]){R_Soul, R_Spectral, ante}, 3) > 0.997) {
             forcedKey = Black_Hole;
         }
         if (forcedKey != RETRY) return forcedKey;
@@ -167,25 +167,25 @@ item next_joker_edition(instance* inst, rsrc src, int ante) {
     return No_Edition;
 }
 
-shop get_shop_instance(bool ghostDeck, int tarotMerchantLevel, int planetMerchantLevel) {
+shop get_shop_instance(instance* inst) {
     int jokerRate = 20;
     int tarotRate = 4;
     int planetRate = 4;
     int spectralRate = 0;
 
-    if (ghostDeck) {
+    if (inst->params.deck == Ghost_Deck) {
         spectralRate = 4;
     }
 
-    if (tarotMerchantLevel == 1) {
+    if (inst->params.tarotMerchantLevel == 1) {
         tarotRate *= 2;
-    } else if (tarotMerchantLevel == 2) {
+    } else if (inst->params.tarotMerchantLevel == 2) {
         tarotRate *= 4;
     }
 
-    if (planetMerchantLevel == 1) {
+    if (inst->params.planetMerchantLevel == 1) {
         planetRate *= 2;
-    } else if (planetMerchantLevel == 2) {
+    } else if (inst->params.planetMerchantLevel == 2) {
         planetRate *= 4;
     }
 
@@ -215,8 +215,8 @@ itemtype get_item_type(shop shopInstance, double generatedValue) {
     return ItemType_Spectral;
 }
 
-shopitem next_shop_item(instance* inst, int ante, bool ghostDeck, int tarotMerchantLevel, int planetMerchantLevel) {
-    shop shopInstance = get_shop_instance(ghostDeck, tarotMerchantLevel, planetMerchantLevel); // TODO : get these values from game instance?
+shopitem next_shop_item(instance* inst, int ante) {
+    shop shopInstance = get_shop_instance(inst);
 
     double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * get_total_rate(shopInstance);
     itemtype type = get_item_type(shopInstance, card_type);
@@ -270,7 +270,7 @@ void spectral_pack(item out[], int size, instance* inst, int ante) {
 void arcana_pack(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_tarot(inst, S_Arcana, ante, true);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
+        if (!inst->params.showman) inst->locked[out[i]] = true; // temporary reroll for locked items
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
@@ -279,7 +279,7 @@ void arcana_pack(item out[], int size, instance* inst, int ante) {
 void celestial_pack(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_planet(inst, S_Celestial, ante, true);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
+        if (!inst->params.showman) inst->locked[out[i]] = true; // temporary reroll for locked items
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
@@ -288,7 +288,7 @@ void celestial_pack(item out[], int size, instance* inst, int ante) {
 void spectral_pack(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_spectral(inst, S_Spectral, ante, true);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
+        if (!inst->params.showman) inst->locked[out[i]] = true; // temporary reroll for locked items
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
@@ -298,7 +298,7 @@ void spectral_pack(item out[], int size, instance* inst, int ante) {
 void buffoon_pack(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_joker(inst, S_Buffoon, ante);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
+        if (!inst->params.showman) inst->locked[out[i]] = true; // temporary reroll for locked items
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
@@ -308,10 +308,6 @@ void buffoon_pack(item out[], int size, instance* inst, int ante) {
 void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_joker_edition(inst, S_Buffoon, ante);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
-    }
-    for (int i = 0; i < size; i++) {
-        inst->locked[out[i]] = false;
     }
 }
 
@@ -399,11 +395,22 @@ item next_voucher_from_tag(instance* inst, int ante) {
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {
         out[i] = randchoice_simple(inst, R_Erratic, CARDS);
+        //Todo: Order these as the game does by sorting them
     }
 }
 void init_deck(instance* inst, item out[]) {
-    for (int i = 0; i < 52; i++) {
+    if (inst->params.deck == Erratic_Deck) init_erratic_deck(inst, out);
+    else {
+        for (int i = 0; i < 52; i++) {
         out[i] = DECK_ORDER[i+1];
+    }
+    }
+}
+void set_deck(instance* inst, item deck) {
+    inst->params.deck = deck;
+    if (deck == Zodiac_Deck) {
+        inst->params.tarotMerchantLevel = 1;
+        inst->params.planetMerchantLevel = 1;
     }
 }
 

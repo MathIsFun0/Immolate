@@ -1,10 +1,11 @@
 // Searches for an Erratic Deck seed with lots of a type of suit
 #include "./lib/immolate.cl"
 long filter(instance* inst) {
+    set_deck(inst, Erratic_Deck);
     int4 scores;
     for (int i = 0; i < 4; i++) scores[i] = 0;
     item deck[52];
-    init_erratic_deck(inst, deck);
+    init_deck(inst, deck);
     for (int i = 0; i < 52; i++) {
         if (suit(deck[i]) == Spades) scores[0]++;
         if (suit(deck[i]) == Diamonds) scores[1]++;

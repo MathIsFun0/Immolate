@@ -6,7 +6,7 @@ bool is_chained(bool hasShowman, item tarot) {
 }
 
 void check_next_item(instance* inst, int ante, bool *hasShowman, int *hasShowmanAnte, bool *hasEmperor, int *hasEmperorAnte) {
-    shopitem shopItem = next_shop_item(inst, ante, false, 0, 0);
+    shopitem shopItem = next_shop_item(inst, ante);
     if (!(*hasShowman) && shopItem._item == Showman) {
         *hasShowman = true;
         *hasShowmanAnte = ante;

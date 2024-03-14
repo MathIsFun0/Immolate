@@ -1,50 +1,68 @@
 // Speedrunning seeds for Set Seed Skips
 #include "./lib/immolate.cl"
+
 long filter(instance* inst) {
-    long passedFilters = 0;
+    // The primary strategy utilized is going to be a single Bull carrying the run.
+    init_locks(inst, 1, false, true);
 
-    // Banner and Popcorn in ante 2
-    item jkr1 = shop_joker(inst, 2);
-    item jkr2 = shop_joker(inst, 2);
-    if ((jkr1 == Banner && jkr2 == Popcorn) || (jkr1 == Popcorn && jkr2 == Banner)) passedFilters++;
-    else return passedFilters;
-
-    // Throwback, Flower Pot, and Baseball Card in antes 3-5
-    item jkrs[6] = {shop_joker(inst, 3),shop_joker(inst, 3),shop_joker(inst, 4),shop_joker(inst, 4),shop_joker(inst, 5),shop_joker(inst, 5)};
-    bool hasThrowback = false;
-    bool hasRamen = false;
-    bool hasBaseball = false;
-    for (int i = 0; i < 6; i++) {
-        if (jkrs[i] == Throwback) hasThrowback = true;
-        if (jkrs[i] == Ramen) hasRamen = true;
-        if (jkrs[i] == Baseball_Card) hasBaseball = true;
+    // Check for Bull
+    bool foundBull = false;
+    for (int i = 0; i < 2; i++) {
+        if (next_shop_item(inst, 2, false, 0, 0)._item == Bull) foundBull = true;
     }
-    if (hasBaseball && hasThrowback && hasRamen) passedFilters++;
-    else return passedFilters;
+    if (!foundBull) return 0;
 
-    // Check for a Straight Flush.
-    item deck[52];
-    shuffle_deck(inst, deck, 1);
-    item hand[8] = {deck[44], deck[45], deck[46], deck[47], deck[48], deck[49], deck[50], deck[51]};
-    bool isStrush = false;
-    // The strategy used here is to treat each card as the potential starting point of a Straight Flush and chack that the rest of the held hand supports it.
-    for (int i = 0; i < 8; i++) {
-        item c_rank = rank(hand[i]);
-        if (c_rank == Jack || c_rank == Queen || c_rank == King) continue;
-        item targetRank = rank(hand[i]);
-        for (int x = 1; x < 5; x++) {
-            targetRank = next_rank(targetRank);
-            item targetCard = from_rank_suit(targetRank, suit(hand[i]));
-            isStrush = false;
-            for (int j = 0; j < 8; j++) {
-                if (hand[j] == targetCard) {
-                    isStrush = true;
+    long cash = 4;
+    long doubles = 0;
+    long skips = 0;
+    //Scores needed to one-shot each ante with a 5x1 high card and Bull - ante 1 ignored
+    long anteReqs[8] = {0, 54, 103, 152, 207, 280, 372, 445};
+    while (skips < 16) {
+        if (skips == 2) {
+            init_locks(inst, 2, false, true);
+            cash -= 6; //Buying Bull
+        }
+        item tag = next_tag(inst, 1+skips/2);
+        //Filter bad tags (time loss)
+        if (tag == Investment_Tag) return skips;
+        if (tag == Boss_Tag && doubles > 0) return skips;
+        if (tag == Standard_Tag) return skips;
+        if (tag == Charm_Tag) return skips;
+        if (tag == Meteor_Tag) return skips;
+        if (tag == Buffoon_Tag) return skips;
+        if (tag == Ethereal_Tag) return skips;
+        if (tag == Top_up_Tag) return skips;
+        if (tag == Orbital_Tag) return skips;
+
+        // The good tags
+        if (tag == Double_Tag) doubles++; // This one can lose time, might want to return skips; if we get time loss
+        else doubles = 0;
+        if (tag == Speed_Tag) {
+            for (int i = 0; i <= doubles; i++) {
+                cash += 5 * (skips + 1);
+            }
+            doubles = 0;
+        }
+        if (tag == Economy_Tag) {
+            for (int i = 0; i <= doubles; i++) {
+                if (cash < 40) {
+                    cash *= 2;
+                } else {
+                    cash += 40;
                 }
             }
-            if (!isStrush) break;
         }
-        if (isStrush) break;
+        skips++;
+
+        // End of ante stuff
+        if (skips % 2 == 0) {
+            if (cash < anteReqs[skips/2-1]) return skips;
+            if (skips != 16) {
+                cash += 12;
+                if (skips > 2) cash++;
+            }
+        }
     }
-    if (isStrush) return 999;
-    return passedFilters;
+    return cash;
+
 }
