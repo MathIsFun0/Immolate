@@ -1,5 +1,5 @@
 // Maximum cash out possible in Ante 1
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     long passedFilters = 0;
     

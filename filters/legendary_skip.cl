@@ -1,5 +1,5 @@
 // Legendary joker from arcana pack skip ante 1.
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 
 long filter(instance* inst) {
     // Charm Tag Ante 1

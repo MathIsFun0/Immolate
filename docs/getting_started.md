@@ -7,9 +7,10 @@ Open the Immolate CLI in the directory you extracted Immolate to.
 To check that Immolate works, run the command `immolate -h`. You should see a help dialog that lists all of the command-line arguments to pass into the searcher.
 
 ## Running an existing filter
-To run an existing filter, open the file `search.cl`. The first line will look something like `#include "filters/red_poly_glass.cl"`. Replace the text in quotes with the path to a file that contains a filter.
+To run an existing filter, type the name of the filter after the `-f` option, e.g. `immolate -f double_legendary`.
 
 To run the executable, there are a few command line arguments that may be important.
+- `-f`: Sets the filter used by the search.
 - `-s`: Sets the starting seed of the search.
 - `-n`: Sets the number of seeds of the search.
 - `-c`: Sets the score the filter needs to return for a seed to be printed. Useful when searching for streaks or seeds that must meet a variety of conditions.

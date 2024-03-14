@@ -1,5 +1,5 @@
 // Speedrunning seeds for Set Seed Skips
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 
 long filter(instance* inst) {
     // The primary strategy utilized is going to be a single Bull carrying the run.

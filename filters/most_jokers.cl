@@ -4,7 +4,7 @@
 // 3 -> which pack has perkeo (ante 1, from left to right, 3 means 2nd shop, first pack)
 // 4 -> ante that has ankh (within first 8 items in shop)
 // 1 -> ante that has ectoplasm (within first 8 items in shop)
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 
 // In which pack ante 1 you get soul (if all packs are opened one after another from left to right)
 int get_soul_index(instance* inst, int ante) {

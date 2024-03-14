@@ -12,15 +12,20 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 8; i++) {
         startingSeed.s[i] = '\0';
     };
-    cl_long numSeeds = 2251875390625;
+    cl_long numSeeds = 2318107019761;
     cl_long cutoff = 1;
+    char* filter = "erratic_flush_five";
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "-h")==0) {
-            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-s <S>    Sets the starting seed to S. Defaults to empty seed. Use \"random\" for a random starting seed.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
+            printf_s("Valid command line arguments:\n-h        Shows this help dialog.\n-f <F>    Sets the filter used by Immolate to F. Defaults to erratic_flush_five.\n-s <S>    Sets the starting seed to S. Defaults to empty seed. Use \"random\" for a random starting seed.\n-n <N>    Sets the number of seeds to search to N. Defaults to full seed pool.\n-c <C>    Sets the cutoff score for a seed to be printed to C. Defaults to 1.\n-p <P>    Sets the platform ID of the CL device being used to P. Defaults to 0.\n-d <D>    Sets the device ID of the CL device being used to D. Defaults to 0.\n-g <G>    Sets the number of thread groups to G. Defaults to 16. Increasing this might help Immolate run faster.\n\n--list_devices   Lists information about the detected CL devices.");
             return 0;
         }
         if (strcmp(argv[i],  "-p")==0) {
             platformID = atoi(argv[i+1]);
+            i++;
+        }
+        if (strcmp(argv[i],  "-f")==0) {
+            filter = argv[i+1];
             i++;
         }
         if (strcmp(argv[i],  "-d")==0) {
@@ -125,15 +130,47 @@ int main(int argc, char **argv) {
     // Load the kernel source code into the array ssKernel
     FILE *fp;
     char *ssKernelCode;
+    char *ssKernelBuf;
     size_t ssKernelSize;
- 
-    fp = fopen("search.cl", "r");
+
+    // Get CWD
+    char executable_dir[MAX_PATH];
+    char include_path[MAX_PATH+6];
+    char kernel_path[MAX_PATH+12];
+    if (GetModuleFileName(NULL, executable_dir, MAX_PATH) != 0) {
+        char* last_slash = strrchr(executable_dir, '\\');
+        if (last_slash != NULL) {
+            *last_slash = '\0';
+        }
+    } else {
+        fprintf(stderr, "Error: Unable to get the current working directory\n");
+    }
+    strcpy_s(include_path, sizeof include_path, "-I \"");
+    strcat_s(include_path, sizeof include_path, executable_dir);
+    strcat_s(include_path, sizeof include_path, "\"");
+    strcpy_s(kernel_path, sizeof kernel_path, executable_dir);
+    strcat_s(kernel_path, sizeof kernel_path, "\\search.cl");
+    fp = fopen(kernel_path, "r");
     if (!fp) {
-        fprintf_s(stderr, "Failed to load kernel.\n");
-        exit(1);
+        printf_s("Warning: Kernel not found at ");
+        printf_s(kernel_path);
+        printf_s(", attempting working directory...\n");
+        fp = fopen("search.cl","r");
+        if (!fp) {
+            fprintf_s(stderr, "Failed to load kernel.\n");
+            exit(1);
+        }
     }
     ssKernelCode = (char*)malloc(1000000);
-    ssKernelSize = fread( ssKernelCode, 1, 1000000, fp);
+    ssKernelBuf = (char*)malloc(1000000);
+    // Set include information
+    strcpy_s(ssKernelCode, 1000000, "#include \"filters/");
+    strcat_s(ssKernelCode, 1000000, filter);
+    strcat_s(ssKernelCode, 1000000, ".cl\"\n\n");
+    size_t bytes_read = fread( ssKernelBuf, 1, 1000000, fp);
+    ssKernelBuf[bytes_read] = '\0';
+    strcat_s(ssKernelCode, 1000000, ssKernelBuf);
+    ssKernelSize = strlen(ssKernelCode);
     fclose( fp );
 
     // Set up platform and device based on CLI args
@@ -194,7 +231,7 @@ int main(int argc, char **argv) {
 
     // Build the program
     printf_s("Building program...\n");
-    err = clBuildProgram(ssKernelProgram, 1, &device, "", NULL, NULL);
+    err = clBuildProgram(ssKernelProgram, 1, &device, include_path, NULL, NULL);
     if (err == CL_BUILD_PROGRAM_FAILURE) { //print build log on error
         size_t logLength = 0;
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);

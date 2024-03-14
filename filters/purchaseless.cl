@@ -1,5 +1,5 @@
 // Purchaseless runs
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     long passedFilters = 0;
     init_locks(inst, 2, false, true);

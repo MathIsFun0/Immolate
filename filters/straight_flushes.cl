@@ -1,4 +1,4 @@
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 // Checks if the first two blinds of Ante 1 have straight flushes
 long filter(instance* inst) {
     item deck[52];

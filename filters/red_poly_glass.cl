@@ -1,5 +1,5 @@
 // Red Poly Glass Cards
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     int numCards = 0;
     // Check if either pack is a Standard Pack - and which has the most cards

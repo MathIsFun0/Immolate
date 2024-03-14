@@ -5,7 +5,7 @@
 // 2 -> showman appears ante 2 (in first 6 shop items or in a buffoon pack)
 // 3 -> emperor appears ante 3  (in first 6 shop items)
 // 4 -> best ante to use emperor
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
   
 bool is_chained(bool hasShowman, item tarot) {
     return tarot == The_Fool || (hasShowman && tarot == The_Emperor);

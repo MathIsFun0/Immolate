@@ -1,5 +1,5 @@
 // Seeds with very little rare / uncommon jokers in first 4 ante
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 
 int find_non_common_jokers(instance* inst, rsrc jokerSource, int ante, int amountToCheck) {
     int totalNonCommonJokers = 0;

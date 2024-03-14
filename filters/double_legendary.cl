@@ -1,5 +1,5 @@
 // Searches for a first shop with two packs that give legendary jokers
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     int score = 0;
     for (int packIndex = 1; packIndex <= 2; packIndex++) {

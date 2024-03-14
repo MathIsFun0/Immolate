@@ -1,5 +1,3 @@
-#include "./filters/bad_seeds.cl"
-
 __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_cutoff) {
     seed _seed = s_new_c8(starting_seed);
     if (get_global_id(0) != 0) {

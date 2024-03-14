@@ -1,5 +1,5 @@
 // Searches for an Erratic Deck seed with lots of a type of suit
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     set_deck(inst, Erratic_Deck);
     int4 scores;

@@ -1,5 +1,5 @@
 // Searches for a seed that can be beaten with 6 hands and 0 discards
-#include "./lib/immolate.cl"
+#include "lib/immolate.cl"
 long filter(instance* inst) {
     init_locks(inst, 1, false, true);
     int passedFilters = 0;
