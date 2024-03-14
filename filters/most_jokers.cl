@@ -41,7 +41,7 @@ void find_ankh_and_ecto(instance* inst, int *ankhAnte, int *ectoAnte) {
                 return;
             }
 
-            shopitem shopItem = next_shop_item(inst, ante, true, 0, 0);
+            shopitem shopItem = next_shop_item(inst, ante);
 
             if (*ankhAnte <= 0 && shopItem._item == Ankh) {
                 *ankhAnte = ante;
@@ -53,6 +53,7 @@ void find_ankh_and_ecto(instance* inst, int *ankhAnte, int *ectoAnte) {
 }
 
 long filter(instance* inst) {
+    set_deck(inst, Ghost_Deck);
     int ante = 1;
 
     item jokerFromSoul = next_joker(inst, S_Soul, ante);
