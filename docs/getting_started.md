@@ -2,7 +2,7 @@
 ## Setting up Immolate
 Download the required files from the [Releases](https://github.com/MathIsFun0/Immolate/releases) page and unzip them into a directory of your choice.
 
-With a command line, navigate to the directory where you placed Immolate.exe.
+Open the Immolate CLI in the directory you extracted Immolate to.
 
 To check that Immolate works, run the command `immolate -h`. You should see a help dialog that lists all of the command-line arguments to pass into the searcher.
 
