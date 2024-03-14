@@ -1,10 +1,11 @@
 // Searches for an Erratic Deck seed with lots of an exact card
 #include "./lib/immolate.cl"
 long filter(instance* inst) {
+    set_deck(inst, Erratic_Deck);
     int scores[52];
     for (int i = 0; i < 52; i++) scores[i] = 0;
     item deck[52];
-    init_erratic_deck(inst, deck);
+    init_deck(inst, deck);
     for (int i = 0; i < 52; i++) {
        scores[deck[i]-C_2]++;
     }

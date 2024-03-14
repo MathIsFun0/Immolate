@@ -3,6 +3,7 @@ typedef struct InstanceParameters {
     item deck;
     int tarotMerchantLevel;
     int planetMerchantLevel;
+    bool showman;
 } instance_params;
 
 // Instance
@@ -84,7 +85,7 @@ item randchoice(instance* inst, ntype nts[], int ids[], int num, __constant item
 // Now with rerolls!
 item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __constant item items[]) {
     item i = randchoice(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){rngType, src, ante}, 3, items);
-    if (inst->locked[i]) {
+    if (!inst->params.showman && inst->locked[i]) {
         int resampleNum = 1;
         while (inst->locked[i]) {
             i = randchoice(inst, (__private ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (__private int[]){rngType, src, ante, resampleNum}, 4, items);
@@ -101,10 +102,10 @@ item randchoice_simple(instance* inst, rtype rngType, __constant item items[]) {
 void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __constant item items[]) {
     for (int i = 0; i < size; i++) {
         out[i] = randchoice_common(inst, rngType, src, ante, items);
-        inst->locked[out[i]] = true; // temporary reroll for locked items
+        if (!inst->params.showman) inst->locked[out[i]] = true; // temporary reroll for locked items
     }
     for (int i = 0; i < size; i++) {
-        inst->locked[out[i]] = false;
+        if (!inst->params.showman) inst->locked[out[i]] = false;
     }
 }
 

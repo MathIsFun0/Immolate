@@ -1,10 +1,11 @@
 // Searches for an Erratic Deck seed with lots of a rank
 #include "./lib/immolate.cl"
 long filter(instance* inst) {
+    set_deck(inst, Erratic_Deck);
     int16 scores;
     for (int i = 0; i < 13; i++) scores[i] = 0;
     item deck[52];
-    init_erratic_deck(inst, deck);
+    init_deck(inst, deck);
     for (int i = 0; i < 52; i++) {
        scores[rank(deck[i])-_2]++;
     }
