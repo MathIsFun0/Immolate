@@ -19,20 +19,21 @@ long filter(instance* inst) {
     long anteReqs[8] = {0, 54, 103, 152, 207, 280, 372, 445};
     while (skips < 16) {
         if (skips == 2) {
-            init_locks(inst, 2, false, true);
+            init_unlocks(inst, 2, false);
             cash -= 6; //Buying Bull
         }
         item tag = next_tag(inst, 1+skips/2);
         //Filter bad tags (time loss)
-        if (tag == Investment_Tag) return skips;
-        if (tag == Boss_Tag && doubles > 0) return skips;
+        //Enabling the small ones for now
+        //if (tag == Investment_Tag) return skips;
+        //if (tag == Boss_Tag && doubles > 0) return skips;
         if (tag == Standard_Tag) return skips;
         if (tag == Charm_Tag) return skips;
         if (tag == Meteor_Tag) return skips;
         if (tag == Buffoon_Tag) return skips;
         if (tag == Ethereal_Tag) return skips;
-        if (tag == Top_up_Tag) return skips;
-        if (tag == Orbital_Tag) return skips;
+        //if (tag == Top_up_Tag) return skips;
+        //if (tag == Orbital_Tag) return skips;
 
         // The good tags
         if (tag == Double_Tag) doubles++; // This one can lose time, might want to return skips; if we get time loss
