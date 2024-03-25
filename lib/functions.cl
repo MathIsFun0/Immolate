@@ -204,10 +204,11 @@ shop get_shop_instance(instance* inst) {
     int jokerRate = 20;
     int tarotRate = 4;
     int planetRate = 4;
+    int playingCardRate = 0;
     int spectralRate = 0;
 
     if (inst->params.deck == Ghost_Deck) {
-        spectralRate = 4;
+        spectralRate = 2;
     }
 
     if (inst->params.tarotMerchantLevel == 1) {
@@ -222,15 +223,21 @@ shop get_shop_instance(instance* inst) {
         planetRate *= 4;
     }
 
-    shop _shop = {jokerRate, tarotRate, planetRate, spectralRate};
+    if (inst->params.magicTrickLevel >= 1) {
+        // TODO : Make sure this matches the actual rate! 
+        playingCardRate = 4;
+    }
+
+    shop _shop = {jokerRate, tarotRate, planetRate, playingCardRate, spectralRate};
     return _shop;
 }
 
 int get_total_rate(shop shopInstance) {
-    return shopInstance.jokerRate + shopInstance.tarotRate + shopInstance.planetRate + shopInstance.spectralRate;
+    return shopInstance.jokerRate + shopInstance.tarotRate + shopInstance.planetRate + shopInstance.playingCardRate + shopInstance.spectralRate;
 }
 
 itemtype get_item_type(shop shopInstance, double generatedValue) {
+    // Jokers -> Tarots -> Planets -> Playing Cards -> Spectrals
     if (generatedValue < shopInstance.jokerRate) {
         return ItemType_Joker;
     }
@@ -243,6 +250,11 @@ itemtype get_item_type(shop shopInstance, double generatedValue) {
     
     if (generatedValue < shopInstance.planetRate) {
         return ItemType_Planet;
+    }
+    generatedValue -= shopInstance.planetRate;
+
+    if (generatedValue < shopInstance.playingCardRate) {
+        return ItemType_PlayingCard;
     }
 
     return ItemType_Spectral;
@@ -262,6 +274,8 @@ shopitem next_shop_item(instance* inst, int ante) {
         shopItem = next_planet(inst, S_Shop, ante, false);
     } else if (type == ItemType_Spectral) {
         shopItem = next_spectral(inst, S_Shop, ante, false);
+    } else if (type == ItemType_PlayingCard) {
+        // TODO: Playing card support.
     }
 
     shopitem nextShopItem = {type, shopItem};
@@ -269,6 +283,7 @@ shopitem next_shop_item(instance* inst, int ante) {
 }
 
 //Todo: Update for vouchers, add a general one for any type of card
+// Deprecated, use next_shop_item() ^
 item shop_joker(instance* inst, int ante) {
     double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * 28;
     if (card_type <= 20) return next_joker(inst, S_Shop, ante);
@@ -425,6 +440,44 @@ item next_voucher_from_tag(instance* inst, int ante) {
 }
 #endif
 
+void activate_voucher(instance* inst, item voucher) {
+    switch (voucher) {
+        case Planet_Merchant: {
+            inst->params.planetMerchantLevel = 1;
+            return;
+        }
+        case Planet_Tycoon: {
+            inst->params.planetMerchantLevel = 2;
+            return;
+        }
+        case Tarot_Merchant: {
+            inst->params.tarotMerchantLevel = 1;
+            return;
+        }
+        case Tarot_Tycoon: {
+            inst->params.tarotMerchantLevel = 2;
+            return;
+        }
+        case Magic_Trick: {
+            inst->params.magicTrickLevel = 1;
+            return;
+        }
+        case Illusion: {
+            inst->params.magicTrickLevel = 2;
+            return;
+        }
+        case Hone: {
+            inst->params.honeLevel = 1;
+            return;
+        }
+        case Glow_Up: {
+            inst->params.honeLevel = 2;
+            return;
+        }
+    }
+
+}
+
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {
         out[i] = randchoice_simple(inst, R_Erratic, CARDS);
@@ -442,8 +495,8 @@ void init_deck(instance* inst, item out[]) {
 void set_deck(instance* inst, item deck) {
     inst->params.deck = deck;
     if (deck == Zodiac_Deck) {
-        inst->params.tarotMerchantLevel = 1;
-        inst->params.planetMerchantLevel = 1;
+        activate_voucher(Planet_Merchant);
+        activate_voucher(Tarot_Merchant);
     }
 }
 

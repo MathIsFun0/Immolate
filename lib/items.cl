@@ -530,6 +530,7 @@ typedef enum ShopItemType {
     ItemType_Joker,
     ItemType_Tarot,
     ItemType_Planet,
+    ItemType_PlayingCard,
     ItemType_Spectral
 } itemtype;
 
@@ -542,6 +543,7 @@ typedef struct ShopInstance {
     int jokerRate;
     int tarotRate;
     int planetRate;
+    int playingCardRate;
     int spectralRate;
 } shop;
 
