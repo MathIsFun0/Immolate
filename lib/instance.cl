@@ -94,6 +94,9 @@ item randchoice_common(instance* inst, rtype rngType, rsrc src, int ante, __cons
     }
     return i;
 }
+item randchoice_resample(instance* inst, rtype rngType, rsrc src, int ante, __constant item items[], int resampleNum) {
+    return randchoice(inst, (__private ntype[]){N_Type, N_Source, N_Ante, N_Resample}, (__private int[]){rngType, src, ante, resampleNum}, 4, items);
+}
 
 item randchoice_simple(instance* inst, rtype rngType, __constant item items[]) {
     return randchoice(inst, (__private ntype[]){N_Type}, (__private int[]){rngType}, 1, items);

@@ -201,32 +201,32 @@ item next_joker_edition(instance* inst, rsrc itemSource, int ante) {
 }
 
 shop get_shop_instance(instance* inst) {
-    int jokerRate = 20;
-    int tarotRate = 4;
-    int planetRate = 4;
-    int spectralRate = 0;
+    double jokerRate = 20;
+    double tarotRate = 4;
+    double planetRate = 4;
+    double spectralRate = 0;
 
     if (inst->params.deck == Ghost_Deck) {
         spectralRate = 4;
     }
 
     if (inst->params.tarotMerchantLevel == 1) {
-        tarotRate *= 2;
+        tarotRate = 9.6;
     } else if (inst->params.tarotMerchantLevel == 2) {
-        tarotRate *= 4;
+        tarotRate = 32;
     }
 
     if (inst->params.planetMerchantLevel == 1) {
-        planetRate *= 2;
+        planetRate = 9.6;
     } else if (inst->params.planetMerchantLevel == 2) {
-        planetRate *= 4;
+        planetRate = 32;
     }
 
     shop _shop = {jokerRate, tarotRate, planetRate, spectralRate};
     return _shop;
 }
 
-int get_total_rate(shop shopInstance) {
+double get_total_rate(shop shopInstance) {
     return shopInstance.jokerRate + shopInstance.tarotRate + shopInstance.planetRate + shopInstance.spectralRate;
 }
 
@@ -341,6 +341,12 @@ void buffoon_pack(item out[], int size, instance* inst, int ante) {
 void buffoon_pack_editions(item out[], int size, instance* inst, int ante) {
     for (int i = 0; i < size; i++) {
         out[i] = next_joker_edition(inst, S_Buffoon, ante);
+    }
+}
+
+void standard_pack(card out[], int size, instance* inst, int ante) {
+    for (int i = 0; i < size; i++) {
+        out[i] = standard_card(inst, ante);
     }
 }
 

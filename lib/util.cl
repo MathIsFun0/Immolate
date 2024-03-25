@@ -55,8 +55,11 @@ double pseudohash(text s) {
 double pseudohash8(char8 s) {
     //resizeString(&s, 16, ' ');
     double num = 1;
+    int k = 32;
     for (int i = 7; i >= 0; i--) {
-        num = fract((1.1239285023/num)*s[i]*3.14159265358979323846);
+        long int_part = (1.1239285023/num*s[i]*3.141592653589793116+3.141592653589793116*(i+1))*(1<<k);
+        double fract_part = fract(fract((1.1239285023/num*s[i]*3.141592653589793116)*(1<<k))+fract((3.141592653589793116*(i+1))*(1<<k)));
+        num = fract(((double)(int_part)+fract_part)/(1<<k));
     }
     return num;
 }
@@ -158,8 +161,7 @@ lrandom randomseed(double d) {
         r >>= 8;
         // Doing these two operations separately fixes the code for some reason...
         // Probably another roundoff issue...
-        d = d*3.14159265358979323846;
-        d = d+2.7182818284590452354;
+        d = d*3.14159265358979323846+2.7182818284590452354;
         lr.out.d = d;
         u = lr.out.ul;
         if (u<m) u+=m;

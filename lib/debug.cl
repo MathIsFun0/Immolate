@@ -269,14 +269,14 @@ void print_item(item i) {
         case S_END: printf("S END"); break;
         case ENHANCEMENT_BEGIN: printf("ENHANCEMENT BEGIN"); break;
         case No_Enhancement: printf("No Enhancement"); break;
-        case Bonus_Card: printf("Bonus Card"); break;
-        case Mult_Card: printf("Mult Card"); break;
-        case Wild_Card: printf("Wild Card"); break;
-        case Glass_Card: printf("Glass Card"); break;
-        case Steel_Card: printf("Steel Card"); break;
-        case Stone_Card: printf("Stone Card"); break;
-        case Gold_Card: printf("Gold Card"); break;
-        case Lucky_Card: printf("Lucky Card"); break;
+        case Bonus_Card: printf("Bonus"); break;
+        case Mult_Card: printf("Mult"); break;
+        case Wild_Card: printf("Wild"); break;
+        case Glass_Card: printf("Glass"); break;
+        case Steel_Card: printf("Steel"); break;
+        case Stone_Card: printf("Stone"); break;
+        case Gold_Card: printf("Gold"); break;
+        case Lucky_Card: printf("Lucky"); break;
         case ENHANCEMENT_END: printf("ENHANCEMENT END"); break;
         case SEAL_BEGIN: printf("SEAL BEGIN"); break;
         case No_Seal: printf("No Seal"); break;
@@ -482,6 +482,7 @@ void print_item(item i) {
         case Cruelty: printf("Cruelty"); break;
         case Jokerless: printf("Jokerless"); break;
         case CHAL_END: printf("CHAL END"); break;
+        default: break;
     }
 }
 
