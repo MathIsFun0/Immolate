@@ -507,8 +507,8 @@ void init_deck(instance* inst, item out[]) {
 void set_deck(instance* inst, item deck) {
     inst->params.deck = deck;
     if (deck == Zodiac_Deck) {
-        activate_voucher(Planet_Merchant);
-        activate_voucher(Tarot_Merchant);
+        activate_voucher(inst, Planet_Merchant);
+        activate_voucher(inst, Tarot_Merchant);
     }
 }
 
