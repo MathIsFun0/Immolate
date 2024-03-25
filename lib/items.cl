@@ -540,11 +540,11 @@ typedef struct ShopItem {
 } shopitem;
 
 typedef struct ShopInstance {
-    int jokerRate;
-    int tarotRate;
-    int planetRate;
-    int playingCardRate;
-    int spectralRate;
+    double jokerRate;
+    double tarotRate;
+    double planetRate;
+    double playingCardRate;
+    double spectralRate;
 } shop;
 
 typedef enum JokerRarity {

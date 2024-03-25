@@ -142,7 +142,11 @@ typedef struct RNGInfo {
 } rnginfo;
 
 typedef struct Cache {
+    #ifdef CACHE_SIZE
+    rnginfo nodes[CACHE_SIZE];
+    #else
     rnginfo nodes[64];
+    #endif
     int nextFreeNode;
 } cache;
 
