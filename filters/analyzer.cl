@@ -1,7 +1,7 @@
 #define CACHE_SIZE 1000
 #include "lib/immolate.cl"
 // Prints a full analysis of a seed. Vouchers and bosses to be implemented.
-// Run with -n 1 to only look at a single seed.
+// It's highly recommended to run this with -n 1 to only look at a single seed.
 long filter(instance* inst) {
     int maxAnte = 8;
     long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
@@ -9,7 +9,7 @@ long filter(instance* inst) {
     int numRerolls = 10;
     int numRerolls2 = 3;
     // Perform required initializations
-    set_deck(inst, Zodiac_Deck);
+    set_deck(inst, Red_Deck); //Change this to the deck you want to use with this seed
     init_locks(inst, 1, false, false);
     for (int ante = 1; ante <= maxAnte; ante++) {
         init_unlocks(inst, ante, false);

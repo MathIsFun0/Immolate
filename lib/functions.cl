@@ -156,7 +156,15 @@ rarity next_joker_rarity(instance* inst, rsrc itemSource, int ante) {
     if (itemSource == S_Soul) {
         return Rarity_Legendary;
     }
-    // TODO : implement skip tag sources here
+    if (itemSource == S_Wraith) {
+        return Rarity_Rare;
+    }
+    if (itemSource == S_Rare_Tag) {
+        return Rarity_Rare;
+    }
+    if (itemSource == S_Uncommon_Tag) {
+        return Rarity_Uncommon;
+    }
 
     double randomNumber = random(inst, (__private ntype[]){N_Type, N_Ante, N_Source}, (__private int[]){R_Joker_Rarity, ante, itemSource}, 3);
     if (randomNumber > 0.95) {
@@ -224,7 +232,6 @@ shop get_shop_instance(instance* inst) {
     }
 
     if (inst->params.magicTrickLevel >= 1) {
-        // TODO : Make sure this matches the actual rate! 
         playingCardRate = 4;
     }
 
