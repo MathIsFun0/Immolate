@@ -1,5 +1,5 @@
-// Searches for a seed that has a Gros_Michel in the first shop (or in the baffoon packs)
-// Followed by a Cavendish in the second shop (or in the baffoon packs)
+// Searches for a seed that has a Gros Michel in the first shop (or in the buffoon packs)
+// Followed by a Cavendish in the second shop (or in the buffoon packs)
 #include "lib/immolate.cl"
 
 bool check_next_pack(instance* inst, int ante, item searching) {
