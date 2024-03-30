@@ -4,6 +4,21 @@ typedef struct Card {
     item edition;
     item seal;
 } card;
+
+bool is_voucher_active(instance* inst, item voucher) {
+    return inst->params.vouchers[voucher - (V_BEGIN + 1)];
+}
+
+void activate_voucher(instance* inst, item voucher) {
+    int voucherIndex = voucher - (V_BEGIN + 1);
+    inst->params.vouchers[voucherIndex] = true;
+
+    // Upgraded version requires base voucher activated.
+    if (voucherIndex % 2 == 1) {
+        inst->params.vouchers[voucherIndex - 1] = true;
+    }
+}
+
 #if V_AT_MOST(1,0,0,10)
 item standard_enhancement(instance* inst, int ante) {
     if (random_simple(inst, R_Standard_Has_Enhancement) <= 0.6) return No_Enhancement;
@@ -219,19 +234,19 @@ shop get_shop_instance(instance* inst) {
         spectralRate = 2;
     }
 
-    if (inst->params.tarotMerchantLevel == 1) {
-        tarotRate = 9.6;
-    } else if (inst->params.tarotMerchantLevel == 2) {
+    if (is_voucher_active(inst, Tarot_Tycoon)) {
         tarotRate = 32;
+    } else if (is_voucher_active(inst, Tarot_Merchant)) {
+        tarotRate = 9.6;
     }
 
-    if (inst->params.planetMerchantLevel == 1) {
-        planetRate = 9.6;
-    } else if (inst->params.planetMerchantLevel == 2) {
+    if (is_voucher_active(inst, Planet_Tycoon)) {
         planetRate = 32;
+    } else if (is_voucher_active(inst, Planet_Merchant)) {
+        planetRate = 9.6;
     }
 
-    if (inst->params.magicTrickLevel >= 1) {
+    if (is_voucher_active(inst, Magic_Trick)) {
         playingCardRate = 4;
     }
 
@@ -289,6 +304,7 @@ shopitem next_shop_item(instance* inst, int ante) {
         shopItem = next_spectral(inst, S_Shop, ante, false);
     } else if (type == ItemType_PlayingCard) {
         // TODO: Playing card support.
+        shopItem = RETRY;
     }
 
     shopitem nextShopItem = {type, shopItem};
@@ -458,44 +474,6 @@ item next_voucher_from_tag(instance* inst, int ante) {
     return i;
 }
 #endif
-
-void activate_voucher(instance* inst, item voucher) {
-    switch (voucher) {
-        case Planet_Merchant: {
-            inst->params.planetMerchantLevel = 1;
-            return;
-        }
-        case Planet_Tycoon: {
-            inst->params.planetMerchantLevel = 2;
-            return;
-        }
-        case Tarot_Merchant: {
-            inst->params.tarotMerchantLevel = 1;
-            return;
-        }
-        case Tarot_Tycoon: {
-            inst->params.tarotMerchantLevel = 2;
-            return;
-        }
-        case Magic_Trick: {
-            inst->params.magicTrickLevel = 1;
-            return;
-        }
-        case Illusion: {
-            inst->params.magicTrickLevel = 2;
-            return;
-        }
-        case Hone: {
-            inst->params.honeLevel = 1;
-            return;
-        }
-        case Glow_Up: {
-            inst->params.honeLevel = 2;
-            return;
-        }
-    }
-
-}
 
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {
