@@ -493,6 +493,7 @@ void activate_voucher(instance* inst, item voucher) {
             inst->params.honeLevel = 2;
             return;
         }
+        default: return;
     }
 
 }
