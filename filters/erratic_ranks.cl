@@ -2,7 +2,7 @@
 #include "lib/immolate.cl"
 long filter(instance* inst) {
     set_deck(inst, Erratic_Deck);
-    int16 scores;
+    int scores[13];
     for (int i = 0; i < 13; i++) scores[i] = 0;
     item deck[52];
     init_deck(inst, deck);

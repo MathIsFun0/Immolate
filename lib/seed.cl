@@ -3,37 +3,27 @@ __constant char SEEDCHARS[] = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 __constant int NUM_CHARS = 35;
 
 typedef struct Seed {
-    ulong8 data;
+    ulong data[8];
     int len;
 } seed;
 seed s_new_empty() {
     seed seed;
-    seed.data = 0; //fills with zeros
+    for (int i = 0; i < 8; i++) seed.data[i] = 0;
     seed.len = 0;
     return seed;
 }
-seed s_new(__constant char* str_seed, int seed_size) {
-    seed seed;
-    for (int i = 0; i < seed_size; i++) {
-        for (char j = 0; j < NUM_CHARS; j++) {
-            if (SEEDCHARS[j] == str_seed[i]) {
-                seed.data[i] = j;
-            }
-        }
-    }
-    seed.len = seed_size;
-    return seed;
-}
+
 
 seed s_new_c8(char8 str_seed) {
     seed seed;
+    char* s_seed = &str_seed;
     for (int i = 0; i < 8; i++) {
-        if (str_seed[i] == '\0') {
+        if (s_seed[i] == '\0') {
             seed.len = i;
             return seed;
         }
         for (char j = 0; j < NUM_CHARS; j++) {
-            if (SEEDCHARS[j] == str_seed[i]) {
+            if (SEEDCHARS[j] == s_seed[i]) {
                 seed.data[i] = j;
             }
         }

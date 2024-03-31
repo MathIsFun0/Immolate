@@ -64,7 +64,7 @@ double get_node_child(instance* inst, ntype nts[], int ids[], int num) {
         phvalue = text_concat(phvalue,s_to_string(&inst->seed));
         inst->rngCache.nodes[node_id].rngState = pseudohash(phvalue);
     }
-    inst->rngCache.nodes[node_id].rngState = roundDigits(fract(inst->rngCache.nodes[node_id].rngState*1.72431234+2.134453429141),13);
+    inst->rngCache.nodes[node_id].rngState = roundDigits(_fract(inst->rngCache.nodes[node_id].rngState*1.72431234+2.134453429141),13);
     return (inst->rngCache.nodes[node_id].rngState + inst->hashedSeed)/2;
 }
 double random(instance* inst, ntype nts[], int ids[], int num) {
@@ -132,7 +132,7 @@ item randweightedchoice(instance* inst, ntype nts[], int ids[], int num, __const
     return items[idx-1]._item;
 }
 
-// Locks - NOT UPDATED FOR 1.0
+// Locks
 void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
     // Locked behind antes
     if (ante < 2) {

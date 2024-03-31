@@ -34,7 +34,7 @@ void print_text(text x) {
     printf("\n");
 }
 
-double fract(double f) {
+double _fract(double f) {
     return f-floor(f);
 }
 
@@ -44,22 +44,10 @@ double pseudohash(text s) {
     for (int i = s.len - 1; i >= 0; i--) {
         // Floating point addition is weird, so we have to make it have more room for error
         long int_part = (1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1))*(1<<k);
-        double fract_part = fract(fract((1.1239285023/num*s.str[i]*3.141592653589793116)*(1<<k))+fract((3.141592653589793116*(i+1))*(1<<k)));
-        num = fract(((double)(int_part)+fract_part)/(1<<k));
+        double fract_part = _fract(_fract((1.1239285023/num*s.str[i]*3.141592653589793116)*(1<<k))+_fract((3.141592653589793116*(i+1))*(1<<k)));
+        num = _fract(((double)(int_part)+fract_part)/(1<<k));
         // What the original function would look like:
-        //num = fract(1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1));
-    }
-    return num;
-}
-
-double pseudohash8(char8 s) {
-    //resizeString(&s, 16, ' ');
-    double num = 1;
-    int k = 32;
-    for (int i = 7; i >= 0; i--) {
-        long int_part = (1.1239285023/num*s[i]*3.141592653589793116+3.141592653589793116*(i+1))*(1<<k);
-        double fract_part = fract(fract((1.1239285023/num*s[i]*3.141592653589793116)*(1<<k))+fract((3.141592653589793116*(i+1))*(1<<k)));
-        num = fract(((double)(int_part)+fract_part)/(1<<k));
+        //num = _fract(1.1239285023/num*s.str[i]*3.141592653589793116+3.141592653589793116*(i+1));
     }
     return num;
 }
@@ -76,43 +64,6 @@ double roundDigits(double f, int d) {
     return round(f*power)/power;
 }
 
-double pseudohash_legacy(__constant char* s, size_t stringLen) {
-    //resizeString(&s, 16, ' ');
-    int mask = 0;
-    if (stringLen >= 16) {
-        // Use first 16 chars
-        for (int i = 15; i >= 0; i--) {
-            mask = mask^(lsh32(mask,7)+rsh32(mask,3)+s[i]);
-        }
-    } else {
-        // Use space (32) for empty chars
-        for (int i = 15; i >= stringLen; i--) {
-            mask = mask^(lsh32(mask,7)+rsh32(mask,3)+32);
-        }
-        for (int i = stringLen-1; i >= 0; i--) {
-            mask = mask^(lsh32(mask,7)+rsh32(mask,3)+s[i]);
-        }
-    }
-    return roundDigits(fract(sqrt((double)(abs(mask)))),13);
-}
-
-double c16_pseudohash_legacy(char16 s) {
-    //resizeString(&s, 16, ' ');
-    int mask = 0;
-    for (int i = 15; i >= 0; i--) {
-        mask = mask^(lsh32(mask,7)+rsh32(mask,3)+s[i]);
-    }
-    return roundDigits(fract(sqrt((double)(abs(mask)))),13);
-}
-
-char16 c8_as_c16(char8 c8) {
-    char16 c16 = ' ';
-    for (int i = 0; i < 8; i++) {
-        c16[i] = c8[i];
-    }
-    return c16;
-}
-
 // math.random
 
 typedef union DoubleLong {
@@ -121,7 +72,7 @@ typedef union DoubleLong {
 } dbllong;
 
 typedef struct LuaRandom {
-    ulong4 state;
+    ulong state[4];
     dbllong out;
 } lrandom;
 
