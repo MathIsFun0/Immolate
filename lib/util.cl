@@ -161,7 +161,8 @@ lrandom randomseed(double d) {
         r >>= 8;
         // Doing these two operations separately fixes the code for some reason...
         // Probably another roundoff issue...
-        d = d*3.14159265358979323846+2.7182818284590452354;
+        d = d*3.14159265358979323846;
+        d = d+2.7182818284590452354;
         lr.out.d = d;
         u = lr.out.ul;
         if (u<m) u+=m;
