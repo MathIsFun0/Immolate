@@ -288,6 +288,10 @@ itemtype get_item_type(shop shopInstance, double generatedValue) {
     return ItemType_Spectral;
 }
 
+bool is_next_joker_eternal(instance* inst, int ante) {
+    return random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
+}
+
 shopitem next_shop_item(instance* inst, int ante) {
     shop shopInstance = get_shop_instance(inst);
 
