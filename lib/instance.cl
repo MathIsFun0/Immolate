@@ -2,10 +2,7 @@
 // Level means level of the voucher, level 0 -> no voucher, level 1 -> base voucher, level 2 -> upgraded voucher
 typedef struct InstanceParameters {
     item deck;
-    int magicTrickLevel;
-    int honeLevel;
-    int tarotMerchantLevel;
-    int planetMerchantLevel;
+    bool vouchers[32];
     bool showman;
 } instance_params;
 
@@ -25,10 +22,8 @@ instance i_new(seed s) {
     inst.rngCache.nextFreeNode = 0;
     instance_params params = {
         .deck = Red_Deck, 
-        .tarotMerchantLevel = 0, 
-        .planetMerchantLevel = 0, 
-        .magicTrickLevel = 0, 
-        .honeLevel = 0
+        .showman = false,
+        .vouchers = {false}
     };
     inst.params = params;
     return inst;
