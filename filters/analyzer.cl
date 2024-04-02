@@ -2,6 +2,8 @@
 #include "lib/immolate.cl"
 // Prints a full analysis of a seed. Vouchers and bosses to be implemented.
 // It's highly recommended to run this with -n 1 to only look at a single seed.
+// immolate -f analyzer -s THESEED -n 1 -g 1
+
 long filter(instance* inst) {
     int maxAnte = 8;
     long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
