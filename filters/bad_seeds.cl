@@ -6,7 +6,7 @@ int find_non_common_jokers(instance* inst, rsrc jokerSource, int ante, int amoun
 
     for (int i = 0; i < amountToCheck; i++) {
         // This can be used to filter out specific common jokers, too
-        //rarityjoker result = next_joker_with_rarity(inst, jokerSource, ante); 
+        //jokerdata result = next_joker_with_info(inst, jokerSource, ante); 
         //rarity nextRarity = result._rarity; 
         //item nextJoker = result._item; 
 
