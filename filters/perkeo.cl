@@ -115,7 +115,7 @@ void print_jokers(instance* inst, rsrc source, int ante, int itemsToShow) {
     if (source == S_Wraith) {
         // Rerolls only supported for wraith, since we don't know rarity of joker/s from judgement
 
-        for (int queueIndex = 1; queueIndex < rerollQueues; queueIndex++) {
+        for (int queueIndex = 1; queueIndex <= rerollQueues; queueIndex++) {
             printf("\nRerolls [%d]: ", queueIndex);
 
             int rerolls = itemsToShow > 2? itemsToShow / 2 : 1;
@@ -150,7 +150,7 @@ void print_tarots(instance* inst, rsrc source, int ante, int itemsToShow) {
         if (i != itemsToShow) printf(", ");
     }
     
-    for (int queueIndex = 1; queueIndex < rerollQueues; queueIndex++) {
+    for (int queueIndex = 1; queueIndex <= rerollQueues; queueIndex++) {
         printf("\nRerolls [%d]: ", queueIndex);
 
         int rerolls = itemsToShow > 2? itemsToShow / 2 : 1;
@@ -184,7 +184,7 @@ void print_planets(instance* inst, rsrc source, int ante, int itemsToShow) {
         if (i != itemsToShow) printf(", ");
     }
 
-    for (int queueIndex = 1; queueIndex < rerollQueues; queueIndex++) {
+    for (int queueIndex = 1; queueIndex <= rerollQueues; queueIndex++) {
         printf("\nRerolls [%d]: ", queueIndex);
 
         int rerolls = itemsToShow > 2? itemsToShow / 2 : 1;
@@ -218,7 +218,7 @@ void print_spectrals(instance* inst, rsrc source, int ante, int itemsToShow) {
         if (i != itemsToShow) printf(", ");
     }
     
-    for (int queueIndex = 1; queueIndex < rerollQueues; queueIndex++) {
+    for (int queueIndex = 1; queueIndex <= rerollQueues; queueIndex++) {
         printf("\nRerolls [%d]: ", queueIndex);
 
         int rerolls = itemsToShow > 2? itemsToShow / 2 : 1;

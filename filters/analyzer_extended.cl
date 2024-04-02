@@ -12,11 +12,9 @@
 const int maxAnte = 8; 
 const long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
 
-// Change this to the deck you want to use with this seed
+// Change this to the deck and stake you want to use with this seed
 const item deck = Red_Deck;
-
-// Mark shop jokers with * if they're eternal (on black stake difficulty).
-const bool showEternalJokers = true;
+const item stake = White_Stake;
 
 // Reroll queue is used for duplicates.
 // e.g.: You have The Order, and there's another The Order in shop.
@@ -30,7 +28,7 @@ const int secondRerollQueueItems = 3;
 //  Implementation
 //==================
 
-void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToShow, int queueDepth);
+void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToShow, int queueIndex);
 
 void print_consumable_info(instance* inst, int ante, item consumable);
 
@@ -40,6 +38,7 @@ void print_consumable_pack(instance* inst, int ante, pack packinfo, item cards[]
 long filter(instance* inst) {
     // Perform required initializations
     set_deck(inst, deck); 
+    set_stake(inst, stake);
     init_locks(inst, 1, false, false);
 
     bool ghostDeck = inst->params.deck == Ghost_Deck;
@@ -61,14 +60,14 @@ long filter(instance* inst) {
             printf("%i) ", q);
             shopitem _item = next_shop_item(inst, ante);
             if (_item.type == ItemType_Joker) {
+                if (is_next_joker_eternal(inst, ante)) {
+                    printf("Eternal ");
+                }
+
                 item edition = next_joker_edition(inst, S_Shop, ante);
                 if (edition != No_Edition) {
                     print_item(edition);
                     printf(" ");
-                }
-
-                if (showEternalJokers && is_next_joker_eternal(inst, ante)) {
-                    printf("*");
                 }
             }
             print_item(_item._item);
@@ -81,9 +80,10 @@ long filter(instance* inst) {
         if (firstRerollQueueItems > 0) {
             printf("\nReroll Queues: \n");
             print_reroll_queue(inst, ante, ghostDeck, firstRerollQueueItems, 1);
-        }
-        if (secondRerollQueueItems > 0) {
-            print_reroll_queue(inst, ante, ghostDeck, secondRerollQueueItems, 2);
+
+            if (secondRerollQueueItems > 0) {
+                print_reroll_queue(inst, ante, ghostDeck, secondRerollQueueItems, 2);
+            }
         }
 
         printf("\n\nPacks: \n");
@@ -97,6 +97,7 @@ long filter(instance* inst) {
             item cards[5];
             item editions[5];
             card stdcards[5];
+            jokerdata jokers[5];
             switch (packinfo.type) {
                 case Celestial_Pack: 
                     celestial_pack(cards, packinfo.size, inst, ante);
@@ -111,14 +112,15 @@ long filter(instance* inst) {
                     print_consumable_pack(inst, ante, packinfo, cards);
                     break;
                 case Buffoon_Pack:
-                    buffoon_pack(cards, packinfo.size, inst, ante);
-                    buffoon_pack_editions(editions, packinfo.size, inst, ante);
+                    buffoon_pack_detailed(jokers, packinfo.size, inst, ante);
+
                     for (int i = 0; i < packinfo.size; i++) {
-                        if (editions[i] != No_Edition) {
-                            print_item(editions[i]);
+                        if (jokers[i].eternal) printf("Eternal ");
+                        if (jokers[i].edition != No_Edition) {
+                            print_item(jokers[i].edition);
                             printf(" ");
                         }
-                        print_item(cards[i]);
+                        print_item(jokers[i].joker);
                         if (i != packinfo.size-1) printf(", ");
                     }
                     break;
@@ -150,41 +152,41 @@ long filter(instance* inst) {
     return 0;
 }
 
-void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToShow, int queueDepth) {
-    printf("Shop Planets [%d]: ", queueDepth);
+void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToShow, int queueIndex) {
+    printf("Shop Planets [%d]: ", queueIndex);
     for (int q = 1; q <= itemsToShow; q++) {
-        print_item(randchoice_resample(inst, R_Planet, S_Shop, ante, PLANETS, queueDepth));
+        print_item(randchoice_resample(inst, R_Planet, S_Shop, ante, PLANETS, queueIndex));
         if (q != itemsToShow) printf(", ");
     };
-    printf("\nShop Tarots [%d]: ", queueDepth);
+    printf("\nShop Tarots [%d]: ", queueIndex);
     for (int q = 1; q <= itemsToShow; q++) {
-        item nextConsumable = randchoice_resample(inst, R_Tarot, S_Shop, ante, TAROTS, queueDepth);
+        item nextConsumable = randchoice_resample(inst, R_Tarot, S_Shop, ante, TAROTS, queueIndex);
         print_item(nextConsumable);
         print_consumable_info(inst, ante, nextConsumable);
         if (q != itemsToShow) printf(", ");
     };
     if (ghostDeck) {
-        printf("\nShop Spectrals [%d]: ", queueDepth);
+        printf("\nShop Spectrals [%d]: ", queueIndex);
         for (int q = 1; q <= itemsToShow / 2; q++) {
-            item nextConsumable = randchoice_resample(inst, R_Spectral, S_Shop, ante, SPECTRALS, queueDepth);
+            item nextConsumable = randchoice_resample(inst, R_Spectral, S_Shop, ante, SPECTRALS, queueIndex);
             print_item(nextConsumable);
             print_consumable_info(inst, ante, nextConsumable);
             if (q != itemsToShow) printf(", ");
         };
     }
-    printf("\nCommon Shop Jokers [%d]: ", queueDepth);
+    printf("\nCommon Shop Jokers [%d]: ", queueIndex);
     for (int q = 1; q <= itemsToShow; q++) {
-        print_item(randchoice_resample(inst, R_Joker_Common, S_Shop, ante, COMMON_JOKERS, queueDepth));
+        print_item(randchoice_resample(inst, R_Joker_Common, S_Shop, ante, COMMON_JOKERS, queueIndex));
         if (q != itemsToShow) printf(", ");
     };
-    printf("\nUncommon Shop Jokers [%d]: ", queueDepth);
+    printf("\nUncommon Shop Jokers [%d]: ", queueIndex);
     for (int q = 1; q <= itemsToShow; q++) {
-        print_item(randchoice_resample(inst, R_Joker_Uncommon, S_Shop, ante, UNCOMMON_JOKERS, queueDepth));
+        print_item(randchoice_resample(inst, R_Joker_Uncommon, S_Shop, ante, UNCOMMON_JOKERS, queueIndex));
         if (q != itemsToShow) printf(", ");
     };
-    printf("\nRare Shop Jokers [%d]: ", queueDepth);
+    printf("\nRare Shop Jokers [%d]: ", queueIndex);
     for (int q = 1; q <= itemsToShow; q++) {
-        print_item(randchoice_resample(inst, R_Joker_Rare, S_Shop, ante, RARE_JOKERS, queueDepth));
+        print_item(randchoice_resample(inst, R_Joker_Rare, S_Shop, ante, RARE_JOKERS, queueIndex));
         if (q != itemsToShow) printf(", ");
     };
 }
