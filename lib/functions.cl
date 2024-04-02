@@ -224,8 +224,19 @@ jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
     return rarityJoker;
 }
 
+// Save calculations by doing the minimum needed
 item next_joker(instance* inst, rsrc itemSource, int ante) {
-    return next_joker_with_info(inst, itemSource, ante).joker;
+    rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
+
+    if (nextRarity == Rarity_Legendary) {
+       return randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+    } else if (nextRarity == Rarity_Rare) {
+       return randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
+    } else if (nextRarity == Rarity_Uncommon) {
+       return randchoice_common(inst, R_Joker_Uncommon, itemSource, ante, UNCOMMON_JOKERS);
+    } else {
+       return randchoice_common(inst, R_Joker_Common, itemSource, ante, COMMON_JOKERS);
+    }
 }
 
 
@@ -385,6 +396,15 @@ void buffoon_pack(item out[], int size, instance* inst, int ante) {
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
+    }
+}
+void buffoon_pack_detailed(jokerdata out[], int size, instance* inst, int ante) {
+    for (int i = 0; i < size; i++) {
+        out[i] = next_joker_with_info(inst, S_Buffoon, ante);
+        if (!inst->params.showman) inst->locked[out[i].joker] = true; // temporary reroll for locked items
+    }
+    for (int i = 0; i < size; i++) {
+        inst->locked[out[i].joker] = false;
     }
 }
 
