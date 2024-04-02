@@ -191,8 +191,22 @@ rarity next_joker_rarity(instance* inst, rsrc itemSource, int ante) {
     return Rarity_Common;
 }
 
-// Get an object which carries both joker item, and its rarity.
-rarityjoker next_joker_with_rarity(instance* inst, rsrc itemSource, int ante) {
+item next_joker_edition(instance* inst, rsrc itemSource, int ante) {
+    double poll = random(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){R_Joker_Edition, itemSource, ante}, 3);
+    if (poll > 0.997) return Negative;
+    if (poll > 0.994) return Polychrome;
+    if (poll > 0.98) return Holographic;
+    if (poll > 0.96) return Foil;
+    return No_Edition;
+}
+
+bool is_next_joker_eternal(instance* inst, int ante) {
+    if (inst->params.stake < Black_Stake) return false;
+    return random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
+}
+
+// Get an object which carries both joker item, its rarity, and its edition
+jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
     rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
     item nextJoker;
 
@@ -206,22 +220,25 @@ rarityjoker next_joker_with_rarity(instance* inst, rsrc itemSource, int ante) {
         nextJoker = randchoice_common(inst, R_Joker_Common, itemSource, ante, COMMON_JOKERS);
     }
 
-    rarityjoker rarityJoker = {nextJoker, nextRarity};
+    jokerdata rarityJoker = {nextJoker, nextRarity, next_joker_edition(inst, itemSource, ante), is_next_joker_eternal(inst, ante)};
     return rarityJoker;
 }
 
+// Save calculations by doing the minimum needed
 item next_joker(instance* inst, rsrc itemSource, int ante) {
-    return next_joker_with_rarity(inst, itemSource, ante)._item;
+    rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
+
+    if (nextRarity == Rarity_Legendary) {
+       return randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+    } else if (nextRarity == Rarity_Rare) {
+       return randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
+    } else if (nextRarity == Rarity_Uncommon) {
+       return randchoice_common(inst, R_Joker_Uncommon, itemSource, ante, UNCOMMON_JOKERS);
+    } else {
+       return randchoice_common(inst, R_Joker_Common, itemSource, ante, COMMON_JOKERS);
+    }
 }
 
-item next_joker_edition(instance* inst, rsrc itemSource, int ante) {
-    double poll = random(inst, (__private ntype[]){N_Type, N_Source, N_Ante}, (__private int[]){R_Joker_Edition, itemSource, ante}, 3);
-    if (poll > 0.997) return Negative;
-    if (poll > 0.994) return Polychrome;
-    if (poll > 0.98) return Holographic;
-    if (poll > 0.96) return Foil;
-    return No_Edition;
-}
 
 shop get_shop_instance(instance* inst) {
     double jokerRate = 20;
@@ -286,10 +303,6 @@ itemtype get_item_type(shop shopInstance, double generatedValue) {
     }
 
     return ItemType_Spectral;
-}
-
-bool is_next_joker_eternal(instance* inst, int ante) {
-    return random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
 }
 
 shopitem next_shop_item(instance* inst, int ante) {
@@ -383,6 +396,15 @@ void buffoon_pack(item out[], int size, instance* inst, int ante) {
     }
     for (int i = 0; i < size; i++) {
         inst->locked[out[i]] = false;
+    }
+}
+void buffoon_pack_detailed(jokerdata out[], int size, instance* inst, int ante) {
+    for (int i = 0; i < size; i++) {
+        out[i] = next_joker_with_info(inst, S_Buffoon, ante);
+        if (!inst->params.showman) inst->locked[out[i].joker] = true; // temporary reroll for locked items
+    }
+    for (int i = 0; i < size; i++) {
+        inst->locked[out[i].joker] = false;
     }
 }
 
@@ -499,6 +521,10 @@ void set_deck(instance* inst, item deck) {
         activate_voucher(inst, Planet_Merchant);
         activate_voucher(inst, Tarot_Merchant);
     }
+}
+
+void set_stake(instance* inst, item stake) {
+    inst->params.stake = stake;
 }
 
 void shuffle_deck(instance* inst, item deck[], int ante) {

@@ -523,6 +523,18 @@ typedef enum Item {
     Jokerless,
     CHAL_END,
 
+    //Stakes
+    STAKE_BEGIN,
+    White_Stake,
+    Red_Stake,
+    Green_Stake,
+    Black_Stake,
+    Blue_Stake,
+    Purple_Stake,
+    Orange_Stake,
+    Gold_Stake,
+    STAKE_END,
+
     ITEMS_END
 } item;
 
@@ -554,12 +566,13 @@ typedef enum JokerRarity {
     Rarity_Legendary
 } rarity;
 
-// TODO rename this to make a bit more sense
 // Object that contains a joker and its rarity.
-typedef struct RarityWithJoker {
-    item _item;
+typedef struct JokerData {
+    item joker;
     rarity _rarity;
-} rarityjoker;
+    item edition;
+    bool eternal;
+} jokerdata;
 
 typedef struct WeightedItem {
     item _item;

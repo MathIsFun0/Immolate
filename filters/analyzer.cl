@@ -11,7 +11,9 @@ long filter(instance* inst) {
     int numRerolls = 10;
     int numRerolls2 = 3;
     // Perform required initializations
-    set_deck(inst, Red_Deck); //Change this to the deck you want to use with this seed
+    // Change the deck and stake to what is desired
+    set_deck(inst, Red_Deck);
+    set_stake(inst, White_Stake);
     init_locks(inst, 1, false, false);
     for (int ante = 1; ante <= maxAnte; ante++) {
         init_unlocks(inst, ante, false);
@@ -26,6 +28,9 @@ long filter(instance* inst) {
             printf("%i) ", q);
             shopitem _item = next_shop_item(inst, ante);
             if (_item.type == ItemType_Joker) {
+                if (is_next_joker_eternal(inst, ante)) {
+                    printf("Eternal ");
+                }
                 item edition = next_joker_edition(inst, S_Shop, ante);
                 if (edition != No_Edition) {
                     print_item(edition);
@@ -101,6 +106,7 @@ long filter(instance* inst) {
             item cards[5];
             item editions[5];
             card stdcards[5];
+            jokerdata jokers[5];
             switch (packinfo.type) {
                 case Celestial_Pack: 
                     celestial_pack(cards, packinfo.size, inst, ante);
@@ -124,14 +130,14 @@ long filter(instance* inst) {
                     }
                     break;
                 case Buffoon_Pack:
-                    buffoon_pack(cards, packinfo.size, inst, ante);
-                    buffoon_pack_editions(editions, packinfo.size, inst, ante);
+                    buffoon_pack_detailed(jokers, packinfo.size, inst, ante);
                     for (int i = 0; i < packinfo.size; i++) {
-                        if (editions[i] != No_Edition) {
-                            print_item(editions[i]);
+                        if (jokers[i].eternal) printf("Eternal ");
+                        if (jokers[i].edition != No_Edition) {
+                            print_item(jokers[i].edition);
                             printf(" ");
                         }
-                        print_item(cards[i]);
+                        print_item(jokers[i].joker);
                         if (i != packinfo.size-1) printf(", ");
                     }
                     break;
