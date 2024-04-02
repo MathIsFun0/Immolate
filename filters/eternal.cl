@@ -1,4 +1,4 @@
-// Seeds with very little rare / uncommon jokers in first 4 ante
+// Seeds with two eternal jokers in the first shop.
 #include "lib/immolate.cl"
 
 long filter(instance* inst) {
