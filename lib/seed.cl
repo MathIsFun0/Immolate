@@ -1,6 +1,6 @@
 // Some important definitions
-__constant char SEEDCHARS[] = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-__constant int NUM_CHARS = 35;
+__constant char SEEDCHARS[] = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+__constant int NUM_CHARS = 36;
 
 typedef struct Seed {
     ulong8 data;
