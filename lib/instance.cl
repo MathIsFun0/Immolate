@@ -255,6 +255,24 @@ void init_locks(instance* inst, int ante, bool fresh_profile, bool fresh_run) {
 
         // Requires Gros Michel death
         inst->locked[Cavendish] = true;
+
+        // Vouchers
+        inst->locked[Overstock_Plus] = true;
+        inst->locked[Liquidation] = true;
+        inst->locked[Glow_Up] = true;
+        inst->locked[Reroll_Glut] = true;
+        inst->locked[Omen_Globe] = true;
+        inst->locked[Observatory] = true;
+        inst->locked[Nacho_Tong] = true;
+        inst->locked[Recyclomancy] = true;
+        inst->locked[Tarot_Tycoon] = true;
+        inst->locked[Planet_Tycoon] = true;
+        inst->locked[Money_Tree] = true;
+        inst->locked[Antimatter] = true;
+        inst->locked[Illusion] = true;
+        inst->locked[Petroglyph] = true;
+        inst->locked[Retcon] = true;
+        inst->locked[Palette] = true;
     }
 }
 

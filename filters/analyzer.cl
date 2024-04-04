@@ -41,12 +41,35 @@ long filter(instance* inst) {
     set_stake(inst, stake);
     init_locks(inst, 1, false, false);
 
+    // For simplicity, we'll assume every voucher is redeemed (but they all start out locked)
+    inst->locked[Overstock_Plus] = true;
+    inst->locked[Liquidation] = true;
+    inst->locked[Glow_Up] = true;
+    inst->locked[Reroll_Glut] = true;
+    inst->locked[Omen_Globe] = true;
+    inst->locked[Observatory] = true;
+    inst->locked[Nacho_Tong] = true;
+    inst->locked[Recyclomancy] = true;
+    inst->locked[Tarot_Tycoon] = true;
+    inst->locked[Planet_Tycoon] = true;
+    inst->locked[Money_Tree] = true;
+    inst->locked[Antimatter] = true;
+    inst->locked[Illusion] = true;
+    inst->locked[Petroglyph] = true;
+    inst->locked[Retcon] = true;
+    inst->locked[Palette] = true;
+
     bool ghostDeck = inst->params.deck == Ghost_Deck;
     for (int ante = 1; ante <= maxAnte; ante++) {
         init_unlocks(inst, ante, false);
         printf("\n==ANTE %i==\n", ante);
+        printf("Boss: ");
+        print_item(next_boss(inst, ante));
+        printf("\n");
         printf("Voucher: ");
-        print_item(next_voucher(inst, ante));
+        item voucher = next_voucher(inst, ante);
+        activate_voucher(inst, voucher);
+        print_item(voucher);
         printf("\n");
 
         printf("Tags: ");

@@ -502,6 +502,44 @@ item next_voucher_from_tag(instance* inst, int ante) {
     return i;
 }
 
+item next_boss(instance* inst, int ante) {
+    item boss_pool[28]; //set this length to BOSSES[0]
+    int num_available_bosses = 0;
+    for (int i = 1; i <= BOSSES[0]; i++) {
+        if (!inst->locked[BOSSES[i]]) {
+            if ((ante % 8 == 0 && BOSSES[i] > B_F_BEGIN) || (ante % 8 != 0 && BOSSES[i] < B_F_BEGIN)) {
+                boss_pool[num_available_bosses] = BOSSES[i];
+                num_available_bosses++;
+            }
+        }
+    }
+    if (num_available_bosses == 0) { //all bosses used up, reopen the pool
+        if (ante % 8 == 0) {
+            for (int i = B_F_BEGIN + 1; i < B_F_END; i++) {
+                inst->locked[i] = false;
+            }
+        } else {
+            for (int i = B_BEGIN + 1; i < B_F_BEGIN; i++) {
+                inst->locked[i] = false;
+            }
+        }
+        //OpenCL doesn't support recursion :(
+        for (int i = 1; i <= BOSSES[0]; i++) {
+            if (!inst->locked[BOSSES[i]]) {
+                if ((ante % 8 == 0 && BOSSES[i] > B_F_BEGIN) || (ante % 8 != 0 && BOSSES[i] < B_F_BEGIN)) {
+                    boss_pool[num_available_bosses] = BOSSES[i];
+                    num_available_bosses++;
+                }
+            }
+        }
+    }
+    //has to be implemented like this because of randchoice() restrictions
+    inst->rng = randomseed(get_node_child(inst, (__private ntype[]){N_Type}, (__private int[]){R_Boss}, 1));
+    item chosen_boss =boss_pool[l_randint(&(inst->rng), 0, num_available_bosses-1)];
+    inst->locked[chosen_boss] = true;
+    return chosen_boss;
+}
+
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {
         out[i] = randchoice_simple(inst, R_Erratic, CARDS);

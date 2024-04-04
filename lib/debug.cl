@@ -335,7 +335,7 @@ void print_item(item i) {
         case Orbital_Tag: printf("Orbital Tag"); break;
         case Economy_Tag: printf("Economy Tag"); break;
         case TAG_END: printf("TAG END"); break;
-        case B_START: printf("B START"); break;
+        case B_BEGIN: printf("B BEGIN"); break;
         case Small_Blind: printf("Small Blind"); break;
         case Big_Blind: printf("Big Blind"); break;
         case The_Hook: printf("The Hook"); break;

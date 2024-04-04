@@ -365,7 +365,7 @@ typedef enum Item {
     TAG_END,
 
     // Blinds
-    B_START,
+    B_BEGIN,
     Small_Blind,
     Big_Blind,
     The_Hook,
@@ -391,11 +391,13 @@ typedef enum Item {
     The_Tooth,
     The_Flint,
     The_Mark,
+    B_F_BEGIN,
     Amber_Acorn,
     Verdant_Leaf,
     Violet_Vessel,
     Crimson_Heart,
     Cerulean_Bell,
+    B_F_END,
     B_END,
 
     // Suits
@@ -1177,6 +1179,38 @@ __constant item TAGS[] = {
     Speed_Tag,
     Orbital_Tag,
     Economy_Tag
+};
+
+__constant item BOSSES[] = {
+    28,
+    The_Arm,
+    The_Club,
+    The_Eye,
+    Amber_Acorn,
+    Cerulean_Bell,
+    Crimson_Heart,
+    Verdant_Leaf,
+    Violet_Vessel,
+    The_Fish,
+    The_Flint,
+    The_Goad,
+    The_Head,
+    The_Hook,
+    The_House,
+    The_Manacle,
+    The_Mark,
+    The_Mouth,
+    The_Needle,
+    The_Ox,
+    The_Pillar,
+    The_Plant,
+    The_Psychic,
+    The_Serpent,
+    The_Tooth,
+    The_Wall,
+    The_Water,
+    The_Wheel,
+    The_Window
 };
 
 // Helper functions
