@@ -4,7 +4,7 @@
 
 // Print all consumable generators queues of a seed (Seals, Judgement, Wraith, etc.)
 // It's highly recommended to run this with -n 1 to only look at a single seed:
-// immolate -f perkeo -s THESEED -n 1 -g 1
+// immolate -f perkeo_analyzer -s THESEED -n 1 -g 1
 
 //==================
 // Search parameters
