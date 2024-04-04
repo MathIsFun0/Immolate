@@ -49,10 +49,13 @@ typedef enum RNGSource {
     S_Vagabond,
     S_Superposition,
     S_Seance,
+    S_Sixth_Sense,
     S_Top_Up,
     S_Rare_Tag,
     S_Uncommon_Tag,
     S_Blue_Seal,
+    S_Purple_Seal,
+    S_8_Ball,
     S_Soul,
     S_Null,
     SOURCE_END
@@ -117,11 +120,14 @@ text source_str(int x) {
         case S_Buffoon:        return init_text("buf", 3);
         case S_Vagabond:       return init_text("vag", 3);
         case S_Superposition:  return init_text("sup", 3);
+        case S_8_Ball:         return init_text("8ba", 3);
         case S_Seance:         return init_text("sea", 3);
+        case S_Sixth_Sense:    return init_text("sixth", 5);
         case S_Top_Up:         return init_text("top", 3);
         case S_Rare_Tag:       return init_text("rta", 3);
         case S_Uncommon_Tag:   return init_text("uta", 3);
         case S_Blue_Seal:      return init_text("blusl", 5);
+        case S_Purple_Seal:    return init_text("8ba", 3); // TODO : update this after 8 ball change !!!
         case S_Soul:           return init_text("sou", 3);
         default:               return init_text("", 0);
     }
