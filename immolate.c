@@ -2,7 +2,7 @@
 int main(int argc, char **argv) {
     
     // Print version
-    printf_s("Immolate Beta v1.0.0n.1\n");
+    printf_s("Immolate Beta v1.0.0n.2\n");
 
     // Handle CLI arguments
     unsigned int platformID = 0;
