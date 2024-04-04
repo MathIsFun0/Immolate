@@ -11,26 +11,26 @@
 //==================
 
 // When changing maxAnte, make sure size of arrays below matches it.
-const int maxAnte = 8;
+__constant int maxAnte = 8;
 
 // How many consumables to check per ante.
 // add 100 (e.g. 103) to the number if you want to see 1 redraw queue
 // add 200 (e.g. 204) to the number if you want to see 2 redraw queues
-const int wraithPerAnte[] = {1, 1, 1, 1, 1, 1, 1, 1};
-const int judgementPerAnte[] = {1, 2, 2, 2, 2, 2, 2, 2};
+__constant int wraithPerAnte[] = {1, 1, 1, 1, 1, 1, 1, 1};
+__constant int judgementPerAnte[] = {1, 2, 2, 2, 2, 2, 2, 2};
 
-const int sixthSensePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
-const int seancePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
+__constant int sixthSensePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
+__constant int seancePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
 
-// const int eightBallPerAnte[] = {0, 1, 2, 3, 4, 5, 5, 5};
-const int vagabondPerAnte[] = {104, 6, 6, 4, 2, 1, 0, 0};
-const int superpositionPerAnte[] = {0, 3, 2, 1, 0, 0, 0, 0};
+// __constant int eightBallPerAnte[] = {0, 1, 2, 3, 4, 5, 5, 5};
+__constant int vagabondPerAnte[] = {104, 6, 6, 4, 2, 1, 0, 0};
+__constant int superpositionPerAnte[] = {0, 3, 2, 1, 0, 0, 0, 0};
 
-const int purpleSealPerAnte[] = {0, 2, 3, 4, 5, 5, 5, 5};
-const int blueSealPerAnte[] = {0, 0, 0, 0, 0, 0, 0, 0};
+__constant int purpleSealPerAnte[] = {0, 2, 3, 4, 5, 5, 5, 5};
+__constant int blueSealPerAnte[] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-const int emperorPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
-const int priestessPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
+__constant int emperorPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
+__constant int priestessPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
 
 void print_jokers(instance* inst, rsrc source, int ante, int itemsToShow);
 

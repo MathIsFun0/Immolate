@@ -12,10 +12,13 @@ bool is_voucher_active(instance* inst, item voucher) {
 void activate_voucher(instance* inst, item voucher) {
     int voucherIndex = voucher - (V_BEGIN + 1);
     inst->params.vouchers[voucherIndex] = true;
+    inst->locked[voucher] = true;
 
     // Upgraded version requires base voucher activated.
     if (voucherIndex % 2 == 1) {
         inst->params.vouchers[voucherIndex - 1] = true;
+    } else {
+        inst->locked[voucher + 1] = false;
     }
 }
 
@@ -476,7 +479,6 @@ bool gros_michel_extinct(instance* inst) {
 bool cavendish_extinct(instance* inst) {
     return random_simple(inst, R_Cavendish) < 1.0/1000;
 }
-#ifdef DEMO
 item next_voucher(instance* inst, int ante) {
     item i = randchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Voucher, ante}, 2, VOUCHERS);
     if (inst->locked[i]) {
@@ -499,7 +501,6 @@ item next_voucher_from_tag(instance* inst, int ante) {
     }
     return i;
 }
-#endif
 
 void init_erratic_deck(instance* inst, item out[]) {
     for (int i = 0; i < 52; i++) {

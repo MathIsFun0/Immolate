@@ -9,20 +9,20 @@
 //==================
 
 // When changing maxAnte, make sure size of array below matches it.
-const int maxAnte = 8; 
-const long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
+__constant int maxAnte = 8; 
+__constant long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
 
 // Change this to the deck and stake you want to use with this seed
-const item deck = Red_Deck;
-const item stake = White_Stake;
+__constant item deck = Red_Deck;
+__constant item stake = White_Stake;
 
 // Reroll queue is used for duplicates.
 // e.g.: You have The Order, and there's another The Order in shop.
 // The game will reroll it into another Rare joker (first queue). 
 // If you also have that joker, the game will reroll it into another Rare joker (second queue).
 // Set to 0 to disable.
-const int firstRerollQueueItems = 6;
-const int secondRerollQueueItems = 3;
+__constant int firstRerollQueueItems = 6;
+__constant int secondRerollQueueItems = 3;
 
 //==================
 //  Implementation
@@ -45,6 +45,10 @@ long filter(instance* inst) {
     for (int ante = 1; ante <= maxAnte; ante++) {
         init_unlocks(inst, ante, false);
         printf("\n==ANTE %i==\n", ante);
+        printf("Voucher: ");
+        print_item(next_voucher(inst, ante));
+        printf("\n");
+
         printf("Tags: ");
 
         // TODO : maybe show joker(s) from tag, orbital tag and potentially voucher

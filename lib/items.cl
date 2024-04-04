@@ -1094,6 +1094,41 @@ __constant item LEGENDARY_JOKERS[] = {
     Chicot,
     Perkeo
 };
+__constant item VOUCHERS[] = {
+    32,
+    Overstock,
+    Overstock_Plus,
+    Clearance_Sale,
+    Liquidation,
+    Hone,
+    Glow_Up,
+    Reroll_Surplus,
+    Reroll_Glut,
+    Crystal_Ball,
+    Omen_Globe,
+    Telescope,
+    Observatory,
+    Grabber,
+    Nacho_Tong,
+    Wasteful,
+    Recyclomancy,
+    Tarot_Merchant,
+    Tarot_Tycoon,
+    Planet_Merchant,
+    Planet_Tycoon,
+    Seed_Money,
+    Money_Tree,
+    Blank,
+    Antimatter,
+    Magic_Trick,
+    Illusion,
+    Hieroglyph,
+    Petroglyph,
+    Directors_Cut,
+    Retcon,
+    Paint_Brush,
+    Palette
+};
 #endif
 __constant item SPECTRALS[] = {
     18,
