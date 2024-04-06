@@ -24,6 +24,9 @@ __constant item stake = White_Stake;
 __constant int firstRerollQueueItems = 6;
 __constant int secondRerollQueueItems = 3;
 
+__constant int bannedVouchersAmount = 6;
+__constant item bannedVouchers[] = {Magic_Trick, Illusion, Tarot_Tycoon, Tarot_Merchant, Planet_Tycoon, Planet_Merchant};
+
 //==================
 //  Implementation
 //==================
@@ -34,6 +37,7 @@ void print_consumable_info(instance* inst, int ante, item consumable);
 
 void print_consumable_pack(instance* inst, int ante, pack packinfo, item cards[]);
 
+bool do_activate_voucher(item voucher, int ante);
 
 long filter(instance* inst) {
     // Perform required initializations
@@ -68,7 +72,9 @@ long filter(instance* inst) {
         printf("\n");
         printf("Voucher: ");
         item voucher = next_voucher(inst, ante);
-        activate_voucher(inst, voucher);
+        if (do_activate_voucher(voucher, ante)) {
+            activate_voucher(inst, voucher);
+        }
         print_item(voucher);
         printf("\n");
 
@@ -177,6 +183,21 @@ long filter(instance* inst) {
     }
 
     return 0;
+}
+
+bool do_activate_voucher(item voucher, int ante) {
+    // Realistically ante 1 vouchers are pretty hard to activate without ruining econ.
+    if (ante == 1) {
+        return false;
+    }
+
+    for (int i = 0; i < bannedVouchersAmount; i++) {
+        if (bannedVouchers[i] == voucher) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToShow, int queueIndex) {
