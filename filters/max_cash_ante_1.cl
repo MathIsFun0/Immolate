@@ -33,7 +33,7 @@ long filter(instance* inst) {
     shuffle_deck(inst, deck, 1);
     item hand[8] = {deck[44], deck[45], deck[46], deck[47], deck[48], deck[49], deck[50], deck[51]};
     bool isStrush = false;
-    // The strategy used here is to treat each card as the potential starting point of a Straight Flush and chack that the rest of the held hand supports it.
+    // The strategy used here is to treat each card as the potential starting point of a Straight Flush and check that the rest of the held hand supports it.
     for (int i = 0; i < 8; i++) {
         item c_rank = rank(hand[i]);
         if (c_rank == Jack || c_rank == Queen || c_rank == King) continue;
