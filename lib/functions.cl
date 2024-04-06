@@ -576,3 +576,23 @@ void shuffle_deck(instance* inst, item deck[], int ante) {
         deck[x] = temp;
     }
 }
+
+item next_orbital_tag(instance* inst, int ante) {
+    int totalUnlockedHands = 0;
+    item unlockedHands[13] = {RETRY};
+
+    for (int i = 1; i <= POKER_HANDS[0]; i++) {
+        if (!inst->locked[POKER_HANDS[i]]) {
+            totalUnlockedHands++;
+            unlockedHands[totalUnlockedHands] = POKER_HANDS[i];
+        }
+    }
+
+    // First element always specifies the size of array, 
+    // it does not matter if it's actually bigger.
+    unlockedHands[0] = totalUnlockedHands; 
+
+    item result = randchoice_simple_dynamic(inst, R_Orbital_Tag, unlockedHands);
+
+    return result;
+}

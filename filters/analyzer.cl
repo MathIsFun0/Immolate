@@ -9,8 +9,8 @@
 //==================
 
 // When changing maxAnte, make sure size of array below matches it.
-__constant int maxAnte = 8; 
-__constant long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
+__constant int maxAnte = 2; 
+__constant long cardsPerAnte[] = {10, 30, 50, 50, 50, 50, 50, 50};
 
 // Change this to the deck and stake you want to use with this seed
 __constant item deck = Red_Deck;
@@ -24,7 +24,6 @@ __constant item stake = White_Stake;
 __constant int firstRerollQueueItems = 6;
 __constant int secondRerollQueueItems = 3;
 
-__constant int bannedVouchersAmount = 6;
 __constant item bannedVouchers[] = {Magic_Trick, Illusion, Tarot_Tycoon, Tarot_Merchant, Planet_Tycoon, Planet_Merchant};
 
 //==================
@@ -35,6 +34,8 @@ void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToSho
 
 void print_consumable_info(instance* inst, int ante, item consumable);
 
+void print_tag_info(instance* inst, int ante, item tag, bool isBigBlind);
+
 void print_consumable_pack(instance* inst, int ante, pack packinfo, item cards[]);
 
 bool do_activate_voucher(item voucher, int ante);
@@ -43,7 +44,7 @@ long filter(instance* inst) {
     // Perform required initializations
     set_deck(inst, deck); 
     set_stake(inst, stake);
-    init_locks(inst, 1, false, false);
+    init_locks(inst, 1, false, true);
 
     // For simplicity, we'll assume every voucher is redeemed (but they all start out locked)
     inst->locked[Overstock_Plus] = true;
@@ -80,13 +81,15 @@ long filter(instance* inst) {
 
         printf("Tags: ");
 
-        // TODO : maybe show joker(s) from tag, orbital tag and potentially voucher
-        // Does not make sense to show pack contents since it's going to scuff the shop, and the rest is not RNG.
         item nextTag = next_tag(inst, ante);
         print_item(nextTag);
+        print_tag_info(inst, ante, nextTag, false);
+
         printf(", ");
-        // Keep in mind that for second tag, if it's a shop joker tag - it would activate in the next ante.
-        print_item(next_tag(inst, ante));
+        nextTag = next_tag(inst, ante);
+        print_item(nextTag);
+        print_tag_info(inst, ante, nextTag, true);
+
         printf("\n");
         printf("Shop Queue: \n");
         for (int q = 1; q <= cardsPerAnte[ante-1]; q++) {
@@ -191,6 +194,8 @@ bool do_activate_voucher(item voucher, int ante) {
         return false;
     }
 
+    int bannedVouchersAmount = sizeof(bannedVouchers);
+
     for (int i = 0; i < bannedVouchersAmount; i++) {
         if (bannedVouchers[i] == voucher) {
             return false;
@@ -237,6 +242,42 @@ void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToSho
         print_item(randchoice_resample(inst, R_Joker_Rare, S_Shop, ante, RARE_JOKERS, queueIndex));
         if (q != itemsToShow) printf(", ");
     };
+}
+
+void print_tag_info(instance* inst, int ante, item tag, bool isBigBlind) {
+    item generatedItem;
+
+    switch (tag) {
+        case Orbital_Tag: {
+            generatedItem = next_orbital_tag(inst, ante);
+            break;
+        }
+        case Voucher_Tag: {
+            generatedItem = next_voucher_from_tag(inst, ante);
+            break;
+        }
+        case Rare_Tag: {
+            if (isBigBlind) {
+                ante++;
+            }
+            generatedItem = next_joker(inst, S_Rare_Tag, ante);
+            break;
+        }
+        case Uncommon_Tag: {
+            if (isBigBlind) {
+                ante++;
+            }
+            generatedItem = next_joker(inst, S_Uncommon_Tag, ante);
+            break;
+        }
+        default: {
+            return;
+        }
+    }
+
+    printf(" (");
+    print_item(generatedItem);
+    printf(")");
 }
 
 void print_consumable_info(instance* inst, int ante, item consumable) {
