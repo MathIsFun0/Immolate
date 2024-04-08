@@ -9,7 +9,7 @@
 //==================
 
 // When changing maxAnte, make sure size of array below matches it.
-__constant int maxAnte = 2; 
+__constant int maxAnte = 8; 
 __constant long cardsPerAnte[] = {10, 30, 50, 50, 50, 50, 50, 50};
 
 // Change this to the deck and stake you want to use with this seed
