@@ -43,9 +43,9 @@ void find_ankh_and_ecto(instance* inst, int *ankhAnte, int *ectoAnte) {
 
             shopitem shopItem = next_shop_item(inst, ante);
 
-            if (*ankhAnte <= 0 && shopItem._item == Ankh) {
+            if (*ankhAnte <= 0 && shopItem.value == Ankh) {
                 *ankhAnte = ante;
-            } else if (*ectoAnte <= 0 && shopItem._item == Ectoplasm) {
+            } else if (*ectoAnte <= 0 && shopItem.value == Ectoplasm) {
                 *ectoAnte = ante;
             }
         }

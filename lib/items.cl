@@ -550,7 +550,7 @@ typedef enum ShopItemType {
 
 typedef struct ShopItem {
     itemtype type;
-    item _item;
+    item value;
 } shopitem;
 
 typedef struct ShopInstance {

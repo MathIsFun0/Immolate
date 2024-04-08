@@ -106,10 +106,10 @@ long filter(instance* inst) {
                     printf(" ");
                 }
             }
-            print_item(_item._item);
+            print_item(_item.value);
 
             if (_item.type != ItemType_PlayingCard && _item.type != ItemType_Joker) {
-                print_consumable_info(inst, ante, _item._item);
+                print_consumable_info(inst, ante, _item.value);
             }
             printf("\n");
         }
