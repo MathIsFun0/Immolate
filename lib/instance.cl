@@ -20,6 +20,7 @@ instance i_new(seed s) {
     instance inst = {.locked = {true}};
     inst.seed = s;
     inst.hashedSeed = pseudohash(s_to_string(&s));
+    inst.rngCache.generatedFirstPack = false;
     inst.rngCache.nextFreeNode = 0;
     instance_params params = {
         .deck = Red_Deck, 

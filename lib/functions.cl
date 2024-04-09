@@ -98,8 +98,19 @@ card standard_card(instance* inst, int ante) {
     item next_pack(instance* inst, int ante) {
         return randweightedchoice(inst, (__private ntype[]){N_Type}, (__private int[]){R_Shop_Pack}, 1, PACKS);
     }
+    #elif V_AT_MOST(1,0,0,99)
+    item next_pack(instance* inst, int ante) {
+        return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
+    }
     #else
     item next_pack(instance* inst, int ante) {
+        // Actually happens on the first pack in the first shop you open, regardless of seed
+        // This will happen in one of the first two antes (ante 2 for fullskip runs)
+        // To override this, manually change the generatedFirstPack variable
+        if (ante <= 2 && !inst->rngCache.generatedFirstPack) {
+            inst->rngCache.generatedFirstPack = true;
+            return Buffoon_Pack;
+        }
         return randweightedchoice(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shop_Pack, ante}, 2, PACKS);
     }
     #endif
@@ -203,18 +214,19 @@ item next_joker_edition(instance* inst, rsrc itemSource, int ante) {
     return No_Edition;
 }
 
-bool is_next_joker_eternal(instance* inst, int ante) {
-    if (inst->params.stake < Black_Stake) return false;
-    return random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
-}
-
 // Get an object which carries both joker item, its rarity, and its edition
 jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
     rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
     item nextJoker;
 
     if (nextRarity == Rarity_Legendary) {
+        #if V_AT_MOST(1,0,0,99)
         nextJoker = randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+        #else
+        // Changed in v1.0.1; note that in Gold Stake, the resulting joker can vary if
+        // some (but not all) legendary jokers have Gold Stake stickers
+        nextJoker = randchoice_simple(inst, R_Joker_Legendary, LEGENDARY_JOKERS);
+        #endif
     } else if (nextRarity == Rarity_Rare) {
         nextJoker = randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
     } else if (nextRarity == Rarity_Uncommon) {
@@ -222,8 +234,22 @@ jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
     } else {
         nextJoker = randchoice_common(inst, R_Joker_Common, itemSource, ante, COMMON_JOKERS);
     }
+    
+    jokerstickers nextStickers = {false, false, false};
+    if (inst->params.stake >= Black_Stake) {
+        if (nextJoker != Gros_Michel && nextJoker != Ice_Cream && nextJoker != Cavendish && nextJoker != Luchador
+         && nextJoker != Turtle_Bean && nextJoker != Diet_Cola && nextJoker != Popcorn   && nextJoker != Ramen
+         && nextJoker != Seltzer     && nextJoker != Mr_Bones  && nextJoker != Invisible_Joker)
+        nextStickers.eternal = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
+    }
+    if (inst->params.stake >= Orange_Stake && !nextStickers.eternal) {
+        nextStickers.perishable = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Perishable, ante}, 2) > 0.49;
+    }
+    if (inst->params.stake >= Gold_Stake) {
+        nextStickers.rental = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Rental, ante}, 2) > 0.7;
+    }
 
-    jokerdata rarityJoker = {nextJoker, nextRarity, next_joker_edition(inst, itemSource, ante), is_next_joker_eternal(inst, ante)};
+    jokerdata rarityJoker = {nextJoker, nextRarity, next_joker_edition(inst, itemSource, ante), nextStickers};
     return rarityJoker;
 }
 
@@ -314,8 +340,10 @@ shopitem next_shop_item(instance* inst, int ante) {
     double card_type = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Card_Type, ante}, 2) * get_total_rate(shopInstance);
     itemtype type = get_item_type(shopInstance, card_type);
     item shopItem;
+    jokerdata shopJoker;
     if (type == ItemType_Joker) {
-        shopItem = next_joker(inst, S_Shop, ante);
+        shopJoker = next_joker_with_info(inst, S_Shop, ante);
+        shopItem = shopJoker.joker;
     } else if (type == ItemType_Tarot) {
         shopItem = next_tarot(inst, S_Shop, ante, false);
     } else if (type == ItemType_Planet) {
@@ -327,7 +355,7 @@ shopitem next_shop_item(instance* inst, int ante) {
         shopItem = RETRY;
     }
 
-    shopitem nextShopItem = {type, shopItem};
+    shopitem nextShopItem = {type, shopItem, shopJoker};
     return nextShopItem;
 }
 
@@ -471,9 +499,14 @@ item wheel_of_fortune_edition(instance* inst) {
 bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/15;
 }
-#else
+#elif V_AT_MOST(1,0,0,99)
 bool gros_michel_extinct(instance* inst) {
     return random_simple(inst, R_Gros_Michel) < 1.0/4;
+}
+#else
+bool gros_michel_extinct(instance* inst) {
+    // Rate lowered in 1.0.1
+    return random_simple(inst, R_Gros_Michel) < 1.0/6;
 }
 #endif
 bool cavendish_extinct(instance* inst) {

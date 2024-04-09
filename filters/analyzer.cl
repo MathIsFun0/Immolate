@@ -14,7 +14,7 @@ __constant long cardsPerAnte[] = {15, 50, 50, 50, 50, 50, 50, 50};
 
 // Change this to the deck and stake you want to use with this seed
 __constant item deck = Red_Deck;
-__constant item stake = White_Stake;
+__constant item stake = Gold_Stake;
 
 // Reroll queue is used for duplicates.
 // e.g.: You have The Order, and there's another The Order in shop.
@@ -87,11 +87,17 @@ long filter(instance* inst) {
             printf("%i) ", q);
             shopitem _item = next_shop_item(inst, ante);
             if (_item.type == ItemType_Joker) {
-                if (is_next_joker_eternal(inst, ante)) {
+                if (_item.joker.stickers.eternal) {
                     printf("Eternal ");
                 }
+                if (_item.joker.stickers.perishable) {
+                    printf("Perishable ");
+                }
+                if (_item.joker.stickers.rental) {
+                    printf("Rental ");
+                }
 
-                item edition = next_joker_edition(inst, S_Shop, ante);
+                item edition = _item.joker.edition;
                 if (edition != No_Edition) {
                     print_item(edition);
                     printf(" ");
@@ -109,6 +115,7 @@ long filter(instance* inst) {
             print_reroll_queue(inst, ante, ghostDeck, firstRerollQueueItems, 1);
 
             if (secondRerollQueueItems > 0) {
+                printf("\n");
                 print_reroll_queue(inst, ante, ghostDeck, secondRerollQueueItems, 2);
             }
         }
@@ -142,7 +149,9 @@ long filter(instance* inst) {
                     buffoon_pack_detailed(jokers, packinfo.size, inst, ante);
 
                     for (int i = 0; i < packinfo.size; i++) {
-                        if (jokers[i].eternal) printf("Eternal ");
+                        if (jokers[i].stickers.eternal) printf("Eternal ");
+                        if (jokers[i].stickers.perishable) printf("Perishable ");
+                        if (jokers[i].stickers.rental) printf("Rental ");
                         if (jokers[i].edition != No_Edition) {
                             print_item(jokers[i].edition);
                             printf(" ");

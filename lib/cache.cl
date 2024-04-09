@@ -32,6 +32,8 @@ typedef enum RandomType {
     R_Soul,
     R_Erratic,
     R_Eternal,
+    R_Perishable,
+    R_Rental,
     R_Boss,
     R_END
 } rtype;
@@ -104,6 +106,8 @@ text type_str(int x) {
         case R_Soul:                     return init_text("soul_", 5);
         case R_Erratic:                  return init_text("erratic", 7);
         case R_Eternal:                  return init_text("stake_shop_joker_eternal", 24);
+        case R_Perishable:               return init_text("ssjp", 4);
+        case R_Rental:                   return init_text("ssjr", 4);
         case R_Boss:                     return init_text("boss", 4);
         default:                         return init_text("", 0);
     }
@@ -157,6 +161,7 @@ typedef struct Cache {
     #else
     rnginfo nodes[64];
     #endif
+    bool generatedFirstPack;
     int nextFreeNode;
 } cache;
 
