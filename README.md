@@ -4,7 +4,7 @@ An OpenCL seed searcher for Balatro.
 ## Getting Started
 Please visit the [Getting Started](docs/getting_started.md) page in the documentation for tips on how to get started. If you are running into issues, please check the [Troubleshooting](docs/troubleshooting.md) page.
 
-## Building and running from scratch
+## Building and running from scratch (not recommended)
 
 ### Windows
 Install cmake:
