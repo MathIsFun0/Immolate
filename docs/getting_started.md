@@ -17,5 +17,8 @@ To run the executable, there are a few command line arguments that may be import
 - `-p` and `-d`: Sets the platform and device IDs of the device Immolate uses to search. Running Immolate with `--list_devices` will give you the platform ID and device ID of every detected OpenCL device, which is needed for these commands. If you are having issues running Immolate, please check the [Troubleshooting](troubleshooting.md) section of the documentation.
 - `-g`: Sets the number of groups of threads used by the searcher. If your device is not being used with 100% utilization, you will want to increase this number from the default of 16. On GPUs, a value of 256 is recommended.
 
+All of the [Existing Filters](existingfilters.md) are housed in the /filters folder. Explanations and usage guides are in the comments of each filter file.
+
 ## Creating your own filter
-This part of the documentation, as well as documentation of the functions available in Immolate, will be created at a later date.
+As of now the only way to create your own filter is to program it yourself.
+It is highly recommended to look through /lib/items.cl and /lib/functions.cl for items and functions.
