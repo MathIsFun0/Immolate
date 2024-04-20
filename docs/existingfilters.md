@@ -1,3 +1,5 @@
+# Existing Filters
+
 In-depth explanations and usage guides are in the comments of each filter file.
 
 - **Analyzer:** Prints a full analysis of a seed. Vouchers and bosses to be implemented.
