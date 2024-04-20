@@ -257,9 +257,9 @@ item next_joker(instance* inst, rsrc itemSource, int ante) {
 
     if (nextRarity == Rarity_Legendary) {
         #if V_AT_MOST(1,0,0,99)
-        nextJoker = randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+            return randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
         #else
-        nextJoker = randchoice_simple(inst, R_Joker_Legendary, LEGENDARY_JOKERS);
+            return randchoice_simple(inst, R_Joker_Legendary, LEGENDARY_JOKERS);
         #endif
     } else if (nextRarity == Rarity_Rare) {
        return randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
