@@ -223,8 +223,6 @@ jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
         #if V_AT_MOST(1,0,0,99)
         nextJoker = randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
         #else
-        // Changed in v1.0.1; note that in Gold Stake, the resulting joker can vary if
-        // some (but not all) legendary jokers have Gold Stake stickers
         nextJoker = randchoice_simple(inst, R_Joker_Legendary, LEGENDARY_JOKERS);
         #endif
     } else if (nextRarity == Rarity_Rare) {
@@ -258,7 +256,11 @@ item next_joker(instance* inst, rsrc itemSource, int ante) {
     rarity nextRarity = next_joker_rarity(inst, itemSource, ante);
 
     if (nextRarity == Rarity_Legendary) {
-       return randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+        #if V_AT_MOST(1,0,0,99)
+        nextJoker = randchoice_common(inst, R_Joker_Legendary, itemSource, ante, LEGENDARY_JOKERS);
+        #else
+        nextJoker = randchoice_simple(inst, R_Joker_Legendary, LEGENDARY_JOKERS);
+        #endif
     } else if (nextRarity == Rarity_Rare) {
        return randchoice_common(inst, R_Joker_Rare, itemSource, ante, RARE_JOKERS);
     } else if (nextRarity == Rarity_Uncommon) {
