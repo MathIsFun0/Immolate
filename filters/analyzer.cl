@@ -1,6 +1,6 @@
 #define CACHE_SIZE 1000
 #include "lib/immolate.cl"
-// Prints a full analysis of a seed. Vouchers and bosses to be implemented.
+// Prints a full analysis of a seed.
 // It's highly recommended to run this with -n 1 to only look at a single seed.
 // immolate -f analyzer -s THESEED -n 1 -g 1
 
