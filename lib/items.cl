@@ -550,7 +550,7 @@ typedef enum ShopItemType {
 
 typedef struct ShopItem {
     itemtype type;
-    item _item;
+    item value;
 } shopitem;
 
 typedef struct ShopInstance {
@@ -1211,6 +1211,22 @@ __constant item BOSSES[] = {
     The_Water,
     The_Wheel,
     The_Window
+};
+
+__constant item POKER_HANDS[] = {
+    12,
+    Flush_Five,
+    Flush_House,
+    Five_of_a_Kind,
+    Straight_Flush,
+    Four_of_a_Kind,
+    Full_House,
+    Flush,
+    Straight,
+    Three_of_a_Kind,
+    Two_Pair,
+    Pair,
+    High_Card,
 };
 
 // Helper functions

@@ -13,11 +13,11 @@ bool is_chained(bool hasShowman, item tarot) {
 
 void check_next_item(instance* inst, int ante, bool *hasShowman, int *hasShowmanAnte, bool *hasEmperor, int *hasEmperorAnte) {
     shopitem shopItem = next_shop_item(inst, ante);
-    if (!(*hasShowman) && shopItem._item == Showman) {
+    if (!(*hasShowman) && shopItem.value == Showman) {
         *hasShowman = true;
         *hasShowmanAnte = ante;
     }
-    if (!(*hasEmperor) && shopItem._item == The_Emperor) {
+    if (!(*hasEmperor) && shopItem.value == The_Emperor) {
         *hasEmperor = true;
         *hasEmperorAnte = ante;
     }
