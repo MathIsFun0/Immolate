@@ -21,4 +21,4 @@ All of the [Existing Filters](existingfilters.md) are housed in the /filters fol
 
 ## Creating your own filter
 As of now the only way to create your own filter is to program it yourself.
-It is highly recommended to look through /lib/items.cl and /lib/functions.cl for items and functions.
+It is highly recommended to look through /lib/items.cl and /lib/functions.cl for items and functions, as there is currently no documentation for the functions and types provided by Immolate.
