@@ -6,7 +6,7 @@ long filter(instance* inst) {
     long bestScore = 0;
 
     // Because of ante-based RNG, we check every ante and store the best ante as the result
-    for (int ante = 1; ante <= 6; ante++) {
+    for (int ante = 1; ante <= 8; ante++) {
         long score = 0;
         while (true) {
             item firstTarot = next_tarot(inst, S_Emperor, ante, false);
