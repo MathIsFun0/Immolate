@@ -20,7 +20,9 @@ To run the executable, there are a few command line arguments that may be import
 All of the [Existing Filters](existingfilters.md) are housed in the /filters folder. Explanations and usage guides are in the comments of each filter file.
 
 ## Seed Analysis
-I am working on a website that will use Immolate to provide a better display of the features in a Balatro seed. For now, to print out all of the features in a seed, you can use the analyzer filter. Edit analyzer.cl to set the deck and stake you want to use, and then run the following command: `immolate -f analyzer -s SEED -n 1 -g 1`
+It's recommend to use [The Soul](https://mathisfun0.github.io/The-Soul/) to analyze a seed.
+
+To print out all of the features in a seed using Immolate, you can use the analyzer filter. Edit analyzer.cl to set the deck and stake you want to use, and then run the following command: `immolate -f analyzer -s SEED -n 1 -g 1`
 
 ## Creating your own filter
 As of now the only way to create your own filter is to program it yourself.
