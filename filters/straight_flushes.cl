@@ -1,7 +1,7 @@
 #include "lib/immolate.cl"
 // Checks if the first two blinds of Ante 1 have straight flushes
 long filter(instance* inst) {
-    set_deck(inst, Painted_Deck);
+    set_deck(inst, Red_Deck);
     int score = 0;
     int ante = 1;
     for (int i = 0; i < 2; i++) {
