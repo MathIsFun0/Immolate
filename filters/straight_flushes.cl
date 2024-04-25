@@ -1,31 +1,50 @@
 #include "lib/immolate.cl"
 // Checks if the first two blinds of Ante 1 have straight flushes
 long filter(instance* inst) {
-    item deck[52];
+    set_deck(inst, Painted_Deck);
     int score = 0;
+    int ante = 1;
     for (int i = 0; i < 2; i++) {
-        shuffle_deck(inst, deck, 1);
-        item hand[8] = {deck[44], deck[45], deck[46], deck[47], deck[48], deck[49], deck[50], deck[51]};
+        item hand[10] = {RETRY};
+        int handSize = inst->params.handSize;
+        next_hand_drawn(inst, hand, ante);
+        
         bool isStrush = false;
-        // The strategy used here is to treat each card as the potential starting point of a Straight Flush and chack that the rest of the held hand supports it.
-        for (int i = 0; i < 8; i++) {
-            item c_rank = rank(hand[i]);
-            if (c_rank == Jack || c_rank == Queen || c_rank == King) continue;
-            item targetRank = rank(hand[i]);
+        // The strategy used here is to treat each card as the potential starting point of a Straight Flush and check that the rest of the held hand supports it.
+        for (int i = 0; i < handSize; i++) {
+            item cardRank = rank(hand[i]);
+            if (cardRank == Jack || cardRank == Queen || cardRank == King) {
+                continue;
+            }
+
+            item cardSuit = suit(hand[i]);
+            item nextRank = cardRank;
+            // Straight contains 5 cards, we need to find 4 cards with ranks that continue current one.
             for (int x = 1; x < 5; x++) {
-                targetRank = next_rank(targetRank);
-                item targetCard = from_rank_suit(targetRank, suit(hand[i]));
+                nextRank = next_rank(nextRank);
+                item targetCard = from_rank_suit(nextRank, cardSuit);
+
                 isStrush = false;
-                for (int j = 0; j < 8; j++) {
+                for (int j = 0; j < handSize; j++) {
                     if (hand[j] == targetCard) {
                         isStrush = true;
+                        break;
                     }
                 }
-                if (!isStrush) break;
+                if (!isStrush) {
+                    // No straight flush with this card as starting.
+                    break;
+                }
             }
-            if (isStrush) break;
+            if (isStrush) {
+                break;
+            }
         }
-        if (isStrush) score += 1;
+        if (!isStrush) {
+            break; // Only look for consecutive straight flushes draw.
+        }
+
+        score++;
     }
     return score;
 }

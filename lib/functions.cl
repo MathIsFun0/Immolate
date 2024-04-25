@@ -540,18 +540,60 @@ item next_boss(instance* inst, int ante) {
     return chosen_boss;
 }
 
-void init_erratic_deck(instance* inst, item out[]) {
-    for (int i = 0; i < 52; i++) {
-        out[i] = randchoice_simple(inst, R_Erratic, CARDS);
-        //Todo: Order these as the game does by sorting them
+// Bubble sort, feel free to change it to something faster that works
+void sort_deck(__generic item array[], int arrayLength) {
+    for (int i = 0; i < arrayLength - 1; i++) {
+        for (int j = 0; j < arrayLength - i - 1; j++) {
+            if (array[j] > array[j + 1]) {
+                item tmp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = tmp;
+            }
+        }
     }
 }
-void init_deck(instance* inst, item out[]) {
-    if (inst->params.deck == Erratic_Deck) init_erratic_deck(inst, out);
-    else {
-        for (int i = 0; i < 52; i++) {
-        out[i] = DECK_ORDER[i+1];
+
+void init_erratic_deck(instance* inst) {
+    for (int i = 0; i < 52; i++) {
+        inst->params.deckCards[i] = randchoice_simple(inst, R_Erratic, CARDS);
     }
+
+    sort_deck(inst->params.deckCards, inst->params.deckSize);
+}
+
+void copy_cards(__generic item to[], __constant item from[]) {
+    for (int i = 0; i < from[0]; i++) {
+        to[i] = from[i+1];
+    }
+}
+
+// Copy the base deck cards into separate array for shuffler
+void init_deck(instance* inst, item out[]) {
+    if (inst->params.deckCards[0] == RETRY) {
+        if (inst->params.deck == Erratic_Deck) {
+            init_erratic_deck(inst);
+            inst->params.deckSize = 52;
+
+        } else if (inst->params.deck == Abandoned_Deck) {
+            copy_cards(inst->params.deckCards, ABANDONED_DECK_ORDER);
+            inst->params.deckSize = ABANDONED_DECK_ORDER[0];
+
+        } else if (inst->params.deck == Checkered_Deck) {
+            copy_cards(inst->params.deckCards, CHECKERED_DECK_ORDER);
+            inst->params.deckSize = CHECKERED_DECK_ORDER[0];
+
+        } else {
+            copy_cards(inst->params.deckCards, DECK_ORDER);
+            inst->params.deckSize = DECK_ORDER[0];
+        }
+
+        if (inst->params.deck == Painted_Deck) {
+            inst->params.handSize = 10;
+        }
+    }
+
+    for (int index = 0; index < inst->params.deckSize; index++) {
+        out[index] = inst->params.deckCards[index];
     }
 }
 void set_deck(instance* inst, item deck) {
@@ -569,11 +611,24 @@ void set_stake(instance* inst, item stake) {
 void shuffle_deck(instance* inst, item deck[], int ante) {
     init_deck(inst, deck);
     inst->rng = randomseed(get_node_child(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Shuffle_New_Round, ante}, 2));
-    for (int i = 51; i >= 1; i--) {
+    for (int i = inst->params.deckSize - 1; i >= 1; i--) {
         int x = l_randint(&(inst->rng), 1, i+1)-1;
         item temp = deck[i];
         deck[i] = deck[x];
         deck[x] = temp;
+    }
+}
+
+void next_hand_drawn(instance* inst, item hand[], int ante) {
+    item deck[52];
+    shuffle_deck(inst, deck, ante);
+
+    int deckSize = inst->params.deckSize;
+    int handSize = inst->params.handSize;
+
+    for (int i = 0; i < handSize; i++) {
+        int cardIndex = deckSize - (handSize - i);
+        hand[i] = deck[cardIndex];
     }
 }
 
