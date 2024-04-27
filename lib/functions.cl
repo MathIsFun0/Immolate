@@ -234,14 +234,19 @@ jokerdata next_joker_with_info(instance* inst, rsrc itemSource, int ante) {
     }
     
     jokerstickers nextStickers = {false, false, false};
-    if (inst->params.stake >= Black_Stake) {
+    double stickerPoll = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal_Perishable, ante}, 2);
+    if (inst->params.stake >= Black_Stake && stickerPoll > 0.7) {
         if (nextJoker != Gros_Michel && nextJoker != Ice_Cream && nextJoker != Cavendish && nextJoker != Luchador
          && nextJoker != Turtle_Bean && nextJoker != Diet_Cola && nextJoker != Popcorn   && nextJoker != Ramen
          && nextJoker != Seltzer     && nextJoker != Mr_Bones  && nextJoker != Invisible_Joker)
-        nextStickers.eternal = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Eternal, ante}, 2) > 0.7;
+        nextStickers.eternal = true;
     }
-    if (inst->params.stake >= Orange_Stake && !nextStickers.eternal) {
-        nextStickers.perishable = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Perishable, ante}, 2) > 0.49;
+    if (inst->params.stake >= Orange_Stake && stickerPoll > 0.4 && stickerPoll <= 0.7) {
+        if (nextJoker != Ceremonial_Dagger && nextJoker != Ride_the_Bus   && nextJoker != Runner  && nextJoker != Constellation
+         && nextJoker != Green_Joker       && nextJoker != Red_Card       && nextJoker != Madness && nextJoker != Square_Joker
+         && nextJoker != Vampire           && nextJoker != Rocket         && nextJoker != Obelisk && nextJoker != Lucky_Cat
+         && nextJoker != Flash_Card        && nextJoker != Spare_Trousers && nextJoker != Castle  && nextJoker != Wee_Joker)
+        nextStickers.perishable = true;
     }
     if (inst->params.stake >= Gold_Stake) {
         nextStickers.rental = random(inst, (__private ntype[]){N_Type, N_Ante}, (__private int[]){R_Rental, ante}, 2) > 0.7;
