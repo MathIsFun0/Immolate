@@ -5,6 +5,10 @@ typedef struct InstanceParameters {
     item stake;
     bool vouchers[32];
     bool showman;
+
+    item deckCards[52];
+    int deckSize;
+    int handSize;
 } instance_params;
 
 // Instance
@@ -25,7 +29,10 @@ instance i_new(seed s) {
         .deck = Red_Deck, 
         .stake = White_Stake,
         .showman = false,
-        .vouchers = {false}
+        .vouchers = {false},
+        .deckCards = {RETRY},
+        .deckSize = 52,
+        .handSize = 8
     };
     inst.params = params;
     return inst;
