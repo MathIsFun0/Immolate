@@ -34,7 +34,9 @@ typedef enum RandomType {
     R_Eternal,
     R_Perishable,
     R_Eternal_Perishable,
+    R_Eternal_Perishable_Pack,
     R_Rental,
+    R_Rental_Pack,
     R_Boss,
     R_END
 } rtype;
@@ -110,6 +112,8 @@ text type_str(int x) {
         case R_Perishable:               return init_text("ssjp", 4);
         case R_Rental:                   return init_text("ssjr", 4);
         case R_Eternal_Perishable:       return init_text("etperpoll", 9);
+        case R_Rental_Pack:              return init_text("packssjr", 8);
+        case R_Eternal_Perishable_Pack:  return init_text("packetper", 9);
         case R_Boss:                     return init_text("boss", 4);
         default:                         return init_text("", 0);
     }
