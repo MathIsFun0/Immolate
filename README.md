@@ -26,6 +26,7 @@ Run:
 
 ## Future Plans
 - Full support with all features in Balatro 1.0.
-- Support for stakes and challenges.
+- Support for AMD GPUs.
+- Support for challenges.
 - Saving output to a file.
 - A GUI to interact with the searcher without having as much technical knowledge.
