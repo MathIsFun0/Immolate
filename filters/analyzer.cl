@@ -90,6 +90,8 @@ long filter(instance* inst) {
         print_item(nextTag);
         print_tag_info(inst, ante, nextTag, true);
 
+        next_orbital_tag(inst); //burn function call on Boss Blind
+
         printf("\n");
         printf("Shop Queue: \n");
         for (int q = 1; q <= cardsPerAnte[ante-1]; q++) {
@@ -246,10 +248,11 @@ void print_reroll_queue(instance* inst, int ante, bool ghostDeck, int itemsToSho
 
 void print_tag_info(instance* inst, int ante, item tag, bool isBigBlind) {
     item generatedItem;
+    item orbitalTagOutput = next_orbital_tag(inst);
 
     switch (tag) {
         case Orbital_Tag: {
-            generatedItem = next_orbital_tag(inst, ante);
+            generatedItem = orbitalTagOutput;
             break;
         }
         case Voucher_Tag: {

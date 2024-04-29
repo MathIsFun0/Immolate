@@ -541,7 +541,7 @@ item next_boss(instance* inst, int ante) {
 }
 
 // Bubble sort, feel free to change it to something faster that works
-void sort_deck(__generic item array[], int arrayLength) {
+void sort_deck(item array[], int arrayLength) {
     for (int i = 0; i < arrayLength - 1; i++) {
         for (int j = 0; j < arrayLength - i - 1; j++) {
             if (array[j] > array[j + 1]) {
@@ -561,7 +561,7 @@ void init_erratic_deck(instance* inst) {
     sort_deck(inst->params.deckCards, inst->params.deckSize);
 }
 
-void copy_cards(__generic item to[], __constant item from[]) {
+void copy_cards(item to[], __constant item from[]) {
     for (int i = 0; i < from[0]; i++) {
         to[i] = from[i+1];
     }
@@ -632,7 +632,8 @@ void next_hand_drawn(instance* inst, item hand[], int ante) {
     }
 }
 
-item next_orbital_tag(instance* inst, int ante) {
+// Note: This is generated once for every blind, regardless of whether it has an Orbital Tag (even Boss Blinds)
+item next_orbital_tag(instance* inst) {
     int totalUnlockedHands = 0;
     item unlockedHands[13] = {RETRY};
 
