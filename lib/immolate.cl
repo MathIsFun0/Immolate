@@ -3,8 +3,8 @@
 #ifndef GAME_VERSION
     #define VER1 1
     #define VER2 0
-    #define VER3 0
-    #define VER4 14 //1.0.0n
+    #define VER3 1
+    #define VER4 5 //1.0.1e
     #define GAME_VERSION
 #endif
 #include "lib/util.cl" // Contains utility functions
