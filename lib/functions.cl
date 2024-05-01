@@ -541,7 +541,11 @@ item next_boss(instance* inst, int ante) {
 }
 
 // Bubble sort, feel free to change it to something faster that works
+#ifdef __NV_CL_C_VERSION
+void sort_deck(__generic item array[], int arrayLength) {
+#else
 void sort_deck(item array[], int arrayLength) {
+#endif
     for (int i = 0; i < arrayLength - 1; i++) {
         for (int j = 0; j < arrayLength - i - 1; j++) {
             if (array[j] > array[j + 1]) {
@@ -560,8 +564,11 @@ void init_erratic_deck(instance* inst) {
 
     sort_deck(inst->params.deckCards, inst->params.deckSize);
 }
-
+#ifdef __NV_CL_C_VERSION
+void copy_cards(__generic item to[], __constant item from[]) {
+#else
 void copy_cards(item to[], __constant item from[]) {
+#endif
     for (int i = 0; i < from[0]; i++) {
         to[i] = from[i+1];
     }
