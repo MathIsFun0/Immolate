@@ -582,12 +582,6 @@ typedef struct JokerData {
     jokerstickers stickers;
 } jokerdata;
 
-typedef struct ShopItem {
-    itemtype type;
-    item _item;
-    jokerdata joker;
-} shopitem;
-
 typedef struct WeightedItem {
     item _item;
     double weight;
