@@ -22,7 +22,7 @@ bool check_next_pack(instance* inst, int ante, item searching) {
 }
 
 bool check_next_shopitem(instance* inst, int ante, item searching) {
-  if (next_shop_item(inst, ante)._item == searching) {
+  if (next_shop_item(inst, ante).value == searching) {
     return 1;
   }
   return 0;

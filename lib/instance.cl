@@ -5,6 +5,10 @@ typedef struct InstanceParameters {
     item stake;
     bool vouchers[32];
     bool showman;
+
+    item deckCards[52];
+    int deckSize;
+    int handSize;
 } instance_params;
 
 // Instance
@@ -26,7 +30,10 @@ instance i_new(seed s) {
         .deck = Red_Deck, 
         .stake = White_Stake,
         .showman = false,
-        .vouchers = {false}
+        .vouchers = {false},
+        .deckCards = {RETRY},
+        .deckSize = 52,
+        .handSize = 8
     };
     inst.params = params;
     return inst;
@@ -108,6 +115,19 @@ item randchoice_resample(instance* inst, rtype rngType, rsrc src, int ante, __co
 item randchoice_simple(instance* inst, rtype rngType, __constant item items[]) {
     return randchoice(inst, (__private ntype[]){N_Type}, (__private int[]){rngType}, 1, items);
 }
+
+// Implementation specifically for dynamic arrays (Poker hands for Orbital Tag)
+item randchoice_dynamic(instance* inst, ntype nts[], int ids[], int num, item items[]) {//, size_t item_size) { not needed, we'll have element 1 give us the size
+    if (num > 0) {
+        inst->rng = randomseed(get_node_child(inst, nts, ids, num));
+    }
+    return items[l_randint(&(inst->rng), 1, items[0])];
+}
+
+item randchoice_simple_dynamic(instance* inst, rtype rngType, item items[]) {
+    return randchoice_dynamic(inst, (__private ntype[]){N_Type}, (__private int[]){rngType}, 1, items);
+}
+// ==============================================================================
 
 void randlist(item out[], int size, instance* inst, rtype rngType, rsrc src, int ante, __constant item items[]) {
     for (int i = 0; i < size; i++) {

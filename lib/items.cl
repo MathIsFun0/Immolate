@@ -548,6 +548,11 @@ typedef enum ShopItemType {
     ItemType_Spectral
 } itemtype;
 
+typedef struct ShopItem {
+    itemtype type;
+    item value;
+} shopitem;
+
 typedef struct ShopInstance {
     double jokerRate;
     double tarotRate;
@@ -796,6 +801,107 @@ __constant item DECK_ORDER[] = {
     S_T
 };
 #endif
+
+__constant item ABANDONED_DECK_ORDER[] = {
+    40,
+    C_2,
+    C_3,
+    C_4,
+    C_5,
+    C_6,
+    C_7,
+    C_8,
+    C_9,
+    C_A,
+    C_T,
+    D_2,
+    D_3,
+    D_4,
+    D_5,
+    D_6,
+    D_7,
+    D_8,
+    D_9,
+    D_A,
+    D_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_T,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_T
+};
+
+__constant item CHECKERED_DECK_ORDER[] = {
+    52,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_J,
+    S_K,
+    S_Q,
+    S_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_J,
+    H_K,
+    H_Q,
+    H_T,
+    H_2,
+    H_3,
+    H_4,
+    H_5,
+    H_6,
+    H_7,
+    H_8,
+    H_9,
+    H_A,
+    H_J,
+    H_K,
+    H_Q,
+    H_T,
+    S_2,
+    S_3,
+    S_4,
+    S_5,
+    S_6,
+    S_7,
+    S_8,
+    S_9,
+    S_A,
+    S_J,
+    S_K,
+    S_Q,
+    S_T
+};
+
 __constant weighteditem PACKS[] = {
     {RETRY, 22.42}, //total
     {Arcana_Pack, 4},
@@ -1375,6 +1481,22 @@ __constant item BOSSES[] = {
     The_Water,
     The_Wheel,
     The_Window
+};
+
+__constant item POKER_HANDS[] = {
+    12,
+    Flush_Five,
+    Flush_House,
+    Five_of_a_Kind,
+    Straight_Flush,
+    Four_of_a_Kind,
+    Full_House,
+    Flush,
+    Straight,
+    Three_of_a_Kind,
+    Two_Pair,
+    Pair,
+    High_Card,
 };
 
 // Helper functions
