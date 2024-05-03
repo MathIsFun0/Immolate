@@ -548,11 +548,6 @@ typedef enum ShopItemType {
     ItemType_Spectral
 } itemtype;
 
-typedef struct ShopItem {
-    itemtype type;
-    item value;
-} shopitem;
-
 typedef struct ShopInstance {
     double jokerRate;
     double tarotRate;
@@ -581,6 +576,12 @@ typedef struct JokerData {
     item edition;
     jokerstickers stickers;
 } jokerdata;
+
+typedef struct ShopItem {
+    itemtype type;
+    item value;
+    jokerdata joker;
+} shopitem;
 
 typedef struct WeightedItem {
     item _item;

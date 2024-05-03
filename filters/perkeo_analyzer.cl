@@ -27,7 +27,7 @@ __constant int vagabondPerAnte[] = {104, 6, 6, 4, 2, 1, 0, 0};
 __constant int superpositionPerAnte[] = {0, 3, 2, 1, 0, 0, 0, 0};
 
 __constant int purpleSealPerAnte[] = {0, 2, 3, 4, 5, 5, 5, 5};
-__constant int blueSealPerAnte[] = {0, 0, 0, 0, 0, 0, 0, 0};
+__constant int _8BallPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
 
 __constant int emperorPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
 __constant int priestessPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
@@ -58,7 +58,7 @@ long filter(instance* inst) {
         print_tarots(inst, S_Superposition, ante, superpositionPerAnte[ante-1]);
 
         print_tarots(inst, S_Purple_Seal, ante, purpleSealPerAnte[ante-1]);
-        print_planets(inst, S_Blue_Seal, ante, blueSealPerAnte[ante-1]);
+        print_tarots(inst, S_8_Ball, ante, _8BallPerAnte[ante-1]);
 
         print_tarots(inst, S_Emperor, ante, emperorPerAnte[ante-1]);
         print_planets(inst, S_High_Priestess, ante, priestessPerAnte[ante-1]);        
