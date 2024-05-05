@@ -26,7 +26,7 @@ void filter(int id, int nThreads, int max) {
             }
         }
         if (legendaries >= 2) {
-            std::cout << i << std::endl;
+            printf("%i: %s, %s\n",i, itemToString(inst.nextJoker("sou", 1, false).joker), itemToString(inst.nextJoker("sou", 1, false).joker));
         }
     }
 };
