@@ -10,6 +10,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE OpenCL::OpenCL)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 11
                                                  C_STANDARD_REQUIRED ON
-                                                 C_EXTENSIONS OFF)
+                                                 C_EXTENSIONS ON)
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE CL_TARGET_OPENCL_VERSION=100)
