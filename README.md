@@ -24,6 +24,27 @@ Build:
 Run:
 `.\build\Release\Immolate.exe`
 
+### Linux (Debian)
+Install dependencies:
+
+```
+sudo apt-get install cmake ocl-icd-opencl-dev build-essentials
+```
+
+_NOTE: Remember to install the OpenCL driver depending on your hardware._
+
+Build:
+```
+cmake -B build
+cmake --build build --config Release
+```
+
+Run:
+```
+./build/Immolate
+```
+
+
 ## Future Plans
 - Full support with all features in Balatro 1.0.
 - Support for AMD GPUs.
