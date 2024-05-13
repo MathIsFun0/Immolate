@@ -28,7 +28,7 @@ Run:
 Install dependencies:
 
 ```
-sudo apt-get install cmake ocl-icd-opencl-dev build-essentials
+sudo apt-get install cmake ocl-icd-opencl-dev build-essential
 ```
 
 _NOTE: Remember to install the OpenCL driver depending on your hardware._
