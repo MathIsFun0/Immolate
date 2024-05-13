@@ -137,23 +137,17 @@ int main(int argc, char **argv) {
     char executable_dir[MAX_PATH];
     char include_path[MAX_PATH+6];
     char kernel_path[MAX_PATH+12];
-    if (GetModuleFileName(NULL, executable_dir, MAX_PATH) != 0) {
-        char* last_slash = strrchr(executable_dir, '\\');
-        if (last_slash != NULL) {
-            *last_slash = '\0';
-        }
-    } else {
-        fprintf(stderr, "Error: Unable to get the current working directory\n");
-    }
+    getExecutableDir(executable_dir);
     strcpy_s(include_path, sizeof include_path, "-I \"");
     strcat_s(include_path, sizeof include_path, executable_dir);
     strcat_s(include_path, sizeof include_path, "\"");
     strcpy_s(kernel_path, sizeof kernel_path, executable_dir);
-    strcat_s(kernel_path, sizeof kernel_path, "\\search.cl");
+    strcat_s(kernel_path, sizeof kernel_path, PATH_SEPARATOR);
+    strcat_s(kernel_path, sizeof kernel_path, "search.cl");
     fp = fopen(kernel_path, "r");
     if (!fp) {
         printf_s("Warning: Kernel not found at ");
-        printf_s(kernel_path);
+        printf_s("%s", kernel_path);
         printf_s(", attempting working directory...\n");
         fp = fopen("search.cl","r");
         if (!fp) {
@@ -161,17 +155,18 @@ int main(int argc, char **argv) {
             exit(1);
         }
     }
-    ssKernelCode = (char*)malloc(1000000);
-    ssKernelBuf = (char*)malloc(1000000);
+    ssKernelCode = (char*)malloc(MAX_CODE_SIZE);
+    ssKernelBuf = (char*)malloc(MAX_CODE_SIZE);
     // Set include information
-    strcpy_s(ssKernelCode, 1000000, "#include \"filters/");
-    strcat_s(ssKernelCode, 1000000, filter);
-    strcat_s(ssKernelCode, 1000000, ".cl\"\n\n");
-    size_t bytes_read = fread( ssKernelBuf, 1, 1000000, fp);
+    strcpy_s(ssKernelCode, MAX_CODE_SIZE, "#include \"filters/");
+    strcat_s(ssKernelCode, MAX_CODE_SIZE, filter);
+    strcat_s(ssKernelCode, MAX_CODE_SIZE, ".cl\"\n\n");
+    size_t bytes_read = fread( ssKernelBuf, 1, MAX_CODE_SIZE - 1, fp);
     ssKernelBuf[bytes_read] = '\0';
-    strcat_s(ssKernelCode, 1000000, ssKernelBuf);
+    strcat_s(ssKernelCode, MAX_CODE_SIZE, ssKernelBuf);
     ssKernelSize = strlen(ssKernelCode);
     fclose( fp );
+    free(ssKernelBuf);
 
     // Set up platform and device based on CLI args
 
@@ -237,15 +232,15 @@ int main(int argc, char **argv) {
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, 0, NULL, &logLength);
         if (err != CL_SUCCESS) {
             printf_s("Error getting build log length: %d\n", err);
-            return;
+            return EXIT_FAILURE;
         }
         char *buf = calloc(logLength, sizeof(char));
         err = clGetProgramBuildInfo(ssKernelProgram, device, CL_PROGRAM_BUILD_LOG, logLength, buf, NULL);
         if (err != CL_SUCCESS) {
             printf_s("Error getting build log: %d\n", err);
-            return;
+            return EXIT_FAILURE;
         }
-        printf_s(buf);
+        printf_s("%s", buf);
         printf_s("\n");
     }
     clErrCheck(err, "clBuildProgram - Building OpenCL program");
@@ -281,5 +276,5 @@ int main(int argc, char **argv) {
     err = clReleaseCommandQueue(queue);
     err = clReleaseContext(ctx);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
