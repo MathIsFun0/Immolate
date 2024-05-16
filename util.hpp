@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <array>
 
 const uint64_t MAX_UINT64 = 18446744073709551615ull;
 
@@ -91,4 +92,51 @@ double round13(double num) {
     std::ostringstream stream;
     stream << std::fixed << std::setprecision(13) << num;
     return std::stod(stream.str());
+}
+
+// Search-related utility functions
+const std::string seedChars = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const int numChars = 35;
+
+void nextSeed(std::array<int, 9>& seed) {
+    bool carry = true;
+    while (carry) {
+        for (int i = 0; i < seed[0]; i++) {
+            int j = seed[0]-i;
+            if (carry) {
+                seed[j]++;
+                if (carry = (seed[j]>=numChars)) {
+                    seed[j] -= numChars;
+                }
+            } else break;
+        }
+        if (carry) {
+            if (seed[0]<8) {
+                for (int i = 8; i >= 1; i--) {
+                    seed[i] = 0;
+                }
+                seed[0]++;
+            } else {
+                seed[0] = 0;
+            }
+            carry = false;
+        }
+    }
+}
+
+std::string seedToString(std::array<int, 9> seed) {
+    std::string strSeed;
+    for (int i = 1; i <= seed[0]; i++) {
+        strSeed.append(1, seedChars[seed[i]]);
+    }
+    return strSeed;
+}
+
+std::array<int, 9> stringToSeed(std::string strSeed) {
+    std::array<int, 9> seed;
+    seed[0] = strSeed.size();
+    for (int i = 1; i <= seed[0]; i++) {
+        seed[i] = seedChars.find(strSeed[i-1]);
+    }
+    return seed;
 }

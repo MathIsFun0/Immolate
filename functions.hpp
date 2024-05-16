@@ -55,6 +55,7 @@ void Instance::initLocks(int ante, bool freshProfile, bool freshRun) {
         lock(Item::Foil_Tag);
         lock(Item::Holographic_Tag);
         lock(Item::Polychrome_Tag);
+        lock(Item::Rare_Tag);
 
         // Jokers
         lock(Item::Golden_Ticket);

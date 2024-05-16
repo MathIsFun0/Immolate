@@ -2,6 +2,7 @@
 #include "items.hpp"
 #include "instance.hpp"
 #include "functions.hpp"
+#include "search.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
