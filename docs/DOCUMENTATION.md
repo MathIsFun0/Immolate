@@ -2,7 +2,7 @@
 
 A guide to all the functions, structs, and items available in Immolate.
 
-Written by PacManMVC
+Written by PacManMVC, with additions by MathIsFun_
 
 ## Getting Started
 
@@ -804,3 +804,24 @@ T_Tarot,
 T_Planet,
 T_Spectral,
 T_Playing_Card
+
+## Macros
+Macros can be added to the top of a filter file to further customize its settings.
+### Fixed Filter Cutoff
+
+`#define FIXED_FILTER_CUTOFF`
+
+Instead of only printing out seeds generated with the highest score, running this filter will print out any seeds higher than the number specified with `-c`.
+
+### Custom Game Versions
+```cl
+#define VER1 1
+#define VER2 0
+#define VER3 0
+#define VER4 14
+#define GAME_VERSION
+```
+
+This set of macros allows you to configure Immolate to search in versions besides the latest version of Balatro.
+
+This example would allow a filter to search in version 1.0.0n (14 represents the letter n).
