@@ -250,6 +250,10 @@ Returns an `Item` representing the next boss generated in a given ante.
 
 ## Items
 
+### General Naming Conventions
+
+All variable names for items are as close as possible to their in-game names. Spaces and invalid characters for OpenCL variables are replaced by underscores, and items that start with digits use an underscore as a prefix.
+
 ### Jokers
 
 Common:
