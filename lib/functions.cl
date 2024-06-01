@@ -194,6 +194,9 @@ rarity next_joker_rarity(instance* inst, rsrc itemSource, int ante) {
     if (itemSource == S_Uncommon_Tag) {
         return Rarity_Uncommon;
     }
+    if (itemSource == S_Riff_Raff) {
+        return Rarity_Common;
+    } 
 
     double randomNumber = random(inst, (__private ntype[]){N_Type, N_Ante, N_Source}, (__private int[]){R_Joker_Rarity, ante, itemSource}, 3);
     if (randomNumber > 0.95) {
