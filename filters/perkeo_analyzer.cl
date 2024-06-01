@@ -22,15 +22,18 @@ __constant int judgementPerAnte[] = {1, 2, 2, 2, 2, 2, 2, 2};
 __constant int sixthSensePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
 __constant int seancePerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
 
-// __constant int eightBallPerAnte[] = {0, 1, 2, 3, 4, 5, 5, 5};
 __constant int vagabondPerAnte[] = {104, 6, 6, 4, 2, 1, 0, 0};
 __constant int superpositionPerAnte[] = {0, 3, 2, 1, 0, 0, 0, 0};
 
-__constant int purpleSealPerAnte[] = {0, 2, 3, 4, 5, 5, 5, 5};
-__constant int _8BallPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
+// 8 ball, purple seals share the same queue
+__constant int purpleSealPerAnte[] = {2, 2, 3, 4, 5, 5, 5, 5};
+// __constant int _8BallPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
+__constant int cartomancerPerAnte[] = {2, 3, 3, 3, 3, 3, 3, 3};
 
 __constant int emperorPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
 __constant int priestessPerAnte[] = {2, 2, 2, 2, 2, 2, 2, 2};
+
+__constant int riffRaffPerAnte[] = {4, 6, 6, 6, 6, 6, 6, 6};
 
 void print_jokers(instance* inst, rsrc source, int ante, int itemsToShow);
 
@@ -49,16 +52,17 @@ long filter(instance* inst) {
 
         print_jokers(inst, S_Wraith, ante, wraithPerAnte[ante-1]);
         print_jokers(inst, S_Judgement, ante, judgementPerAnte[ante-1]);
+        print_jokers(inst, S_Riff_Raff, ante, riffRaffPerAnte[ante-1]);
 
         print_spectrals(inst, S_Seance, ante, seancePerAnte[ante-1]);
         print_spectrals(inst, S_Sixth_Sense, ante, sixthSensePerAnte[ante-1]);
 
-        // print_tarots(inst, S_8_Ball, ante, eightBallPerAnte[ante-1]);
         print_tarots(inst, S_Vagabond, ante, vagabondPerAnte[ante-1]);
         print_tarots(inst, S_Superposition, ante, superpositionPerAnte[ante-1]);
 
         print_tarots(inst, S_Purple_Seal, ante, purpleSealPerAnte[ante-1]);
-        print_tarots(inst, S_8_Ball, ante, _8BallPerAnte[ante-1]);
+        // print_tarots(inst, S_8_Ball, ante, _8BallPerAnte[ante-1]);
+        print_tarots(inst, S_Cartomancer, ante, cartomancerPerAnte[ante-1]);
 
         print_tarots(inst, S_Emperor, ante, emperorPerAnte[ante-1]);
         print_planets(inst, S_High_Priestess, ante, priestessPerAnte[ante-1]);        
@@ -80,6 +84,8 @@ void print_source(rsrc source) {
         case S_Blue_Seal:         printf("Blue Seal"); break;
         case S_Purple_Seal:       printf("Purple Seal"); break;
         case S_8_Ball:            printf("8 Ball"); break;
+        case S_Riff_Raff:         printf("Riff-raff"); break;
+        case S_Cartomancer:       printf("Cartomancer"); break;
 
         default: printf("null"); break;
     }
