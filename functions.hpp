@@ -197,29 +197,29 @@ void Instance::initUnlocks(int ante, bool freshProfile) {
 // Card Generators
 Item Instance::nextTarot(std::string source, int ante, bool soulable) {
     std::string anteStr = anteToString(ante);
-    if (soulable && (params.showman || !isLocked(Item::The_Soul)) && random("soul_Tarot"+anteStr) > 0.997) {
+    if (soulable && (params.showman || !isLocked(Item::The_Soul)) && random(RandomType::Soul + RandomType::Tarot + anteStr) > 0.997) {
         return Item::The_Soul;
     }
-    return randchoice("Tarot"+source+anteStr, TAROTS);
+    return randchoice(RandomType::Tarot + source + anteStr, TAROTS);
 }
 
 Item Instance::nextPlanet(std::string source, int ante, bool soulable) {
     std::string anteStr = anteToString(ante);
-    if (soulable && (params.showman || !isLocked(Item::Black_Hole)) && random("soul_Planet"+anteStr) > 0.997) {
+    if (soulable && (params.showman || !isLocked(Item::Black_Hole)) && random(RandomType::Soul + RandomType::Planet + anteStr) > 0.997) {
         return Item::Black_Hole;
     }
-    return randchoice("Planet"+source+anteStr, PLANETS);
+    return randchoice(RandomType::Planet + source + anteStr, PLANETS);
 }
 
 Item Instance::nextSpectral(std::string source, int ante, bool soulable) {
     std::string anteStr = anteToString(ante);
     if (soulable) {
         Item forcedKey = Item::RETRY;
-        if ((params.showman || !isLocked(Item::The_Soul)) && random("soul_Spectral"+anteStr) > 0.997) forcedKey = Item::The_Soul;
-        if ((params.showman || !isLocked(Item::Black_Hole)) && random("soul_Spectral"+anteStr) > 0.997) forcedKey = Item::Black_Hole;
+        if ((params.showman || !isLocked(Item::The_Soul)) && random(RandomType::Soul + RandomType::Spectral + anteStr) > 0.997) forcedKey = Item::The_Soul;
+        if ((params.showman || !isLocked(Item::Black_Hole)) && random(RandomType::Soul + RandomType::Spectral + anteStr) > 0.997) forcedKey = Item::Black_Hole;
         if (forcedKey != Item::RETRY) return forcedKey;
     }
-    return randchoice("Spectral"+source+anteStr, SPECTRALS);
+    return randchoice(RandomType::Spectral + source + anteStr, SPECTRALS);
 }
 
 JokerData Instance::nextJoker(std::string source, int ante, bool hasStickers) {
@@ -227,12 +227,12 @@ JokerData Instance::nextJoker(std::string source, int ante, bool hasStickers) {
 
     // Get rarity
     Item rarity;
-    if (source == "sou") rarity = Item::Legendary;
-    else if (source == "wra") rarity = Item::Rare;
-    else if (source == "rta") rarity = Item::Rare;
-    else if (source == "uta") rarity = Item::Uncommon;
+    if (source == ItemSource::Soul) rarity = Item::Legendary;
+    else if (source == ItemSource::Wraith) rarity = Item::Rare;
+    else if (source == ItemSource::Rare_Tag) rarity = Item::Rare;
+    else if (source == ItemSource::Uncommon_Tag) rarity = Item::Uncommon;
     else {
-        double rarityPoll = random("rarity"+anteStr+source);
+        double rarityPoll = random(RandomType::Joker_Rarity + anteStr + source);
         if (rarityPoll > 0.95) rarity = Item::Rare;
         else if (rarityPoll > 0.7) rarity = Item::Uncommon;
         else rarity = Item::Common;
@@ -243,7 +243,7 @@ JokerData Instance::nextJoker(std::string source, int ante, bool hasStickers) {
     if (isVoucherActive(Item::Glow_Up)) editionRate = 4;
     else if (isVoucherActive(Item::Hone)) editionRate = 2;
     Item edition;
-    double editionPoll = random("edi"+source+anteStr);
+    double editionPoll = random(RandomType::Joker_Edition + source + anteStr);
     if (editionPoll > 0.997) edition = Item::Negative;
     else if (editionPoll > 1 - 0.006 * editionRate) edition = Item::Polychrome;
     else if (editionPoll > 1 - 0.02 * editionRate) edition = Item::Holographic;
@@ -253,18 +253,18 @@ JokerData Instance::nextJoker(std::string source, int ante, bool hasStickers) {
     // Get next joker
     Item joker;
     if (rarity == Item::Legendary) {
-        if (params.version > 10099) joker = randchoice("Joker4", LEGENDARY_JOKERS);
-        else joker = randchoice("Joker4"+source+anteStr, LEGENDARY_JOKERS);
+        if (params.version > 10099) joker = randchoice(RandomType::Joker_Legendary, LEGENDARY_JOKERS);
+        else joker = randchoice(RandomType::Joker_Legendary + source + anteStr, LEGENDARY_JOKERS);
     }
-    else if (rarity == Item::Rare) joker = randchoice("Joker3"+source+anteStr, (params.version > 10099) ? RARE_JOKERS : RARE_JOKERS_100);
-    else if (rarity == Item::Uncommon) joker = randchoice("Joker2"+source+anteStr, (params.version > 10099) ? UNCOMMON_JOKERS : UNCOMMON_JOKERS_100);
-    else if (rarity == Item::Common) joker = randchoice("Joker1"+source+anteStr, (params.version > 10099) ? COMMON_JOKERS: COMMON_JOKERS_100);
+    else if (rarity == Item::Rare) joker = randchoice(RandomType::Joker_Rare + source + anteStr, (params.version > 10099) ? RARE_JOKERS : RARE_JOKERS_100);
+    else if (rarity == Item::Uncommon) joker = randchoice(RandomType::Joker_Uncommon + source + anteStr, (params.version > 10099) ? UNCOMMON_JOKERS : UNCOMMON_JOKERS_100);
+    else if (rarity == Item::Common) joker = randchoice(RandomType::Joker_Common + source + anteStr, (params.version > 10099) ? COMMON_JOKERS: COMMON_JOKERS_100);
 
     // Get next joker stickers
     JokerStickers stickers = JokerStickers();
     if (hasStickers) {
         if (params.version > 10099) {
-            double stickerPoll = random(((source=="buf") ? "packetper" : "etperpoll")+anteStr);
+            double stickerPoll = random(((source == ItemSource::Buffoon_Pack) ? RandomType::Eternal_Perishable_Pack : RandomType::Eternal_Perishable) + anteStr);
             if (stickerPoll > 0.7 && params.stake >= Item::Black_Stake) {
                 if (joker != Item::Gros_Michel && joker != Item::Ice_Cream && joker != Item::Cavendish && joker != Item::Luchador
                 && joker != Item::Turtle_Bean && joker != Item::Diet_Cola && joker != Item::Popcorn   && joker != Item::Ramen
@@ -280,14 +280,14 @@ JokerData Instance::nextJoker(std::string source, int ante, bool hasStickers) {
                 stickers.perishable = true;
             }
             if (params.stake >= Item::Gold_Stake) {
-                stickers.rental = random(((source=="buf") ? "packssjr" : "ssjr")+anteStr) > 0.7;
+                stickers.rental = random(((source == ItemSource::Buffoon_Pack) ? RandomType::Rental_Pack : RandomType::Rental) + anteStr) > 0.7;
             }
         } else {
             if (params.stake >= Item::Black_Stake) {
                 if (joker != Item::Gros_Michel && joker != Item::Ice_Cream && joker != Item::Cavendish && joker != Item::Luchador
                 && joker != Item::Turtle_Bean && joker != Item::Diet_Cola && joker != Item::Popcorn   && joker != Item::Ramen
                 && joker != Item::Seltzer     && joker != Item::Mr_Bones  && joker != Item::Invisible_Joker) {
-                    stickers.eternal = random("stake_shop_joker_eternal"+anteStr) > 0.7;
+                    stickers.eternal = random(RandomType::Eternal + anteStr) > 0.7;
                 }
             }
         }
@@ -326,7 +326,7 @@ ShopItem Instance::nextShopItem(int ante) {
     std::string anteStr = anteToString(ante);
 
     ShopInstance shop = getShopInstance();
-    double cdtPoll = random("cdt"+anteStr) * shop.getTotalRate();
+    double cdtPoll = random(RandomType::Card_Type + anteStr) * shop.getTotalRate();
     Item type;
     if (cdtPoll < shop.jokerRate) type = Item::T_Joker;
     else {cdtPoll -= shop.jokerRate;
@@ -338,14 +338,14 @@ ShopItem Instance::nextShopItem(int ante) {
     else type = Item::T_Spectral;}}}
 
     if (type == Item::T_Joker) {
-        JokerData jkr = nextJoker("sho", ante, true);
+        JokerData jkr = nextJoker(ItemSource::Shop, ante, true);
         return ShopItem(type, jkr.joker, jkr);
     } else if (type == Item::T_Tarot) {
-        return ShopItem(type, nextTarot("sho", ante, false));
+        return ShopItem(type, nextTarot(ItemSource::Shop, ante, false));
     } else if (type == Item::T_Planet) {
-        return ShopItem(type, nextPlanet("sho", ante, false));
+        return ShopItem(type, nextPlanet(ItemSource::Shop, ante, false));
     } else if (type == Item::T_Spectral) {
-        return ShopItem(type, nextSpectral("sho", ante, false));
+        return ShopItem(type, nextSpectral(ItemSource::Shop, ante, false));
     }
     // Todo: Magic Trick support
     return ShopItem();
@@ -358,7 +358,7 @@ Item Instance::nextPack(int ante) {
         return Item::Buffoon_Pack;
     }
     std::string anteStr = anteToString(ante);
-    return randweightedchoice("shop_pack"+anteStr, PACKS);
+    return randweightedchoice(RandomType::Shop_Pack + anteStr, PACKS);
 }
 std::vector<Pack> PACK_INFO = {
     Pack(Item::Arcana_Pack, 3, 1),
@@ -385,15 +385,18 @@ Card Instance::nextStandardCard(int ante) {
 
     // Enhancement
     Item enhancement;
-    if (random("stdset"+anteStr) <= 0.6) enhancement = Item::No_Enhancement;
-    else enhancement = randchoice("Enhancedsta"+anteStr, ENHANCEMENTS);
+    if (random(RandomType::Standard_Has_Enhancement + anteStr) <= 0.6) {
+        enhancement = Item::No_Enhancement;
+    } else {
+        enhancement = randchoice(RandomType::Enhancement + ItemSource::Standard_Pack + anteStr, ENHANCEMENTS);
+    } 
 
     // Base
-    Item base = randchoice("frontsta"+anteStr, CARDS);
+    Item base = randchoice("frontsta" + anteStr, CARDS);
 
     // Edition
     Item edition;
-    double editionPoll = random("standard_edition"+anteStr);
+    double editionPoll = random("standard_edition" + anteStr);
     if (editionPoll > 0.988) edition = Item::Polychrome;
     else if (editionPoll > 0.96) edition = Item::Holographic;
     else if (editionPoll > 0.92) edition = Item::Foil;
@@ -415,9 +418,9 @@ Card Instance::nextStandardCard(int ante) {
 std::vector<Item> Instance::nextArcanaPack(int size, int ante) {
     std::vector<Item> pack;
     for (int i = 0; i < size; i++) {
-        if (isVoucherActive(Item::Omen_Globe) && random("omen_globe") > 0.8) {
-            pack.push_back(nextSpectral("ar2", ante, true));
-        } else pack.push_back(nextTarot("ar1", ante, true));
+        if (isVoucherActive(Item::Omen_Globe) && random(RandomType::Omen_Globe) > 0.8) {
+            pack.push_back(nextSpectral(ItemSource::Omen_Globe, ante, true));
+        } else pack.push_back(nextTarot(ItemSource::Arcana_Pack, ante, true));
         if (!params.showman) lock(pack[i]);
     }
     for (int i = 0; i < size; i++) unlock(pack[i]);
@@ -426,7 +429,7 @@ std::vector<Item> Instance::nextArcanaPack(int size, int ante) {
 std::vector<Item> Instance::nextCelestialPack(int size, int ante) {
     std::vector<Item> pack;
     for (int i = 0; i < size; i++) {
-        pack.push_back(nextPlanet("pl1", ante, true));
+        pack.push_back(nextPlanet(ItemSource::Celestial_Pack, ante, true));
         if (!params.showman) lock(pack[i]);
     }
     for (int i = 0; i < size; i++) unlock(pack[i]);
