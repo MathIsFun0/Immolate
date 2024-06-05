@@ -1,14 +1,11 @@
 __kernel void search(char8 starting_seed, long num_seeds, __global long* filter_cutoff) {
     seed _seed = s_new_c8(starting_seed);
-    if (get_global_id(0) != 0) {
-        s_skip(&_seed, get_global_id(0));
-    }
+    s_skip(&_seed, get_global_id(0));
     for (long i = get_global_id(0); i < num_seeds; i+=get_global_size(0)) {
         instance inst = i_new(_seed);
-        if (filter(&inst) >= filter_cutoff[0]) {
+        long score = filter(&inst);
+        if (score >= filter_cutoff[0]) {
             text s_str = s_to_string(&_seed);
-            inst = i_new(_seed);
-            long score = filter(&inst);
             printf("%s (%li)\n", s_str.str, score);
             if (score > filter_cutoff[0]) {
                 #ifndef FIXED_FILTER_CUTOFF
