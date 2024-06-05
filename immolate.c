@@ -1,4 +1,5 @@
 #include "lib/immolate.h"
+#include <time.h>
 int main(int argc, char **argv) {
     
     // Print version
@@ -265,6 +266,7 @@ int main(int argc, char **argv) {
     size_t globalSize = numGroups * numGroups;
     size_t localSize = numGroups;
     printf_s("Starting searcher...\n");
+    clock_t begin = clock();
     err = clEnqueueNDRangeKernel(queue, ssKernel, 1, NULL, &globalSize, &localSize, 0, NULL, NULL);
     clErrCheck(err, "clEnqueueNDRangeKernel - Executing OpenCL kernel");
 
@@ -275,6 +277,9 @@ int main(int argc, char **argv) {
     err = clReleaseProgram(ssKernelProgram);
     err = clReleaseCommandQueue(queue);
     err = clReleaseContext(ctx);
+    clock_t end = clock();
+    double time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+    printf("Done in %fs",time_spent);
 
     return EXIT_SUCCESS;
 }
