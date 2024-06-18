@@ -509,7 +509,7 @@ std::vector<JokerData> Instance::nextBuffoonPack(int size, int ante) {
         if (!params.showman) lock(pack[i].joker);
     }
     for (int i = 0; i < size; i++) {
-        unlock(pack[i]);
+        unlock(pack[i].joker);
     }
     return pack;
 };
