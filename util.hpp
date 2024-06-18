@@ -89,9 +89,11 @@ std::string anteToString(int a) {
 }
 
 double round13(double num) {
-    std::ostringstream stream;
-    stream << std::fixed << std::setprecision(13) << num;
-    return std::stod(stream.str());
+    double fnum = std::floor(num * 1e13) / 1e13;
+    if (num - fnum >= 5e-14) {
+        return (std::floor(num * 1e13) + 1) / 1e13;
+    }
+    return fnum;
 }
 
 // Search-related utility functions
