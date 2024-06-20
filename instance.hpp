@@ -4,7 +4,7 @@
 
 struct Cache {
     std::map<std::string, double> nodes;
-    bool generatedFirstPack;
+    bool generatedFirstPack = false;
 };
 
 struct InstParams {

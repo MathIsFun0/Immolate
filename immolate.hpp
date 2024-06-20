@@ -1,5 +1,6 @@
 #include "util.hpp"
 #include "items.hpp"
+#include "rng.hpp"
 #include "instance.hpp"
 #include "functions.hpp"
 #include "search.hpp"
