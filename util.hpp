@@ -70,8 +70,8 @@ struct LuaRandom {
     }
 };
 
-double fract(double n) {
-    return fmod(n, 1);
+double inline fract(double n) {
+    return n - floor(n);
 };
 
 double pseudohash(std::string s) {
