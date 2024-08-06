@@ -1,12 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(Immolate)
 
-set(SOURCES
-    immolate.cpp
-    immolate.hpp
-    util.hpp
-    instance.hpp
-)
+
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp" "${PROJECT_SOURCE_DIR}/src/*.hpp")
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
