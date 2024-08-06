@@ -36,7 +36,7 @@ cmake --build build --config Release
 ```
 
 ### Nix
-If you are on Mac or on Linux and you are running nix, you can get a shell with all the needed build dependencies by running in this folder:
+If you are on Mac or on Linux and you are running [Nix](https://nixos.org/) with flake support enabled, you can get a shell with all the needed build dependencies by running in this folder:
 ```bash
 nix develop
 ```
