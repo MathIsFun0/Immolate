@@ -9,7 +9,7 @@ As of today, it is lacking many features (such as most filters and dynamic recom
 ### Windows
 
 > [!IMPORTANT]
-> this is not the recommended way to get this software. Check the [Releases page](https://github.com/MathIsFun0/Immolate/releases) to get the latest binary release.
+> Unless you are familiar with the command line, this is not the recommended way to get this software. Check the [Releases page](https://github.com/MathIsFun0/Immolate/releases) to get the latest binary release.
 
 1. Install the prerequisites with [winget](https://winget.run):
 ```bat
