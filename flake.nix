@@ -16,6 +16,7 @@
           nativeBuildInputs = with pkgs; [
             gcc
             cmake
+            clang-tools
           ];
         };
       });
