@@ -11,7 +11,7 @@ def convert_enum(enum_code):
 
     # Mapping for special cases
     special_cases = {
-        #"Seance": "Séance",        Unfortunately, OpenCL doesn't work nicely with the accented E...
+        "Seance": "Séance",
         "Top up Tag": "Top-up Tag",
         "Riff raff": "Riff-raff",
         "Mail In Rebate": "Mail-In Rebate",
@@ -40,6 +40,47 @@ def convert_enum(enum_code):
     for item in enum_items:
         formatted_item = format_enum_item(item)
         print_function += f'        case {enum_name}::{item}: return "{formatted_item}";\n'
+    print_function += "    }\n}\n"
+
+    return print_function
+
+def convert_enum_reverse(enum_code):
+    # Find enum name
+    enum_name = re.search(r'enum\s+class\s+(\w+)\s*{', enum_code).group(1)
+
+    # Find enum items
+    enum_items = re.findall(r'(\w+)\s*,', enum_code)
+
+    # Mapping for special cases
+    special_cases = {
+        "Seance": "Séance",
+        "Top up Tag": "Top-up Tag",
+        "Riff raff": "Riff-raff",
+        "Mail In Rebate": "Mail-In Rebate",
+        "Mr Bones": "Mr. Bones",
+        "Oops All 6s": "Oops! All 6s",
+        "Drivers License": "Driver's License",
+        "Directors Cut": "Director's Cut",
+        "On a Knifes Edge": "On a Knife's Edge",
+        "X ray Vision": "X-ray Vision",
+        "Non Perishable": "Non-Perishable",
+        "Five Card Draw": "Five-Card Draw"
+    }
+
+    # Helper function to format enum item names
+    def format_enum_item(enum_item):
+        # Remove leading underscores
+        enum_item = enum_item.lstrip("_")
+        # Replace underscores with spaces
+        enum_item = enum_item.replace("_", " ")
+        # Handle special cases
+        return special_cases.get(enum_item, enum_item)
+
+    # Generate print function
+    print_function = f"{enum_name} stringToItem(std::string i) {{\n"
+    for item in enum_items:
+        formatted_item = format_enum_item(item)
+        print_function += f'if (i == "{formatted_item}") {{return {enum_name}::{item};}};\n'
     print_function += "    }\n}\n"
 
     return print_function
@@ -602,4 +643,4 @@ enum class Item {
 };
 """
 
-print(convert_enum(enum_code))
+print(convert_enum_reverse(enum_code))
