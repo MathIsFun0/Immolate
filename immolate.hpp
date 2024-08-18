@@ -5,6 +5,24 @@
 #include "functions.hpp"
 #include "search.hpp"
 
+#ifdef _WIN32
+    #ifdef BUILDING_DLL
+        #define IMMOLATE_API __declspec(dllexport)
+    #else
+        #define IMMOLATE_API __declspec(dllimport)
+    #endif
+#else
+    #define IMMOLATE_API
+#endif
+
+// Declare the functions with IMMOLATE_API
+IMMOLATE_API std::string findseed(std::string seed);
+extern "C" {
+    IMMOLATE_API const char* findseed_c(const char* seed);
+    IMMOLATE_API void free_result(const char* result);
+}
+
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 using namespace emscripten;
