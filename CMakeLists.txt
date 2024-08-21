@@ -14,6 +14,11 @@ set(EXECUTABLE_SOURCES
     main.cpp
 )
 
+set(CMAKE_CXX_STANDARD 11)
+if(APPLE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast")
+endif()
+
 # Create the shared library (DLL)
 add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES})
 
