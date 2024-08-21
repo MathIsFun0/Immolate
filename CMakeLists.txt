@@ -15,12 +15,7 @@ set(EXECUTABLE_SOURCES
 )
 
 set(CMAKE_CXX_STANDARD 11)
-if(APPLE)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast")
-endif()
-IF(MSVC)
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /fp:strict")
-ENDIF(MSVC)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast")
 
 # Create the shared library (DLL)
 add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES})
