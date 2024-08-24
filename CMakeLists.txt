@@ -16,7 +16,12 @@ set(EXECUTABLE_SOURCES
 
 set(CMAKE_CXX_STANDARD 11)
 # I need a better check for ARM before I re-add this
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast")
+IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast") 
+# I ran into issues when enabling this one on x86, so this check could cause some trouble down the road
+ELSE(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+
+ENDIF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 
 # Create the shared library (DLL)
 add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES})
