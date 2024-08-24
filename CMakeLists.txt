@@ -15,7 +15,8 @@ set(EXECUTABLE_SOURCES
 )
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast")
+# I need a better check for ARM before I re-add this
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast")
 
 # Create the shared library (DLL)
 add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES})
