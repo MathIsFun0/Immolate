@@ -79,7 +79,7 @@ double pseudohash(std::string s) {
     for (size_t i = s.length(); i > 0; i--) {
         num = fract(1.1239285023/num*s[i-1]*3.141592653589793116+3.141592653589793116*i);
     }
-    if (isnan(num)) return std::numeric_limits<double>::quiet_NaN();
+    if (std::isnan(num)) return std::numeric_limits<double>::quiet_NaN();
     return num;
 };
 
