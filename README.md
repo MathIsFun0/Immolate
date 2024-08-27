@@ -48,3 +48,9 @@ Then, you can compile as usual:
 cmake -B build
 cmake --build build --config Release
 ```
+
+## Future Plans
+- CLI
+- custom filters with JSON
+- add all unimplemented sources
+- compatibility with modded items?
