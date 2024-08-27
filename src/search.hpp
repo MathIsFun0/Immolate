@@ -8,10 +8,11 @@ struct Search {
     std::array<int, 9> startSeed; // The first entry indicates the length of the seed
     long seedsProcessed = 0;
     long highScore = 0;
-    long printDelay = 100000;
+    long printDelay = 1000000;
     std::function<int(Instance)> filter;
     std::atomic<bool> found{false}; // Atomic flag to signal when a solution is found
     std::array<int, 9> foundSeed;   // Store the found seed
+    bool exitOnFind = false;
 
     void searching_thread(int ID) {
         std::array<int, 9> seed = startSeed;
@@ -19,16 +20,19 @@ struct Search {
             nextSeed(seed);
         }
         for (int i = 0; i < (numSeeds - ID) / numThreads; i++) {
-            if (found.load()) return; // Exit if another thread found a valid seed
+            if (exitOnFind && found.load()) return; // Exit if another thread found a valid seed
 
             Instance inst(seedToString(seed));
             long score = filter(inst);
-            if (score > 0 && !found.load()) {
+            if (score > 0 && (!exitOnFind || !found.load())) {
                 found.store(true);
                 foundSeed = seed;
                 highScore = score;
                 std::cout << "Found seed: " << seedToString(seed) << " (" << score << ")" << std::endl;
-                return; // Exit thread after finding the solution
+                if (exitOnFind) {
+                    std::cout << "Seed found, exiting..." << std::endl;
+                    return; // Exit thread after finding the solution
+                }
             }
             seedsProcessed++;
             if (seedsProcessed % printDelay == 0) {

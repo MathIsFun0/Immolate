@@ -41,6 +41,7 @@ IMMOLATE_API std::string brainstorm_cpp(std::string seed, std::string pack, std:
     BRAINSTORM_TAG = stringToItem(tag);
     BRAINSTORM_SOULS = souls;
     Search search(filter, seed, 1, 100000000);
+    search.exitOnFind = true;
     return search.search();
 }
 

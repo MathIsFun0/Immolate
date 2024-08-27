@@ -3,18 +3,19 @@ project(Immolate)
 
 # Define sources for the library
 set(LIB_SOURCES
-    immolate.cpp
-    immolate.hpp
-    util.hpp
-    instance.hpp
+    src/immolate.cpp
+    src/immolate.hpp
+    src/util.hpp
+    src/instance.hpp
 )
 
 # Define sources for the executable
 set(EXECUTABLE_SOURCES
-    main.cpp
+    src/main.cpp
 )
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 # I need a better check for ARM before I re-add this
 IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast") 
@@ -22,6 +23,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast"
 ELSE(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 
 ENDIF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+# Output compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 
 # Create the shared library (DLL)
 add_library(${PROJECT_NAME} SHARED ${LIB_SOURCES})
