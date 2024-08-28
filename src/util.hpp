@@ -70,9 +70,67 @@ struct LuaRandom {
     }
 };
 
-double inline fract(double n) {
-    return n - floor(n);
-};
+#define DBL_EXPO 0x7FF0000000000000
+#define DBL_MANT 0x000FFFFFFFFFFFFF
+
+#define DBL_EXPO_SZ 11
+#define DBL_MANT_SZ 52
+
+#define DBL_EXPO_BIAS 1023
+
+#if defined(_MSC_VER)
+    #include <intrin.h>
+    #pragma intrinsic(_BitScanReverse64)
+#endif
+
+// Cross-platform clzll implementation by chatgpt
+int portable_clzll(uint64_t x) {
+    if (x == 0) return 64; // Undefined for 0, by convention we return 64
+
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_clzll(x);
+#elif defined(_MSC_VER)
+    unsigned long index;
+    if (_BitScanReverse64(&index, x)) {
+        return 63 - index;
+    }
+    return 64;
+#else
+    // Fallback for other compilers (manual bit manipulation)
+    int n = 0;
+    if (x <= 0x00000000FFFFFFFF) { n += 32; x <<= 32; }
+    if (x <= 0x0000FFFFFFFFFFFF) { n += 16; x <<= 16; }
+    if (x <= 0x00FFFFFFFFFFFFFF) { n += 8;  x <<= 8;  }
+    if (x <= 0x0FFFFFFFFFFFFFFF) { n += 4;  x <<= 4;  }
+    if (x <= 0x3FFFFFFFFFFFFFFF) { n += 2;  x <<= 2;  }
+    if (x <= 0x7FFFFFFFFFFFFFFF) { n += 1; }
+    return n;
+#endif
+}
+
+
+// Faster fract by __init__ (about 4x speed improvement over fmod)
+double fract(double x) {
+    uint64_t x_int = *(uint64_t *)&x;
+    uint64_t expo = (x_int & DBL_EXPO) >> DBL_MANT_SZ;
+    if ((expo < DBL_EXPO_BIAS) || std::isnan(x)) {
+        return x;
+    }
+    uint64_t expo_biased = expo - DBL_EXPO_BIAS;
+    if (expo_biased >= DBL_MANT_SZ) {
+        return 0;
+    }
+    uint64_t mant = x_int & DBL_MANT;
+    uint64_t frac_mant = mant & ((1ull << (DBL_MANT_SZ - expo_biased)) - 1);
+    if (frac_mant == 0) {
+        return 0;
+    }
+    uint64_t frac_lzcnt = portable_clzll(frac_mant) - (64 - DBL_MANT_SZ);
+    uint64_t res_expo = (expo - frac_lzcnt - 1) << DBL_MANT_SZ;
+    uint64_t res_mant = (frac_mant << (frac_lzcnt + 1)) & DBL_MANT;
+    uint64_t res = res_expo | res_mant;
+    return *(double *)&res;
+}
 
 double pseudohash(std::string s) {
     double num = 1;
@@ -99,8 +157,8 @@ double round13(double x) {
     if (normal_case == (std::round(std::nextafter(x, -1) * inv_prec) / inv_prec)) {
         return normal_case;
     }
-    double truncated = std::fmod(x * two_inv_prec, 1.0) * five_inv_prec;
-    if (std::fmod(truncated, 1.0) >= 0.5) {
+    double truncated = fract(x * two_inv_prec) * five_inv_prec;
+    if (fract(truncated) >= 0.5) {
         return (std::floor(x * inv_prec) + 1) / inv_prec;
     }
     return std::floor(x * inv_prec) / inv_prec;

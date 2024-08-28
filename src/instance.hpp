@@ -47,7 +47,7 @@ struct Instance {
         if (cache.nodes.count(ID) == 0) {
             cache.nodes[ID] = pseudohash(ID+seed);
         }
-        cache.nodes[ID] = round13(std::fmod(cache.nodes[ID]*1.72431234+2.134453429141,1));
+        cache.nodes[ID] = round13(fract(cache.nodes[ID]*1.72431234+2.134453429141));
         return (cache.nodes[ID] + hashedSeed)/2;
     }
     double random(std::string ID) {
