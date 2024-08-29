@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include "immolate.hpp"
 #include <thread>
 #include <vector>
