@@ -14,14 +14,21 @@ set(EXECUTABLE_SOURCES
     src/main.cpp
 )
 
+# Set optimization flags based on the compiler
+if(MSVC)
+    set(OPTIMIZATION_FLAGS "/Ox")  # Full optimization for MSVC
+else()
+    set(OPTIMIZATION_FLAGS "-O3")  # Full optimization for GCC/Clang
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 # I need a better check for ARM before I re-add this
 IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm") 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast") 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPTIMIZATION_FLAGS} -ffp-model=fast /fp:fast -fp-model=fast") 
 # I ran into issues when enabling this one on x86, so this check could cause some trouble down the road
 ELSE(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPTIMIZATION_FLAGS}") 
 ENDIF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
 # Output compile_commands.json for clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
