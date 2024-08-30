@@ -11,7 +11,7 @@ struct Search {
     long printDelay = 1000000;
     std::function<int(Instance)> filter;
     std::atomic<bool> found{false}; // Atomic flag to signal when a solution is found
-    std::array<int, 9> foundSeed;   // Store the found seed
+    std::array<int, 9> foundSeed = {0};   // Store the found seed
     bool exitOnFind = false;
 
     void searching_thread(int ID) {
