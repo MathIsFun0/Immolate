@@ -49,7 +49,6 @@ long filter_perkeo_observatory(Instance inst) {
 int main() {
     Search search(filter_perkeo_observatory, "IMMOLATE", 12, 100000000);
     search.printDelay = 1000000;
-    search.highScore = 100;
     search.search();
     return 1;
 }

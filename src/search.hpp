@@ -24,7 +24,7 @@ struct Search {
 
             Instance inst(seedToString(seed));
             long score = filter(inst);
-            if (score >= highScore && (!exitOnFind || !found.load())) {
+            if (score >= highScore && score > 0 && (!exitOnFind || !found.load())) {
                 found.store(true);
                 foundSeed = seed;
                 highScore = score;
