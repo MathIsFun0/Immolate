@@ -45,10 +45,21 @@ long filter_perkeo_observatory(Instance inst) {
     return 0;
 }
 
+long filter_negative_tag(Instance inst) {
+    //Note: If the score cutoff was passed as a variable, this code could be significantly optimized
+    int maxAnte = 20;
+    int score = 0;
+    for (int i = 2; i <= maxAnte; i++) {
+        if (inst.nextTag(i) == Item::Negative_Tag) score++;
+    }
+    return score;
+}
+
 
 int main() {
-    Search search(filter_perkeo_observatory, "IMMOLATE", 12, 100000000);
-    search.printDelay = 1000000;
+    Search search(filter_negative_tag, "", 12, 100000000000);
+    search.printDelay = 2147483647;
+    search.highScore = 8;
     search.search();
     return 1;
 }

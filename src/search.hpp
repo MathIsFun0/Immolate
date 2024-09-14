@@ -27,7 +27,7 @@ struct Search {
             if (score >= highScore && score > 0 && (!exitOnFind || !found.load())) {
                 found.store(true);
                 foundSeed = seed;
-                highScore = score;
+                //highScore = score; (make this toggleable later)
                 std::cout << "Found seed: " << seedToString(seed) << " (" << score << ")" << std::endl;
                 if (exitOnFind) {
                     std::cout << "Seed found, exiting..." << std::endl;
