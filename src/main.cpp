@@ -4,6 +4,97 @@
 #include <iostream>
 #include <vector>
 
+//Unfinished code, proof of concept
+//Brute force filtering method, checking all items for those in list
+
+std::vector<Item> itemList;
+//std::vector<Item> enhancementList //Todo check for enhancements, seals, editions 
+std::vector<int> amountList;
+std::vector<int> anteList; //Until what ante to check for x item in itemList
+long filter_all(Instance inst) {
+  std::vector<int> amountFoundList;
+  amountFoundList.resize(itemList.size());
+  std:fill(amountFoundList.begin(), amountFoundList.end(), 0);
+
+  for (int i = 0; i < itemList.size(); i++) {
+
+    //Check the amount of antes given for that item
+    for (int ante = 1; ante <= anteList[i]; ante++) {
+      int max_packs = 4;
+        if (ante > 1) max_packs = 6;
+      
+      int max_store_items = 10;
+        if (ante > 1) max_store_items = 50;
+      
+      int max_tags = 2;
+
+      //Check packs
+      for (int p = 1; p <= max_packs; p++) {
+        Pack pack = packInfo(inst.nextPack(ante));
+        if (pack.type == itemList[i]) {
+          amountFoundList[i]++;
+          continue;
+        }
+        
+        //Do this for each pack type, possibly roll into a function
+        if (pack.type == Item::Arcana_Pack){
+          auto packContents = inst.nextArcanaPack(pack.size, 1);
+          for (int x = 0; x < pack.size; x++) {
+            if (packContents[x] == itemList[i])
+              amountFoundList[i]++;
+          }
+        }
+
+      }
+      //Check store
+      for (int s = 1; s <= max_store_items; s++) {
+        ShopItem shop_item = inst.nextShopItem(ante);
+        if (shop_item.item == itemList[i]) {
+          amountFoundList[i]++;
+        }
+      }
+
+      //Check vouchers 
+      if (inst.nextVoucher(ante) == itemList[i]) {
+        amountFoundList[i]++;
+      }
+
+      //Check tags (Possible improvement is checking for double tags)
+      for (int t = 1; t <= max_tags; t++) {
+        Item tag = inst.nextTag(ante);
+        if (tag == itemList[i]) {
+          amountFoundList[i]++;
+          continue;
+        }
+        
+        //Do this for each pack type, possibly roll into a function
+        if (tag == Item::Buffoon_Tag) {
+          auto packContents = inst.nextBuffoonPack(2, 1);
+          for (int x = 0; x < 2; x++) {
+            if (packContents[x].joker == itemList[i])
+              amountFoundList[i]++;
+          }
+        }
+      }
+    }
+    //Reset instance (Not sure if I need to do it anywhere else)
+    inst.reset(inst.seed);
+  }
+  
+  //Check if you have found all the items in a list
+  int correct_amounts = 0;
+  for (int i = 0; i < amountList.size(); i++) {
+    if (amountFoundList[i] >= amountList[i]) {
+      correct_amounts++;
+    }
+  }
+  if (correct_amounts == amountList.size()) {
+    return 1;
+  }
+  return 0;
+
+}
+
 long filter(Instance inst) {
   long legendaries = 0;
   inst.nextPack(1);
