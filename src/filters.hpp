@@ -1,7 +1,7 @@
 #ifndef FILTERS_HPP
 #define FILTERS_HPP
 
-#include "instance.hpp"
+#include "functions.hpp"
 #include <string>
 #include <vector>
 
@@ -32,14 +32,15 @@ enum class SearchableType {
 struct SearchObject {
     Item item;
     SearchableType searchType;
-    int maxAnte;
-    int amount;
+    int8_t storeDepth;
+    int8_t maxAnte;
+    int8_t amount;
 };
 
 struct InstanceModifier {
     Item modifier;
-    int startAnte;
-    int maxAnte;
+    int8_t startAnte;
+    int8_t maxAnte;
 };
 
 //Possible optimizations for bigger searchList
@@ -58,20 +59,20 @@ public:
 };
 
 long searchWithFilter(Instance inst, Filter &filter);
-long searchWithObject(Instance inst, SearchObject searchObject, int ante);
+long searchWithObject(Instance inst, SearchObject &searchObject, int ante);
 
 //Appear in shop & packs 
 //TODO: Possibly combine some of these functions (They use similar code)
-long searchForJoker(Instance inst, SearchObject searchObject, int ante);
-long searchForTarot(Instance inst, SearchObject searchObject, int ante);
-long searchForPlanet(Instance inst, SearchObject searchObject, int ante);
+long searchForJoker(Instance inst, SearchObject &searchObject, int ante);
+long searchForTarot(Instance inst, SearchObject &searchObject, int ante);
+long searchForPlanet(Instance inst, SearchObject &searchObject, int ante);
 
 //Appear in packs (mostly)
-long searchForSpectral(Instance inst, SearchObject searchObject, int ante);
-long searchForCard(Instance inst, SearchObject searchObject, int ante);
+long searchForSpectral(Instance inst, SearchObject &searchObject, int ante);
+long searchForCard(Instance inst, SearchObject &searchObject, int ante);
 
 //Appears on ante
-long searchForTag(Instance inst, SearchObject searchObject, int ante);
-long searchForVoucher(Instance inst, SearchObject searchObject, int ante);
+long searchForTag(Instance inst, SearchObject &searchObject, int ante);
+long searchForVoucher(Instance inst, SearchObject &searchObject, int ante);
 
 #endif

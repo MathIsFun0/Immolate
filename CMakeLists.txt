@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(LIB_SOURCES
     src/functions.hpp
     src/instance.hpp
+    src/filters.cpp
     src/items.cpp
     src/rng.cpp
     src/search.cpp
