@@ -1,8 +1,11 @@
 #include "functions.hpp"
 #include "search.hpp"
+#include "filters.hpp"
 #include <iomanip>
 #include <iostream>
 #include <vector>
+
+Filter globalFilter;
 
 long filter(Instance inst) {
   long legendaries = 0;
@@ -147,11 +150,15 @@ long filter_test(Instance inst) {
   return 0;
 }
 
+long filter_custom(Instance inst) {
+  return searchWithFilter(inst, globalFilter);
+}
+
 // Benchmark function
 // Runs 1 billion seeds of perkeo observatory
 // And prints total time and seeds per second
 void benchmark() {
-  long total = 0;
+  //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
@@ -169,7 +176,7 @@ void benchmark() {
 }
 
 void benchmark_quick() {
-  long total = 0;
+  //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
@@ -187,7 +194,7 @@ void benchmark_quick() {
 }
 
 void benchmark_quick_lucky() {
-  long total = 0;
+  //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
@@ -205,7 +212,7 @@ void benchmark_quick_lucky() {
 }
 
 void benchmark_single() {
-  long total = 0;
+  //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
@@ -223,7 +230,7 @@ void benchmark_single() {
 }
 
 void benchmark_blank() {
-  long total = 0;
+  //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
@@ -239,11 +246,37 @@ void benchmark_blank() {
             << 100000000 / ((end - start) / 1000.0) << "\n";
 }
 
+void benchmark_custom() {
+  //long total = 0;
+  long start = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+  Search search(filter_custom, "IMMOLATE", 12, 100000000);
+  search.highScore = 10; // No output
+  search.printDelay = 100000000000;
+  search.search();
+  long end = std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
+  std::cout << "----CUSTOM FILTER----\n";
+  std::cout << "Total time: " << end - start << "ms\n";
+  std::cout << "Seeds per second: " << std::fixed << std::setprecision(0)
+            << 100000000 / ((end - start) / 1000.0) << "\n";
+}
+
+void setup_custom_filter() {
+  globalFilter.maxAnte = 1;
+  globalFilter.searchList = std::vector<SearchObject>();
+  globalFilter.searchList.push_back({Item::Blueprint, SearchableType::Joker, 40, 1, 1});
+}
+
 int main() {
+  setup_custom_filter();
+  benchmark_blank();
   benchmark_single();
   benchmark_quick();
+  benchmark_custom();
   benchmark_quick_lucky();
-  benchmark_blank();
   benchmark();
   return 1;
 }
