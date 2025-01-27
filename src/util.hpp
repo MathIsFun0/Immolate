@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include <string>
+#include "tracy/Tracy.hpp"
 
 const uint64_t MAX_UINT64 = 18446744073709551615ull;
 

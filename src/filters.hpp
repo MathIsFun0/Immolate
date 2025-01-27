@@ -40,7 +40,7 @@ struct SearchObject {
 struct InstanceModifier {
     Item modifier;
     int8_t startAnte;
-    int8_t maxAnte;
+    int8_t endAnte;
 };
 
 //Possible optimizations for bigger searchList
@@ -57,6 +57,8 @@ public:
     void parseJSON(std::string input);
     long generateObjects(Instance inst);
 };
+
+#define MAX_SEARCH_LIST_SIZE 10
 
 long searchWithFilter(Instance inst, Filter &filter);
 long searchWithObject(Instance inst, SearchObject &searchObject, int ante);

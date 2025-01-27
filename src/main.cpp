@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <iostream>
 #include <vector>
+#include "tracy/Tracy.hpp"
 
 Filter globalFilter;
 
@@ -246,12 +247,14 @@ void benchmark_blank() {
             << 100000000 / ((end - start) / 1000.0) << "\n";
 }
 
+#define TEMP_TEST_SIZE 10000000
+ 
 void benchmark_custom() {
   //long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
-  Search search(filter_custom, "IMMOLATE", 12, 100000000);
+  Search search(filter_custom, "IMMOLATE", 12, TEMP_TEST_SIZE);
   search.highScore = 10; // No output
   search.printDelay = 100000000000;
   search.search();
@@ -261,22 +264,25 @@ void benchmark_custom() {
   std::cout << "----CUSTOM FILTER----\n";
   std::cout << "Total time: " << end - start << "ms\n";
   std::cout << "Seeds per second: " << std::fixed << std::setprecision(0)
-            << 100000000 / ((end - start) / 1000.0) << "\n";
+            << TEMP_TEST_SIZE / ((end - start) / 1000.0) << "\n";
 }
 
 void setup_custom_filter() {
-  globalFilter.maxAnte = 1;
+  globalFilter.maxAnte = 2;
   globalFilter.searchList = std::vector<SearchObject>();
-  globalFilter.searchList.push_back({Item::Blueprint, SearchableType::Joker, 40, 1, 1});
+  globalFilter.searchList.push_back({Item::Blueprint, SearchableType::Joker, 5, 1, 1});
+  //globalFilter.searchList.push_back({Item::Telescope, SearchableType::Voucher, 1, 1, 1});
+  //globalFilter.searchList.push_back({Item::Observatory, SearchableType::Voucher, 1, 2, 1});
+  //globalFilter.instanceModList.push_back({Item::Observatory, 2, 2});
 }
 
 int main() {
   setup_custom_filter();
   benchmark_blank();
-  benchmark_single();
+  //benchmark_single();
   benchmark_quick();
   benchmark_custom();
-  benchmark_quick_lucky();
-  benchmark();
+  //benchmark_quick_lucky();
+  //benchmark();
   return 1;
 }

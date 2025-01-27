@@ -1,5 +1,4 @@
 #include "filters.hpp"
-#include "functions.hpp"
 #include <vector>
 #include <numeric>
 
@@ -11,10 +10,15 @@ void Filter::parseJSON(std::string input) {
 
 long searchWithFilter(Instance inst, Filter &filter) {
     int searchSize = filter.searchList.size();
-    std::vector<int> amountFoundList(searchSize, 0);
+    int modSize = filter.instanceModList.size();
+    int amountFoundList[MAX_SEARCH_LIST_SIZE] = {0};
 
     for (int ante = 1; ante <= filter.maxAnte; ante++) {
-        //TODO: Check instance modifiers here, maybe?
+        for(int m = 1; m <= modSize; m++) {
+            if(m >= filter.instanceModList[m-1].startAnte && m <= filter.instanceModList[m-1].endAnte) {
+                inst.unlock(filter.instanceModList[m].modifier);
+            }
+        }
         for (int i = 0; i < searchSize; i++) {
             if (ante > filter.searchList[i].maxAnte) { continue; }
             amountFoundList[i] += searchWithObject(inst, filter.searchList[i], ante);
@@ -62,21 +66,17 @@ long searchForJoker(Instance inst, SearchObject &searchObject, int ante) {
     int max_packs = 4;
         if (ante > 1) max_packs = 6;
 
-    //Checking the next X jokers that appear in shop and then
-    //counting shop items which are jokers might be faster than
-    //calling next shop item X times
-    //nextShopItem instantiates a new shop object every call, allocating wasteful mem.
-    //for now we'll just approximate it at ~25% of the store depth given
+    //I created nextJokerOnly to save on mem
+    //for now we'll just use storedepth given
 
-    int max_store_items = (searchObject.storeDepth >> 2) + 1;
-    for(int s = 1; s <= max_store_items; s++) {
-        if (inst.nextJoker(ItemSource::Shop, ante, false).joker == searchObject.item) {
+    for(int s = 1; s <= searchObject.storeDepth; s++) {
+        if (inst.nextJokerOnly(ItemSource::Shop, ante) == searchObject.item) {
             amount_found++;
         }
     }
 
     for (int p = 1; p <= max_packs; p++) {
-        if (inst.nextJoker(ItemSource::Buffoon_Pack, ante, false).joker == searchObject.item) {
+        if (inst.nextJokerOnly(ItemSource::Buffoon_Pack, ante) == searchObject.item) {
             amount_found++;
         }
     }
@@ -156,8 +156,8 @@ long searchForSpectral(Instance inst, SearchObject &searchObject, int ante) {
     int amount_found = 0;
     int max_packs = 4;
         if (ante > 1) max_packs = 6;
-    int max_store_items = 10;
-        if (ante > 1) max_store_items = 50;
+    // int max_store_items = 10;
+    //     if (ante > 1) max_store_items = 50;
 
     //Check packs
     for (int p = 1; p <= max_packs; p++) {
@@ -190,8 +190,8 @@ long searchForCard(Instance inst, SearchObject &searchObject, int ante) {
     int amount_found = 0;
     int max_packs = 4;
         if (ante > 1) max_packs = 6;
-    int max_store_items = 10;
-        if (ante > 1) max_store_items = 50;
+    // int max_store_items = 10;
+    //     if (ante > 1) max_store_items = 50;
 
     //Check packs
     for (int p = 1; p <= max_packs; p++) {

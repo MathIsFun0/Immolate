@@ -6,6 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(FetchContent)
+option(TRACY_ENABLE "" ON)
+include_directories(
+    ${PROJECT_SOURCE_DIR}/tracy
+)
+
 # Define sources for the library
 set(LIB_SOURCES
     src/functions.hpp
@@ -17,18 +23,29 @@ set(LIB_SOURCES
     src/seed.cpp
     src/util.cpp
     src/functions.cpp
+    tracy/tracy/Tracy.hpp
 )
+
+FetchContent_Declare (
+    tracy
+    GIT_REPOSITORY https://github.com/wolfpld/tracy.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(tracy)
 
 # Define sources for the executable
 set(EXECUTABLE_SOURCES
     src/main.cpp
+    tracy/TracyClient.cpp
 )
 
 # Set optimization flags based on the compiler
 if(MSVC)
     set(OPTIMIZATION_FLAGS "/Ox")  # Full optimization for MSVC
 else()
-    set(OPTIMIZATION_FLAGS "-O3 -g -std=c++20 -Wall -Wextra -Wpedantic -Wno-c++17-extensions -gdwarf-3 -ldl")  # Full optimization for GCC/Clang, plus debugging info
+    set(OPTIMIZATION_FLAGS "-O3 -g -std=c++20 -Wall -Wextra -Wpedantic -Wno-c++17-extensions -gdwarf-3 -march=native -lpthread -ldl")  # Full optimization for GCC/Clang, plus debugging info
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPTIMIZATION_FLAGS}")
@@ -62,4 +79,4 @@ generate_export_header(${PROJECT_NAME}
 )
 
 add_executable(immol ${EXECUTABLE_SOURCES})
-target_link_libraries(immol ${PROJECT_NAME})
+target_link_libraries(immol ${PROJECT_NAME} TracyClient)

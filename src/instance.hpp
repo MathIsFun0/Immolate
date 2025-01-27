@@ -116,6 +116,7 @@ struct Instance {
   Item nextPlanet(std::string source, int ante, bool soulable);
   Item nextSpectral(std::string source, int ante, bool soulable);
   JokerData nextJoker(std::string source, int ante, bool hasStickers);
+  Item nextJokerOnly(std::string source, int ante);
   ShopInstance getShopInstance();
   ShopItem nextShopItem(int ante);
   Item nextPack(int ante);

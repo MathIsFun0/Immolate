@@ -231,6 +231,42 @@ inline Item Instance::nextSpectral(std::string source, int ante,
   return randchoice(RandomType::Spectral + source + anteStr, SPECTRALS);
 }
 
+inline Item Instance::nextJokerOnly(std::string source, int ante) {
+  std::string anteStr = anteToString(ante);
+
+  // Get rarity
+  Item rarity;
+  double rarityPoll = random(RandomType::Joker_Rarity + anteStr + source);
+  if (rarityPoll > 0.95)
+    rarity = Item::Rare;
+  else if (rarityPoll > 0.7)
+    rarity = Item::Uncommon;
+  else
+    rarity = Item::Common;
+
+  // Get next joker
+  Item joker;
+  if (rarity == Item::Legendary) {
+    if (params.version > 10099) {
+      joker = randchoice(RandomType::Joker_Legendary, LEGENDARY_JOKERS);
+    } else {
+      joker = randchoice(RandomType::Joker_Legendary + source + anteStr,
+                         LEGENDARY_JOKERS);
+    }
+  } else if (rarity == Item::Rare) {
+      joker = randchoice(RandomType::Joker_Rare + source + anteStr,
+                RARE_JOKERS);
+  } else if (rarity == Item::Uncommon) {
+      joker = randchoice(RandomType::Joker_Uncommon + source + anteStr,
+                UNCOMMON_JOKERS);
+  } else if (rarity == Item::Common) {
+      joker = randchoice(RandomType::Joker_Common + source + anteStr,
+                COMMON_JOKERS);
+  }
+
+  return joker;
+}
+
 inline JokerData Instance::nextJoker(std::string source, int ante,
                                      bool hasStickers) {
   std::string anteStr = anteToString(ante);
