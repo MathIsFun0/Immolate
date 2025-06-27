@@ -1,6 +1,6 @@
 #ifndef SEARCH_HPP
 #define SEARCH_HPP
-
+#include <fstream>
 #include "instance.hpp"
 #include <atomic>
 #include <functional>
@@ -26,29 +26,24 @@ public:
     std::atomic<bool> found{false}; // Atomic flag to signal when a solution is found
     Seed foundSeed; // Store the found seed
     bool exitOnFind = false;
-    long long startSeed;
-    int numThreads;
-    long long numSeeds;
+    bool saveToFile = true;
+    long long startSeed = 0;
+    int numThreads = 8;
+    long long numSeeds = 2318107019761;
     std::mutex mtx;
     std::atomic<long long> nextBlock{0}; // Shared index for the next block to be processed
 
     Search(std::function<int(Instance)> f) {
         filter = f;
-        startSeed = 0;
-        numThreads = 1;
-        numSeeds = 2318107019761;
     }
 
     Search(std::function<int(Instance)> f, int t) {
         filter = f;
-        startSeed = 0;
         numThreads = t;
-        numSeeds = 2318107019761;
     }
     
     Search(std::function<int(Instance)> f, int t, long long n) {
       filter = f;
-      startSeed = 0;
       numThreads = t;
       numSeeds = n;
     };
@@ -70,6 +65,12 @@ public:
                 std::lock_guard<std::mutex> lock(mtx);
                 highScore = result;
                 foundSeed = s;
+                if (saveToFile)
+                {
+                    std::ofstream seeds("seeds.txt", std::ios_base::app);
+                    seeds << s.tostring() + "\n";
+                    seeds.close();
+                }
                 std::cout << "Found seed: " << s.tostring() << " (" << result << ")"
                   << std::endl;
                 if (exitOnFind) {
@@ -86,6 +87,11 @@ public:
     }
 
     std::string search() {
+        if (saveToFile)
+        {
+            std::ofstream output("seeds.txt", std::ofstream::out | std::ofstream::trunc);
+            output.close();
+        }
         std::vector<std::thread> threads;
         long long totalBlocks = (numSeeds + BLOCK_SIZE - 1) / BLOCK_SIZE;
         for (int t = 0; t < numThreads; t++) {

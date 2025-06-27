@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-long filter(Instance inst) {
+long filter_double_legendary(Instance inst) {
   long legendaries = 0;
   inst.nextPack(1);
   for (int p = 1; p <= 3; p++) {
@@ -135,6 +135,38 @@ long filter_cavendish(Instance inst) {
   return 5;
 }
 
+long filter_stencil(Instance inst)
+{
+  inst.initLocks(1, false, false);
+  // Check for a Charm Tag (Arcana Pack)
+  if (inst.nextTag(1) != Item::Charm_Tag)
+  {
+    std::cout << "0\n";
+    return 0;
+  }
+  // Check for a Judgement within that pack
+  std::vector<Item> packContents = inst.nextArcanaPack(5, 1);
+  bool hasJudgement = false;
+  for (int i = 0; i < 5; i++)
+  {
+    if (packContents[i] == Item::Judgement)
+    {
+      hasJudgement = true;
+    }
+  }
+  if (!hasJudgement)
+  {
+    std::cout << "1\n";
+    return 1;
+  }
+  if (inst.nextJoker(ItemSource::Judgement, 1, false).joker != Item::Joker_Stencil)
+  {
+    std::cout << "2\n";
+    return 2;
+  }
+  std::cout << "FOUND SEED AT " << inst.hashedSeed;
+  return 3;
+}
 long filter_blank(Instance inst) { return 0; }
 
 // These won't be permanent filters, just ones I sub in and out while JSON
@@ -179,7 +211,7 @@ long filter_test(Instance inst) {
 // Benchmark function
 // Runs 1 billion seeds of perkeo observatory
 // And prints total time and seeds per second
-void benchmark() {
+void benchmark_perkeo_observatory() {
   long total = 0;
   long start = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
@@ -268,15 +300,124 @@ void benchmark_blank() {
             << 100000000 / ((end - start) / 1000.0) << "\n";
 }
 
-int main() {
-  /*benchmark_single();
-  benchmark_quick();
-  benchmark_quick_lucky();
-  benchmark_blank();
-  benchmark();*/
-  Search search(filter_cavendish, "11111J31", 8, 2318107019761);
-  search.highScore = 5;
-  search.printDelay = 2318107019761;
-  search.search();
-  return 1;
+int main(int argc, char *argv[]) {
+  std::map<std::string,std::function<int(Instance)>> filters{
+    {"cavendish", filter_cavendish},
+    {"stencil", filter_stencil},
+    {"test", filter_test},
+    {"suas_speedrun", filter_suas_speedrun},
+    {"perkeo_observatory", filter_perkeo_observatory},
+    {"lucky", filter_lucky},
+    {"double_legendary", filter_double_legendary},
+    {"negative_tag", filter_negative_tag}
+  };
+  std::map<std::string,std::function<void()>> benchmarks{
+    {"perkeo_observatory", benchmark_perkeo_observatory},
+    {"quick", benchmark_quick},
+    {"quick_lucky", benchmark_quick_lucky},
+    {"single", benchmark_single}
+  };
+
+  std::string filterKey = "null";
+  std::string startSeed = "0";
+  long long numSeeds = 2318107019761;
+  long long highScore = 1;
+  int threads = 8;
+  long long printDelay = 10000000;
+  bool saveToFile = false;
+  bool stopOnFind = false;
+
+  auto printHelp = []() {
+    std::cout << "usage: immol [option] arg_name \noptions: \n"
+              << "-f: Sets the filter used by the search.\n"
+              << "-b: Sets the benchmark to be ran by the searcher. Incompatible with all other options.\n"
+              << "-s: Sets the starting seed of the search.\n"
+              << "-n: Sets the number of seeds to search.\n"
+              << "-g: Sets the score the filter needs to return for a seed to be printed.\n"
+              << "-p: Sets how often the seed searcher should report progress.\n"
+              << "-t: Sets the number of CPU threads created by the searcher.\n"
+              << "-v: Saves found seeds to ./Immolate/seeds.txt.\n"
+              << "-x: Stops the program when seed is found.\n"
+              << "-fl: Lists available filters.\n"
+              << "-bl: Lists available benchmarks\n"
+              << "-h: Shows this help text." << std::endl;
+  };
+
+  try {
+    for (int i = 0; i < argc; i++) {
+      if (argv[i] == std::string("-h")) {
+        printHelp();
+        return 0;
+      }
+      if (argv[i] == std::string("-bl")) {
+        std::cout << "Benchmarks:\n";
+        for (const auto& [key, _] : benchmarks)
+          std::cout << key << " ";
+        std::cout << std::endl;
+        return 0;
+      }
+      if (argv[i] == std::string("-fl")) {
+        std::cout << "Filters:\n";
+        for (const auto& [key, _] : filters)
+          std::cout << key << " ";
+        std::cout << std::endl;
+        return 0;
+      }
+      if (argv[i] == std::string("-f")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -f");
+        filterKey = argv[i + 1];
+      }
+      if (argv[i] == std::string("-b")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -b");
+        if (benchmarks.count(argv[i + 1]) == 0)
+          throw std::invalid_argument("Unknown benchmark: " + std::string(argv[i + 1]));
+        benchmarks[argv[i + 1]]();
+        return 0;
+      }
+      if (argv[i] == std::string("-s")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -s");
+        startSeed = argv[i + 1];
+      }
+      if (argv[i] == std::string("-n")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -n");
+        numSeeds = std::stoll(argv[i + 1]);
+      }
+      if (argv[i] == std::string("-g")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -g");
+        highScore = std::stoll(argv[i + 1]);
+      }
+      if (argv[i] == std::string("-p")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -p");
+        printDelay = std::stoll(argv[i + 1]);
+      }
+      if (argv[i] == std::string("-t")) {
+        if (i + 1 >= argc) throw std::invalid_argument("Missing or invalid value for -t");
+        threads = std::stoi(argv[i + 1]);
+      }
+      if (argv[i] == std::string("-v")) {
+        saveToFile = true;
+      }
+      if (argv[i] == std::string("-x")) {
+        stopOnFind = true;
+      }
+    }
+
+    if (filters.count(filterKey) == 0 || filterKey == "null") {
+      throw std::invalid_argument("Missing or invalid value for -f (null or nonexistent filter: " + filterKey + ")");
+      printHelp();
+    }
+
+    Search search(filters[filterKey], startSeed, threads, numSeeds);
+    search.highScore = highScore;
+    search.printDelay = printDelay;
+    search.saveToFile = saveToFile;
+    search.exitOnFind = stopOnFind;
+    search.search();
+    return 1;
+
+  } catch (const std::exception& e) {
+    std::cerr << "ERROR: " << e.what() << "\n\n";
+    printHelp();
+    return 1;
+  }
 }
