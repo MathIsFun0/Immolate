@@ -135,6 +135,7 @@ long filter_cavendish(Instance inst) {
   return 5;
 }
 
+//super simple and fast testing filter I was using
 long filter_stencil(Instance inst)
 {
   inst.initLocks(1, false, false);
