@@ -19,7 +19,11 @@ long filter(instance* inst) {
         } else continue;
         for (int c = 0; c < _pack.size; c++) {
             if (cards[c] == The_Soul) {
-                if (next_joker(inst, S_Soul, antes[i]) == Perkeo) return 1;
+                // Fix: Properly manage lock state for The_Soul and generated legendary
+                inst->locked[The_Soul] = false;
+                item legendary = next_joker(inst, S_Soul, antes[i]);
+                inst->locked[legendary] = true;
+                if (legendary == Perkeo) return 1;
             }
         }
     }
