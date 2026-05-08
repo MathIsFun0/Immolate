@@ -8,7 +8,11 @@ long filter(instance* inst) {
         return 0;
     }
 
-    if (next_shop_item(inst, ante).value != Showman && next_shop_item(inst, ante).value != Showman) {
+    // Fix: Store shop items to avoid calling next_shop_item() twice
+    // Each call advances RNG state, so we need to capture both items
+    shopitem item1 = next_shop_item(inst, ante);
+    shopitem item2 = next_shop_item(inst, ante);
+    if (item1.value != Showman && item2.value != Showman) {
         return 0;
     }
 
